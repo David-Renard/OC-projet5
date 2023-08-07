@@ -3,9 +3,45 @@
 {% block title %}{{ post.title }}{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h3 class="text-center">Mes posts :</h3>
-        {%  for post in posts %}
+    <div class="container my-4">
+        <div class="row gy-4">
+            <div class="col-12 col-sm-9 text-center text-sm-start ps-sm-4 fw-bold fs-2 border">
+                {{ post.title }}
+            </div>
+            <div class="col-12 col-sm-2 offset-sm-1 border">
+                {{ post.last_update_date }}
+            </div>
+        </div>
+
+        <div class="py-4 row">
+            <div class="col">
+                {{ post.lede }}
+            </div>
+        </div>
+
+        <div class="py-4 row">
+            <div class="col">
+                {{ post.content }}
+            </div>
+        </div>
+
+        <h4 class="">Commentaires :</h4>
+        {%  for comment in comments %}
+            <div class="container shadow my-2">
+                <div class="row p-3">
+                    <div class="col-4">
+                        Par {{ comment.id_auhtor }}
+                    </div>
+                    <div class="col-4">
+                        le {{ comment.creation_date }}
+                    </div>
+                </div>
+                <div class="row p-3 bg-dark-subtle">
+                    <div class="col">
+                        {{ comment.content }}
+                    </div>
+                </div>
+            </div>
         {% endfor %}
     </div>
 {% endblock %}

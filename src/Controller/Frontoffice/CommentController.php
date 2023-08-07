@@ -9,7 +9,6 @@ use App\Service\Http\Request;
 use App\Service\Http\Response;
 use App\Service\Http\Session\Session;
 use App\Model\Repository\CommentRepository;
-use App\Model\Repository\PostRepository;
 
 class CommentController
 {

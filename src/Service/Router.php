@@ -8,6 +8,7 @@ use App\Controller\Frontoffice\UserController;
 use App\Controller\Frontoffice\PostController;
 use App\Controller\Frontoffice\HomeController;
 use App\Controller\Frontoffice\CommentController;
+use App\Model\Repository\CommentRepository;
 use App\Model\Repository\UserRepository;
 use App\Model\Repository\PostRepository;
 use App\Service\Http\Request;
@@ -60,13 +61,13 @@ class Router
             $controller = new PostController($postRepository, $this->view);
             return $controller->displayPostsAction();
         }
-//        if ($action === 'post' && $this->request->query()->has('id'))
-//        {
-//            $postRepository = new PostRepository($this->database);
-//            $controller = new PostController($postRepository, $this->view);
-//
-//            return $controller->displayPostAction($controller, (int) $this->request->query()->get('id'));
-//        }
+        if ($action === 'post' && $this->request->query()->has('id'))
+        {
+            $postRepository = new PostRepository($this->database);
+            $controller = new PostController($postRepository, $this->view);
+            $commentRepository = new CommentRepository($this->database);
+            return $controller->displayPostAction((int) $this->request->query()->get('id'),$commentRepository);
+        }
         return new Response("Error 404 - cette page n'existe pas<br><a href='index.php'>Aller Ici</a>", 404);
     }
 }

@@ -33,7 +33,29 @@ class CommentRepository implements EntityRepositoryInterface
     }
     public function findBy(array $criteria, array $orderBy = null, int $limit = null, int $offset = null): ?array
     {
-        return null;
+        $commentsPostQuery=$this->databaseConnection->getConnection()->prepare("SELECT * FROM comment WHERE id_post=:id_post");
+        $commentsPostQuery->execute($criteria);
+        $data=$commentsPostQuery->fetchAll(\PDO::FETCH_ASSOC);
+
+        if ($data === null)
+        {
+            return null;
+        }
+
+        $comments=[];
+        foreach ($data as $comment)
+        {
+            $comments[]= new Comment(
+                (int)$comment['ID'],
+                $comment['content'],
+                $comment['id_author'],
+                $comment['creation_date'],
+                $comment['id_post'],
+                $comment['status'],
+                $comment['id_evaluator']
+            );
+        }
+        return $comments;
     }
     public function findAll(): ?array
     {
