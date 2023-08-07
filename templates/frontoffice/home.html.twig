@@ -1,0 +1,171 @@
+{% extends "/frontoffice/base.html.twig" %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+    <section class="my-5">
+        <div class="container">
+            <div class="row gy-2 gy-sm-5 text-center align-items-center">
+                <div class="col-12 col-md-6">
+                    <h1 class="fw-bold text-primary text-center text-sm-start">Je suis David Renard, développeur web !</h1>
+                </div>
+                <div class="col-12 col-md-6">
+                    <img src="img/photo-david-renard.jpg" alt="photo David Renard" width="50%" class="rounded-2 shadow">
+                </div>
+            </div>
+            <div class="row text-center align-items-center">
+                <div class="col-10 offset-1 col-sm-12 offset-sm-0">
+                    <h2 class="fw-light mt-4 text-primary">Vous voulez développer votre site vitrine? Je suis la personne qu'il vous faut !</h2>
+                    <a class="btn btn-primary mt-4" href="" role="button">Consulter les posts</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <hr>
+    <section class="py-5">
+        <div class="container">
+            <h2 class="mb-0">Mon expertise</h2>
+            <h3 class="fw-light fs-5">Développement web et design</h3>
+            <!-- Developpement -->
+            <div class="row align-items-center gy-4 mt-4">
+                <div class="col-12 col-md-7">
+
+                    <!-- Progress bar -->
+                    <div class="mb-3 p-3 bg-light rounded-3 shadow-sm">
+                        <div class="row align-items-center">
+                            <div class="col-5 col-sm-4 col-lg-3 col-xl-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="fab fa-html5 fa-2x me-3 text-info"></i>
+                                    <p class="fw-bold m-0">HTML5</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="progress" data-bs-toggle="tooltip" title="75%">
+                                    <div class="progress-bar w-75 bg-info" role="progressbar" aria-valuenow="75" aria-valuemin="0"
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 p-3 bg-light rounded-3 shadow-sm">
+                        <div class="row align-items-center">
+                            <div class="col-5 col-sm-4 col-lg-3 col-xl-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="fab fa-css3-alt fa-2x me-3 text-info"></i>
+                                    <p class="fw-bold m-0">CSS3</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="progress" data-bs-toggle="tooltip" title="75%">
+                                    <div class="progress-bar w-75 bg-info" role="progressbar" aria-valuenow="75" aria-valuemin="0"
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 p-3 bg-light rounded-3 shadow-sm">
+                        <div class="row align-items-center">
+                            <div class="col-5 col-sm-4 col-lg-3 col-xl-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="fab fa-js fa-2x me-3 text-info"></i>
+                                    <p class="fw-bold m-0">JS</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="progress" data-bs-toggle="tooltip" title="25%">
+                                    <div class="progress-bar w-25 bg-info" role="progressbar" aria-valuenow="25" aria-valuemin="0"
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 p-3 bg-light rounded-3 shadow-sm">
+                        <div class="row align-items-center">
+                            <div class="col-5 col-sm-4 col-lg-3 col-xl-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="fab fa-php fa-2x me-3 text-info"></i>
+                                    <p class="fw-bold m-0">PHP</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="progress" data-bs-toggle="tooltip" title="75%">
+                                    <div class="progress-bar w-75 bg-info" role="progressbar" aria-valuenow="75" aria-valuemin="0"
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 p-3 bg-light rounded-3 shadow-sm">
+                        <div class="row align-items-center">
+                            <div class="col-5 col-sm-4 col-lg-3 col-xl-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="fab fa-sass fa-2x me-3 text-info"></i>
+                                    <p class="fw-bold m-0">SASS</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="progress" data-bs-toggle="tooltip" title="50%">
+                                    <div class="progress-bar w-50 bg-info" role="progressbar" aria-valuenow="50" aria-valuemin="0"
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-12 offset-md-1 col-md-4">
+                    <img src="img/code.jpg" alt="écran code" width="100%" class="rounded-3 shadow">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="mb-5 bg-light">
+        <hr>
+        <div class="container text-center">
+            <h2>Une question? Un besoin?</h2>
+            <h3 class="fs-5">Discutons-en !</h3>
+            <div class="row gy-4 my-4">
+                <div class="col-12 col-md-5 py-4">
+                    <img src="img/contact.jpg" alt="image de contact" width="100%" class="rounded-2 shadow">
+                </div>
+                <div class="col-12 col-md-6 offset-md-1 align-items-center">
+                    <form action="" method="POST" class="row text-start">
+                        <div class="col-6 my-2">
+                            <label for="firstname" class="form-label">Prénom</label>
+                            <input type="text" id="firstname" pattern="[A-Za-z]+" title="Ce champ est un prénom, il ne doit pas y figurer de chiffre!" name="firstname" class="form-control" required>
+                        </div>
+                        <div class="col-6 my-2">
+                            <label for="name" class="form-label">Nom</label>
+                            <input type="text" id="name" pattern="[A-Za-z]+" title="Ce champ est un nom, il ne doit pas y figurer de chiffre!"  name="name" class="form-control" required>
+                        </div>
+                        <div class="col-12 my-2">
+                            <label for="email" class="form-label">Adresse mail</label>
+                            <input type="email" id="email" pattern="[A-Za-z0-9](([_\.\-]?[a-zA-Z0-9]+)*)@([A-Za-z0-9]+)(([_\.\-]?[a-zA-Z0-9]+)*)\.([A-Za-z]{2,})" name="email" class="form-control" required>
+                        </div>
+                        <div class="col-12 my-2">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea id="message" name="message" class="form-control" required></textarea>
+                        </div>
+                        <div class="col-10 offset-1 my-2 d-flex justify-content-center text-start">
+                            <input type="checkbox" name="rgpd" id="rgpd" required>
+                            <label for="rgpd" class="p-4">J'autorise ce site à conserver mes données personnelles transmises via ce formulaire. Aucune exploitation commerciale ne sera faite des données conservées.</label>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <button type="submit" class="btn btn-primary w-100" required>Envoyer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

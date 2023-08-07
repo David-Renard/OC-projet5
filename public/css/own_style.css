@@ -1,0 +1,20 @@
+.social-bloc
+{
+    width:250px;
+}
+.social-brand
+{
+    width:50px;
+}
+.footer-link
+{
+    text-decoration: none;
+}
+
+@media screen and (max-width: 575px)
+{
+    .spaced
+    {
+        margin-left: 0.3rem;
+    }
+}

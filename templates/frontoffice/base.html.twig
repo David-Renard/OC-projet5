@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <script src="https://kit.fontawesome.com/d1a8bf2bb5.js" crossorigin="anonymous"></script>
+
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/own_style.css" rel="stylesheet">
+
+    <title>{% block title %}{% endblock %}</title>
+</head>
+
+<body>
+<header class="py-4">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-md fixed-top navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand d-flex flex-row align-items-center align-items-sm-end" href="index.php">
+                <img src="img/logo.svg" alt="logo" width="50" height="50">
+                <span class="text-primary fw-bold spaced">David </span>
+                <span class="text-secondary fw-bold"> Renard</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?action=posts">Posts</a>
+                    </li>
+                    <li class="nav-item">
+                        {%  if session.user %}
+                            <a class="nav-link" href="index.php?action=logout">Déconnexion</a>
+                        {% else %}
+                            <a class="nav-link" href="index.php?action=login">Connexion</a>
+                        {% endif %}
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php#contact">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+{#<main>#}
+{#    <section class="mt-5">#}
+{#        <div class="container">#}
+{#            <a href="">Liste des blogs posts</a><br>#}
+{#            <a href="">Un blog post qui n'existe pas</a><br>#}
+{#            <a href="">Une route qui n'existe pas</a><br>#}
+{#            <h2>Utilisateur</h2>#}
+{#            {%  if session.user %}#}
+{#                <strong>{{ session.user.email }}</strong>#}
+{#                <a href="index.php?action=logout">se déconnecter</a><br>#}
+{#            {% else %}#}
+{#                <a href="index.php?action=login">se connecter</a><br>#}
+{#            {% endif %}#}
+
+{#            {% for message in flashes %}#}
+{#                <h2 class="danger">{{ message }}</h2>#}
+{#            {% endfor %}#}
+{#            <h2>Contenu de ma page</h2>#}
+{#
+{#        </div>#}
+{#    </section>#}
+{#</main>#}
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="footer text-center">
+    <div class="container">
+        <div class="row gy-2">
+            <div class="col-12 col-sm-3 py-4 my-sm-4 d-flex justify-content-between flex-column">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?action=posts">Posts</a>
+                    </li>
+                    <li class="nav-item">
+                        {%  if session.user %}
+                            <a class="nav-link" href="index.php?action=logout">Déconnexion</a>
+                        {% else %}
+                            <a class="nav-link" href="index.php?action=login">Connexion</a>
+                        {% endif %}
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php#contact">Contact</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-12 col-sm-3 py-4 py-sm-0 my-sm-2 text-center m-auto">
+                <h3 class="fs-5">Me suivre...</h3>
+                <div class="d-flex justify-content-between flex-column flex-sm-row align-items-sm-center justify-content-sm-around social-bloc m-auto">
+                    <a href="https://www.twitter.com"><img src="img/twitter.png" alt="twitter"  class="social-brand"></a>
+                    <a href="https://www.facebook.com"><img src="img/facebook.png" alt="facebook" class="social-brand"></a>
+                    <a href="https://www.github.com"><img src="img/github.png" alt="github" class="social-brand"></a>
+                </div>
+            </div>
+            <div class="col-12 col-sm-3 py-4 py-sm-0 my-sm-2">
+                <h3 class="fs-5"><a href="img/david_renard_cv.pdf" class="footer-link text-dark">Consulter mon CV</a></h3>
+            </div>
+            <div class="col-12 col-sm-3 py-4 py-sm-0 my-sm-2 d-flex flex-column">
+                <h3 class="fs-5">Copyright David Renard</h3>
+                <a href="index.php?action=users" class="footer-link text-dark">Liste des utilisateurs enregistrés</a>
+                {%  if session.user %}
+                    {% if session.user.role == "super_admin" %}
+                        <a href="" class="footer-link text-dark">Administration du site</a>
+                    {%  elseif session.user.role == "user" %}
+                        <p>Vous ne disposez pas des droits pour accéder à cette partie du site.</p>
+                        <a href="" class="footer-link text-dark">Administration du site</a>
+                    {% endif %}
+                {% elseif session.user == false %}
+                    <a href="index.php?action=login" class="footer-link text-dark">Administration du site</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="node_modules\bootstrap\dist\js\bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
