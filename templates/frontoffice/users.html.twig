@@ -1,0 +1,15 @@
+{% extends "/frontoffice/base.html.twig" %}
+
+{% block title %}Liste des utilisateurs{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h3>Liste des utilisateurs enregistrés :</h3>
+        <ul>
+            {%  for user in users %}
+                <li>{{ user.email }}</li>
+            {% endfor %}
+        </ul>
+        <a href="index.php">Retour à la page d'accueil</a>
+    </div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "/frontoffice/base.html.twig" %}
+
+{% block title %}Posts{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h3 class="text-center my-4">Mes posts :</h3>
+        <p>Maecenas porta efficitur tempus. Maecenas facilisis quis ipsum in finibus. Phasellus auctor luctus aliquam. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras ac leo sed risus volutpat consectetur. Nullam mattis aliquet placerat. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam at mauris vel elit eleifend consectetur a sit amet nulla. Nunc eget tellus et mauris faucibus consequat. Curabitur volutpat erat id vestibulum vehicula. Nullam ultrices ornare turpis.</p>
+        {%  for post in posts %}
+        <div class="container bg-light text-primary rounded-4 p-4 border shadow">
+            <div class="row gy-4 border-danger">
+                <p>BLOG POST N° {{ post.id }}</p>
+            </div>
+
+            <div class="row gy-4">
+                <div class="col-12 col-sm-9 text-center text-sm-start ps-sm-4 fw-bold fs-2 border">
+                    {{ post.title }}
+                </div>
+                <div class="col-12 col-sm-2 offset-sm-1 border">
+                    {{ post.last_update_date }}
+                </div>
+            </div>
+
+            <div class="py-4 row">
+                <div class="col">
+                    {{ post.lede }}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="fs-6 col-12 col-sm-6 offset-sm-6 d-flex flex-row-reverse justify-content-around align-items-center text-center">
+                    <a href="index.php?action=post&id={{ post.id }}"  class="link-info link-underline-info link-offset-2 link-offset-1-hover">
+                        accéder au blog post
+                    </a>
+
+                    {% if session.user %}
+                        {% if session.user.role == "super_admin" %}
+                            <a href="" class="nav-link">modifier le post</a>
+                            <a href="" class="nav-link">supprimer le post</a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+            <br/>
+        {% endfor %}
+    </div>
+{% endblock %}
