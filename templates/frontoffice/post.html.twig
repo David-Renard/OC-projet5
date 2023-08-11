@@ -3,13 +3,14 @@
 {% block title %}{{ post.title }}{% endblock %}
 
 {% block content %}
-    <div class="container my-4">
+    <div class="container my-4 border rounded-2">
         <div class="row gy-4">
-            <div class="col-12 col-sm-9 text-center text-sm-start ps-sm-4 fw-bold fs-2 border">
+            <div class="col-12 col-sm-9 text-center text-sm-start ps-sm-4 fw-bold fs-2">
                 {{ post.title }}
             </div>
-            <div class="col-12 col-sm-2 offset-sm-1 border">
-                {{ post.last_update_date }}
+            <div class="col-12 col-sm-2 offset-sm-1 align-items-center text-center">
+                lastUpdateDate : {{ post.lastUpdateDate }}
+                creationDate : {{ post.creationDate }}
             </div>
         </div>
 
@@ -30,10 +31,10 @@
             <div class="container shadow my-2">
                 <div class="row p-3">
                     <div class="col-4">
-                        Par {{ comment.id_auhtor }}
+                        Par {{ comment.idAuthor }}
                     </div>
                     <div class="col-4">
-                        le {{ comment.creation_date }}
+                        le {{ comment.creationDate }}
                     </div>
                 </div>
                 <div class="row p-3 bg-dark-subtle">
@@ -43,5 +44,8 @@
                 </div>
             </div>
         {% endfor %}
+    </div>
+    <div class="container text-end">
+        <p><a href="index.php?action=posts" class="link-info link-underline-info link-offset-2 link-offset-1-hover">Revenir à l'ensemble des posts</a></p>
     </div>
 {% endblock %}

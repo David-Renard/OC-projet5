@@ -4,7 +4,7 @@ namespace App\Service\Http\Session;
 
 final class Session
 {
-    private readonly SessionParametersBag $sessionParametersBag;
+    private SessionParametersBag $sessionParametersBag;
     public function __construct()
     {
         session_start();

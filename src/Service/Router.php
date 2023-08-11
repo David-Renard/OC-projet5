@@ -50,16 +50,21 @@ class Router
             $controller = new UserController($userRepository, $this->view, $this->session);
             return $controller->logoutAction();
         }
+        if ($action === 'home' && $this->request->getMethod()!=='POST')
+        {
+            $controller = new HomeController($this->view, $this->session);
+            return $controller->displayHomeAction();
+        }
         if ($action === 'home')
         {
-            $controller = new HomeController($this->view);
+            $controller = new HomeController($this->view, $this->session);
             return $controller->displayHomeAction();
         }
         if ($action === 'posts')
         {
             $postRepository = new PostRepository($this->database);
             $controller = new PostController($postRepository, $this->view);
-            return $controller->displayPostsAction();
+            return $controller->displayPostsAction('published');
         }
         if ($action === 'post' && $this->request->query()->has('id'))
         {
