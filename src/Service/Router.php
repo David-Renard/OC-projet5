@@ -50,15 +50,10 @@ class Router
             $controller = new UserController($userRepository, $this->view, $this->session);
             return $controller->logoutAction();
         }
-        if ($action === 'home' && $this->request->getMethod()!=='POST')
-        {
-            $controller = new HomeController($this->view, $this->session);
-            return $controller->displayHomeAction();
-        }
         if ($action === 'home')
         {
             $controller = new HomeController($this->view, $this->session);
-            return $controller->displayHomeAction();
+            return $controller->displayHomeAction($this->request);
         }
         if ($action === 'posts')
         {

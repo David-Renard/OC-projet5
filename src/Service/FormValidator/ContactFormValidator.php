@@ -11,7 +11,7 @@ class ContactFormValidator
     {
         $this->contactArray = $this->request->request()->all();
     }
-    public function isInputValid(string $pattern, string $value):bool
+    public function isInputValid(string $pattern, string $value):mixed
     {
         if ($this->contactArray === null)
         {
@@ -36,6 +36,28 @@ class ContactFormValidator
         else
         {
             return true;
+        }
+    }
+    public function isTextareaValid(mixed $value):bool
+    {
+        if ($value !== NULL && $value!=="")
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    public function isRgpdChecked(mixed $value):bool
+    {
+        if ($value === 'on')
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 }
