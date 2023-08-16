@@ -18,22 +18,9 @@ class PostController
     public function __construct(private PostRepository $postRepository, private View $view)
     {
     }
-
-    public function loginAction(Request $request): Response
+    public function displayPostsAction(string $status): Response
     {
-//        if ($request->getMethod() === 'POST') {
-//            $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
-//            if ($loginFormValidator->isValid()) {
-//                return new Response("Utilisateur connecté : <a href='index.php'>Revenir à la page d'accueil</a>", 200);
-//            }
-//            $this->session->addFlashes('error', 'mauvais identifiants');
-//        }
-//        return new Response($this->view->render(['template' => 'login', 'data' => []]));
-    }
-
-    public function displayPostsAction(): Response
-    {
-        $posts = $this->postRepository->findAll();
+        $posts = $this->postRepository->findBy(['status'=>$status]);
         return new Response($this->view->render([
             'template' => 'posts',
             'data' => ['posts' => $posts],

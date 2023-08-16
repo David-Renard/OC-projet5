@@ -52,14 +52,14 @@ class Router
         }
         if ($action === 'home')
         {
-            $controller = new HomeController($this->view);
-            return $controller->displayHomeAction();
+            $controller = new HomeController($this->view, $this->session);
+            return $controller->displayHomeAction($this->request);
         }
         if ($action === 'posts')
         {
             $postRepository = new PostRepository($this->database);
             $controller = new PostController($postRepository, $this->view);
-            return $controller->displayPostsAction();
+            return $controller->displayPostsAction('published');
         }
         if ($action === 'post' && $this->request->query()->has('id'))
         {

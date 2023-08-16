@@ -7,11 +7,10 @@ class Comment
     public function __construct(
         private int $id,
         private string $content,
-        private int $id_author,
-        private string $creation_date,
-        private int $id_post,
+        private int $idAuthor,
+        private string $creationDate,
+        private int $idPost,
         private string $status,
-        private int $id_evaluator,
     )
     {
     }
@@ -30,25 +29,25 @@ class Comment
     }
     public function getIdAuthor(): int
     {
-        return $this->id_author;
+        return $this->idAuthor;
     }
-    public function setIdAuthor(int $id_author): self
+    public function setIdAuthor(int $idAuthor): self
     {
-        $this->id_author=$id_author;
+        $this->idAuthor=$idAuthor;
         return $this;
     }
     public function getCreationDate(): string
     {
-        return $this->creation_date;
+        return $this->creationDate;
     }
-    public function setCreationDate(string $creation_date): self
+    public function setCreationDate(string $creationDate): self
     {
-        $this->creation_date=$creation_date;
+        $this->creationDate=$creationDate;
         return $this;
     }
     public function getIDPost(): int
     {
-        return $this->id_post;
+        return $this->idPost;
     }
     public function getStatus(): string
     {
@@ -57,15 +56,6 @@ class Comment
     public function setStatus(string $status): self
     {
         $this->status=$status;
-        return $this;
-    }
-    public function getIDEvaluator(): int
-    {
-        return $this->id_evaluator;
-    }
-    public function setIDEvaluator(int $id_evaluator): self
-    {
-        $this->id_evaluator=$id_evaluator;
         return $this;
     }
 }

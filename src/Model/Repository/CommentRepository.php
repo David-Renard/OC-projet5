@@ -18,22 +18,22 @@ class CommentRepository implements EntityRepositoryInterface
     }
     public function findOneBy(array $criteria, array $orderBy = null): ?Comment
     {
-        $commentQuery=$this->databaseConnection->getConnection()->prepare("SELECT * FROM comment WHERE ID=:ID");
+        $commentQuery=$this->databaseConnection->getConnection()->prepare("SELECT * FROM comment WHERE ID=:ID AND status=:status");
         $commentQuery->execute($criteria);
         $data=$commentQuery->fetch(\PDO::FETCH_ASSOC);
 
         return ($data === null || $data === false) ? null : new Comment(
             (int)$data['ID'],
             $data['content'],
-            $data['id_author'],
-            $data['creation_date'],
-            $data['id_post'],
+            $data['idAuthor'],
+            $data['creationDate'],
+            $data['idPost'],
             $data['status'],
-            $data['id_evaluator']);
+        );
     }
     public function findBy(array $criteria, array $orderBy = null, int $limit = null, int $offset = null): ?array
     {
-        $commentsPostQuery=$this->databaseConnection->getConnection()->prepare("SELECT * FROM comment WHERE id_post=:id_post");
+        $commentsPostQuery=$this->databaseConnection->getConnection()->prepare("SELECT * FROM comment WHERE IDPost=:id_post");
         $commentsPostQuery->execute($criteria);
         $data=$commentsPostQuery->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -48,11 +48,10 @@ class CommentRepository implements EntityRepositoryInterface
             $comments[]= new Comment(
                 (int)$comment['ID'],
                 $comment['content'],
-                $comment['id_author'],
-                $comment['creation_date'],
-                $comment['id_post'],
+                $comment['idAuthor'],
+                $comment['creationDate'],
+                $comment['idPost'],
                 $comment['status'],
-                $comment['id_evaluator']
             );
         }
         return $comments;
@@ -74,11 +73,11 @@ class CommentRepository implements EntityRepositoryInterface
             $comments[]=new Comment(
                 (int)$comment['ID'],
                 $comment['content'],
-                $comment['id_author'],
-                $comment['creation_date'],
-                $comment['id_post'],
-                $comment['status'],
-                $comment['id_evaluator']);
+                $comment['idAuthor'],
+                $comment['creationDate'],
+                $comment['idPost'],
+                $comment['status']
+            );
         }
         return $comments;
 

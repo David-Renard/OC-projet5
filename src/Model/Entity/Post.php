@@ -7,11 +7,11 @@ class Post
     public function __construct(
         private int $id,
         private string $title,
-        private $creation_date,
+        private $creationDate,
         private string $lede,
         private string $content,
-        private $last_update_date,
-        private int $id_author,
+        private $lastUpdateDate,
+        private int $idAuthor,
         private string $status,
     )
     {
@@ -31,7 +31,7 @@ class Post
     }
     public function getCreationDate(): string
     {
-        return $this->creation_date;
+        return $this->creationDate;
     }
     public function setLede(string $lede): self
     {
@@ -51,23 +51,23 @@ class Post
     {
         return $this->content;
     }
-    public function setLastUpdateDate(string $last_update_date): self
+    public function setLastUpdateDate(string $lastUpdateDate): self
     {
-        $this->last_update_date=$last_update_date;
+        $this->lastUpdateDate=$lastUpdateDate;
         return $this;
     }
     public function getUpdateDate(): string
     {
-        return $this->last_update_date;
+        return $this->lastUpdateDate;
     }
-    public function setIdAuthor(int $id_author): self
+    public function setIdAuthor(int $idAuthor): self
     {
-        $this->id_author=$id_author;
+        $this->idAuthor=$idAuthor;
         return $this;
     }
     public function getIdAuthor(): int
     {
-        return $this->id_author;
+        return $this->idAuthor;
     }
     public function getStatus(): string
     {
