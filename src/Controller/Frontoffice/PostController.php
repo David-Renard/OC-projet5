@@ -21,6 +21,8 @@ class PostController
     public function displayPostsAction(string $status): Response
     {
         $posts = $this->postRepository->findBy(['status'=>$status]);
+//        var_dump($this->postRepository->findBy(['status'=>$status]));
+//        die;
         return new Response($this->view->render([
             'template' => 'posts',
             'data' => ['posts' => $posts],

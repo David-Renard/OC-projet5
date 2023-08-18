@@ -6,8 +6,6 @@ require_once  '../vendor/autoload.php';
 use App\Service\Http\Request;
 use App\Service\Router;
 
-use App\Service\ClassTest;
-
 $whoops = new \Whoops\Run();
 $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler());
 $whoops->register();
