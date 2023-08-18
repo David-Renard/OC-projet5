@@ -56,8 +56,6 @@ class PostRepository implements EntityRepositoryInterface
                 $post['lastUpdateDate'],
                 $post['idAuthor'],
                 $post['status']);
-            var_dump($posts['lastUpdateDate']);
-            die;
         }
         return $posts;
     }
