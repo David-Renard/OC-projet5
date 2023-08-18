@@ -20,12 +20,18 @@ class HomeController
         if ($request->getMethod()==='POST')
         {
             $contactFormValidator= new ContactFormValidator($request, $this->session);
-            $isFirstnameValid=$contactFormValidator->isInputValid("/^[A-Za-z- _]+$/",$request->request()->get('firstname');
+
+            $isFirstnameValid=$contactFormValidator->isInputValid("/^[A-Za-z- _]+$/",$request->request()->get('firstname'));
             $isNameValid=$contactFormValidator->isInputValid("/^[A-Za-z- _]+$/",$request->request()->get('name'));
             $isEmailValid=$contactFormValidator->isEmailValid($request->request()->get('email'));
             $isMessageValid=$contactFormValidator->isTextareaValid($request->request()->get('message'));
-            $isRgpdValid=$contactFormValidator->isRgpdChecked($request->request()->get('rgpd'));
-            if ($isFirstnameValid && $isNameValid && $isEmailValid && $isMessageValid && $isRgpdValid)
+            $isRgpdChecked=$contactFormValidator->isRgpdChecked($request->request()->get('rgpd'));
+
+            if ($isFirstnameValid
+                && $isNameValid
+                && $isEmailValid
+                && $isMessageValid
+                && $isRgpdChecked)
             {
                 $this->session->addFlashes('success','Formulaire valide, votre message : "'.$request->request()->get("message").'" est bien envoyé!');
             }
@@ -46,13 +52,13 @@ class HomeController
             {
                 $this->session->addFlashes('error',"Votre message ne peut pas être vide, écrivez-nous quelque chose!");
             }
-            if (!$isRgpdValid)
+            if (!$isRgpdChecked)
             {
                 $this->session->addFlashes('error',"Vous avez oublié la checkbox!");
             }
         }
         return new Response($this->view->render(
             ["template" => 'home',
-                ]));
+            ]));
     }
 }

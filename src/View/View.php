@@ -19,6 +19,6 @@ final class View
     {
         $data['data']['session'] = $this->session->toArray();
         $data['data']['flashes'] = $this->session->getFlashes();
-        return $this->twig->render("FrontOffice/${data['template']}.html.twig", $data['data']);
+        return $this->twig->render("FrontOffice/{$data['template']}.html.twig", $data['data']);
     }
 }

@@ -149,32 +149,32 @@
                     <form action="" method="POST" class="row text-start">
                         <div class="col-6 my-2">
                             <label for="firstname" class="form-label">Prénom</label>
-{#                            {% if flashes.errorFirstname %}#}
-{#                                <p class="text-danger">{{ flashes.errorFirstname }}</p>#}
+{#                            {% if flashes.error %}#}
+{#                                <p class="text-danger">{{ flashes.error }}</p>#}
 {#                            {% endif %}#}
 {#                            <input type="text" id="firstname" pattern="[A-Za-z_ -]+" title="Ce champ est un prénom, il ne doit pas y figurer de chiffre!" name="firstname" class="form-control" required>#}
                             <input type="text" id="firstname" title="Ce champ est un prénom, il ne doit pas y figurer de chiffre!" name="firstname" class="form-control">
                         </div>
                         <div class="col-6 my-2">
                             <label for="name" class="form-label">Nom</label>
-{#                            {% if flashes.errorName %}#}
-{#                                <p class="text-danger">{{ flashes.errorName }}</p>#}
+{#                            {% if flashes.error %}#}
+{#                                <p class="text-danger">{{ flashes.error }}</p>#}
 {#                            {% endif %}#}
 {#                            <input type="text" id="name" pattern="[A-Za-z_ -]+" title="Ce champ est un nom, il ne doit pas y figurer de chiffre!"  name="name" class="form-control" required>#}
                             <input type="text" id="name" title="Ce champ est un nom, il ne doit pas y figurer de chiffre!"  name="name" class="form-control">
                         </div>
                         <div class="col-12 my-2">
                             <label for="email" class="form-label">Adresse mail</label>
-{#                            {% if flashes.errorEmail %}#}
-{#                                <p class="text-danger">{{ flashes.errorEmail }}</p>#}
+{#                            {% if flashes.error %}#}
+{#                                <p class="text-danger">{{ flashes.error }}</p>#}
 {#                            {% endif %}#}
 {#                            <input type="email" id="email" pattern="[A-Za-z0-9](([_\.\-]?[a-zA-Z0-9]+)*)@([A-Za-z0-9]+)(([_\.\-]?[a-zA-Z0-9]+)*)\.([A-Za-z]{2,})" name="email" class="form-control" required>#}
                             <input type="email" id="email" name="email" class="form-control">
                         </div>
                         <div class="col-12 my-2">
                             <label for="message" class="form-label">Message</label>
-{#                            {% if flashes.errorMessage %}#}
-{#                                <p class="text-danger">{{ flashes.errorMessage }}</p>#}
+{#                            {% if flashes.error %}#}
+{#                                <p class="text-danger">{{ flashes.error }}</p>#}
 {#                            {% endif %}#}
 {#                            <textarea id="message" name="message" class="form-control" required></textarea>#}
                             <textarea id="message" name="message" class="form-control"></textarea>
@@ -182,8 +182,8 @@
                         <div class="col-10 offset-1 my-2 d-flex justify-content-center text-start">
                             <input type="checkbox" name="rgpd" id="rgpd">
 {#                            <input type="checkbox" name="rgpd" id="rgpd" required>#}
-{#                            {% if flashes.errorRgpd %}#}
-{#                                <p class="text-danger">{{ flashes.errorRgpd }}</p>#}
+{#                            {% if flashes.error %}#}
+{#                                <p class="text-danger">{{ flashes.error }}</p>#}
 {#                            {% endif %}#}
                             <label for="rgpd" class="p-4">J'autorise ce site à conserver mes données personnelles transmises via ce formulaire. Aucune exploitation commerciale ne sera faite des données conservées.</label>
                         </div>
