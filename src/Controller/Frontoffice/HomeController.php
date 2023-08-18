@@ -28,10 +28,10 @@ class HomeController
             $isRgpdChecked=$contactFormValidator->isRgpdChecked($request->request()->get('rgpd'));
 
             if ($isFirstnameValid
-            && $isNameValid
-            && $isEmailValid
-            && $isMessageValid
-            && $isRgpdChecked)
+                && $isNameValid
+                && $isEmailValid
+                && $isMessageValid
+                && $isRgpdChecked)
             {
                 $this->session->addFlashes('success','Formulaire valide, votre message : "'.$request->request()->get("message").'" est bien envoyé!');
             }
@@ -59,6 +59,6 @@ class HomeController
         }
         return new Response($this->view->render(
             ["template" => 'home',
-                ]));
+            ]));
     }
 }
