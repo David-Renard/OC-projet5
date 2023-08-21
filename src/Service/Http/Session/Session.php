@@ -28,7 +28,9 @@ final class Session
     }
     public function addFlashes(string $type, string $message): void
     {
-        $this->set('flashes',[$type=>$message]);
+        $flashes=$this->getFlashes();
+        $flashes[$type][]=$message;
+        $this->set('flashes',$flashes);
     }
     public function getFlashes(): ?array
     {

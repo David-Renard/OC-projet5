@@ -16,13 +16,13 @@
             <div class="row text-center align-items-center">
                 <div class="col-10 offset-1 col-sm-12 offset-sm-0">
                     <h2 class="fw-light mt-4 text-primary">Vous voulez développer votre site vitrine? Je suis la personne qu'il vous faut !</h2>
-                    <a class="btn btn-primary mt-4" href="" role="button">Consulter les posts</a>
+                    <a class="btn btn-primary mt-4" href="index.php?action=posts" role="button">Consulter les posts</a>
                 </div>
             </div>
         </div>
     </section>
-    <hr>
-    <section class="py-5">
+
+    <section class="py-5 bg-light">
         <div class="container">
             <h2 class="mb-0">Mon expertise</h2>
             <h3 class="fw-light fs-5">Développement web et design</h3>
@@ -129,70 +129,56 @@
         </div>
     </section>
 
-    <section id="contact" class="mb-5 bg-light">
-        <hr>
+    <section id="contact" class="my-5">
         <div class="container text-center">
             <h2>Une question? Un besoin?</h2>
             <h3 class="fs-5">Discutons-en !</h3>
-            {% if flashes.success %}
-                <p class="text-success">{{ flashes.success }}</p>
-            {% endif %}
-            {% if flashes.error %}
-                <p class="text-danger">{{ flashes.error }}</p>
-            {% endif %}
+            {% for flash in flashes.success %}
+                <p class="text-success">{{ flash }}</p>
+            {% endfor %}
+            {% if flashes.success == false %}
+                {% for flash in flashes.error %}
+                        <p class="text-danger">{{ flash }}</p>
+                {% endfor %}
 
-            <div class="row gy-4 my-4">
-                <div class="col-12 col-md-5 py-4">
-                    <img src="img/contact.jpg" alt="image de contact" width="100%" class="rounded-2 shadow">
+                <div class="row gy-4 my-4">
+                    <div class="col-12 col-md-5 py-4">
+                        <img src="img/contact.jpg" alt="image de contact" width="100%" class="rounded-2 shadow">
+                    </div>
+                    <div class="col-12 col-md-6 offset-md-1 align-items-center">
+                        <form action="" method="POST" class="row text-start">
+                            <div class="col-6 my-2">
+                                <label for="firstname" class="form-label">Prénom</label>
+    {#                            <input type="text" id="firstname" pattern="[A-Za-z_ -]+" title="Ce champ est un prénom, il ne doit pas y figurer de chiffre!" name="firstname" class="form-control" required>#}
+                                <input type="text" id="firstname" title="Ce champ est un prénom, il ne doit pas y figurer de chiffre!" name="firstname" class="form-control">
+                            </div>
+                            <div class="col-6 my-2">
+                                <label for="name" class="form-label">Nom</label>
+    {#                            <input type="text" id="name" pattern="[A-Za-z_ -]+" title="Ce champ est un nom, il ne doit pas y figurer de chiffre!"  name="name" class="form-control" required>#}
+                                <input type="text" id="name" title="Ce champ est un nom, il ne doit pas y figurer de chiffre!"  name="name" class="form-control">
+                            </div>
+                            <div class="col-12 my-2">
+                                <label for="email" class="form-label">Adresse mail</label>
+    {#                            <input type="email" id="email" pattern="[A-Za-z0-9](([_\.\-]?[a-zA-Z0-9]+)*)@([A-Za-z0-9]+)(([_\.\-]?[a-zA-Z0-9]+)*)\.([A-Za-z]{2,})" name="email" class="form-control" required>#}
+                                <input type="email" id="email" name="email" class="form-control">
+                            </div>
+                            <div class="col-12 my-2">
+                                <label for="message" class="form-label">Message</label>
+    {#                            <textarea id="message" name="message" class="form-control" required></textarea>#}
+                                <textarea id="message" name="message" class="form-control"></textarea>
+                            </div>
+                            <div class="col-10 offset-1 my-2 d-flex justify-content-center text-start">
+                                <input type="checkbox" name="rgpd" id="rgpd">
+    {#                            <input type="checkbox" name="rgpd" id="rgpd" required>#}
+                                <label for="rgpd" class="p-4">J'autorise ce site à conserver mes données personnelles transmises via ce formulaire. Aucune exploitation commerciale ne sera faite des données conservées.</label>
+                            </div>
+                            <div class="col-12 mt-2">
+                                <button type="submit" class="btn btn-primary w-100" required>Envoyer</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div class="col-12 col-md-6 offset-md-1 align-items-center">
-                    <form action="" method="POST" class="row text-start">
-                        <div class="col-6 my-2">
-                            <label for="firstname" class="form-label">Prénom</label>
-{#                            {% if flashes.error %}#}
-{#                                <p class="text-danger">{{ flashes.error }}</p>#}
-{#                            {% endif %}#}
-{#                            <input type="text" id="firstname" pattern="[A-Za-z_ -]+" title="Ce champ est un prénom, il ne doit pas y figurer de chiffre!" name="firstname" class="form-control" required>#}
-                            <input type="text" id="firstname" title="Ce champ est un prénom, il ne doit pas y figurer de chiffre!" name="firstname" class="form-control">
-                        </div>
-                        <div class="col-6 my-2">
-                            <label for="name" class="form-label">Nom</label>
-{#                            {% if flashes.error %}#}
-{#                                <p class="text-danger">{{ flashes.error }}</p>#}
-{#                            {% endif %}#}
-{#                            <input type="text" id="name" pattern="[A-Za-z_ -]+" title="Ce champ est un nom, il ne doit pas y figurer de chiffre!"  name="name" class="form-control" required>#}
-                            <input type="text" id="name" title="Ce champ est un nom, il ne doit pas y figurer de chiffre!"  name="name" class="form-control">
-                        </div>
-                        <div class="col-12 my-2">
-                            <label for="email" class="form-label">Adresse mail</label>
-{#                            {% if flashes.error %}#}
-{#                                <p class="text-danger">{{ flashes.error }}</p>#}
-{#                            {% endif %}#}
-{#                            <input type="email" id="email" pattern="[A-Za-z0-9](([_\.\-]?[a-zA-Z0-9]+)*)@([A-Za-z0-9]+)(([_\.\-]?[a-zA-Z0-9]+)*)\.([A-Za-z]{2,})" name="email" class="form-control" required>#}
-                            <input type="email" id="email" name="email" class="form-control">
-                        </div>
-                        <div class="col-12 my-2">
-                            <label for="message" class="form-label">Message</label>
-{#                            {% if flashes.error %}#}
-{#                                <p class="text-danger">{{ flashes.error }}</p>#}
-{#                            {% endif %}#}
-{#                            <textarea id="message" name="message" class="form-control" required></textarea>#}
-                            <textarea id="message" name="message" class="form-control"></textarea>
-                        </div>
-                        <div class="col-10 offset-1 my-2 d-flex justify-content-center text-start">
-                            <input type="checkbox" name="rgpd" id="rgpd">
-{#                            <input type="checkbox" name="rgpd" id="rgpd" required>#}
-{#                            {% if flashes.error %}#}
-{#                                <p class="text-danger">{{ flashes.error }}</p>#}
-{#                            {% endif %}#}
-                            <label for="rgpd" class="p-4">J'autorise ce site à conserver mes données personnelles transmises via ce formulaire. Aucune exploitation commerciale ne sera faite des données conservées.</label>
-                        </div>
-                        <div class="col-12 mt-2">
-                            <button type="submit" class="btn btn-primary w-100" required>Envoyer</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+            {% endif %}
         </div>
     </section>
 {% endblock %}

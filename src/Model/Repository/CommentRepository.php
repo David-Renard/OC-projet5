@@ -23,7 +23,7 @@ class CommentRepository implements EntityRepositoryInterface
         $data=$commentQuery->fetch(\PDO::FETCH_ASSOC);
 
         return ($data === null || $data === false) ? null : new Comment(
-            (int)$data['ID'],
+            (int) $data['ID'],
             $data['content'],
             $data['idAuthor'],
             $data['creationDate'],
@@ -33,7 +33,7 @@ class CommentRepository implements EntityRepositoryInterface
     }
     public function findBy(array $criteria, array $orderBy = null, int $limit = null, int $offset = null): ?array
     {
-        $commentsPostQuery=$this->databaseConnection->getConnection()->prepare("SELECT * FROM comment WHERE IDPost=:id_post");
+        $commentsPostQuery=$this->databaseConnection->getConnection()->prepare("SELECT * FROM comment WHERE IDPost = :id_post AND status = :status");
         $commentsPostQuery->execute($criteria);
         $data=$commentsPostQuery->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -46,7 +46,7 @@ class CommentRepository implements EntityRepositoryInterface
         foreach ($data as $comment)
         {
             $comments[]= new Comment(
-                (int)$comment['ID'],
+                (int) $comment['ID'],
                 $comment['content'],
                 $comment['idAuthor'],
                 $comment['creationDate'],
@@ -71,7 +71,7 @@ class CommentRepository implements EntityRepositoryInterface
         foreach ($data as $comment)
         {
             $comments[]=new Comment(
-                (int)$comment['ID'],
+                (int) $comment['ID'],
                 $comment['content'],
                 $comment['idAuthor'],
                 $comment['creationDate'],
