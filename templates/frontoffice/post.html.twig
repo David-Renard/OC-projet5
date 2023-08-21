@@ -3,7 +3,7 @@
 {% block title %}{{ post.title }}{% endblock %}
 
 {% block content %}
-    <div class="container my-4 border rounded-2">
+    <div class="container my-4 border-0 rounded-2">
         <div class="row gy-4">
             <div class="col-12 col-sm-9 text-center text-sm-start ps-sm-4 fw-bold fs-2">
                 {{ post.title }}
@@ -29,11 +29,11 @@
         <h4 class="">Commentaires :</h4>
         {%  for comment in comments %}
             <div class="container shadow my-2">
-                <div class="row p-3">
-                    <div class="col-4">
-                        Par {{ comment.idAuthor }}
+                <div class="row p-1 fst-italic fs-6">
+                    <div class="col-6">
+                        <p>Par <span class="fw-bold">{{ user.firstName ~ ' ' ~ user.name }}</span></p>
                     </div>
-                    <div class="col-4">
+                    <div class="col-sm-4">
                         le {{ comment.creationDate }}
                     </div>
                 </div>

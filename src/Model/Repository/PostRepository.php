@@ -18,12 +18,12 @@ class PostRepository implements EntityRepositoryInterface
     }
     public function findOneBy(array $criteria, array $orderBy = null): ?Post
     {
-        $postQuery=$this->databaseConnection->getConnection()->prepare("SELECT * FROM post WHERE ID=:ID");
+        $postQuery=$this->databaseConnection->getConnection()->prepare("SELECT * FROM post WHERE ID = :ID");
         $postQuery->execute($criteria);
         $data=$postQuery->fetch(\PDO::FETCH_ASSOC);
 
         return ($data === null || $data === false) ? null : new Post(
-            (int)$data['ID'],
+            (int) $data['ID'],
             $data['title'],
             $data['creationDate'],
             $data['lede'],
@@ -34,9 +34,9 @@ class PostRepository implements EntityRepositoryInterface
     }
     public function findBy(array $criteria, array $orderBy = null, int $limit = null, int $offset = null): ?array
     {
-        //$publishedPostsQuery=$this->databaseConnection->getConnection()->prepare('SELECT * FROM post WHERE status = :status');
-        $publishedPostsQuery=$this->databaseConnection->getConnection()->prepare('SELECT * FROM post ORDER BY lastUpdateDate DESC');
-        $publishedPostsQuery->execute();
+//        $publishedPostsQuery=$this->databaseConnection->getConnection()->prepare('SELECT * FROM post WHERE $criteria ORDER BY $orderBy');
+        $publishedPostsQuery=$this->databaseConnection->getConnection()->prepare('SELECT * FROM post WHERE status = :status');
+        $publishedPostsQuery->execute($criteria);
         $data=$publishedPostsQuery->fetchAll(\PDO::FETCH_ASSOC);
 
         if ($data === null)
@@ -48,7 +48,7 @@ class PostRepository implements EntityRepositoryInterface
         foreach ($data as $post)
         {
             $posts[]=new Post(
-                (int)$post['ID'],
+                (int) $post['ID'],
                 $post['title'],
                 $post['creationDate'],
                 $post['lede'],
@@ -56,14 +56,12 @@ class PostRepository implements EntityRepositoryInterface
                 $post['lastUpdateDate'],
                 $post['idAuthor'],
                 $post['status']);
-            var_dump($posts['lastUpdateDate']);
-            die;
         }
         return $posts;
     }
     public function findAll(): ?array
     {
-        $postsQuery=$this->databaseConnection->getConnection()->prepare("SELECT * FROM post ORDER BY creation_date DESC");
+        $postsQuery=$this->databaseConnection->getConnection()->prepare("SELECT * FROM post ORDER BY creationDate DESC");
         $postsQuery->execute();
         $data=$postsQuery->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -76,7 +74,7 @@ class PostRepository implements EntityRepositoryInterface
         foreach ($data as $post)
         {
             $posts[]=new Post(
-                (int)$post['ID'],
+                (int) $post['ID'],
                 $post['title'],
                 $post['creationDate'],
                 $post['lede'],

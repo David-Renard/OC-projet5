@@ -14,7 +14,18 @@ class UserRepository implements EntityRepositoryInterface
     }
     public function find(int $id): ?User
     {
-        return null;
+        $userQuery=$this->databaseConnection->getConnection()->prepare("SELECT * FROM user WHERE ID = $id");
+        $userQuery->execute();
+        $data=$userQuery->fetch(\PDO::FETCH_ASSOC);
+
+        return ($data === null) ? null : new User(
+            (int)$data['ID'],
+            $data['name'],
+            $data['firstName'],
+            $data['email'],
+            $data['password'],
+            $data['role'],
+            $data['status']);
     }
     public function findOneBy(array $criteria, array $orderBy = null): ?User
     {

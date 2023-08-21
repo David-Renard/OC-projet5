@@ -38,11 +38,11 @@ class HomeController
 
             if (!$isFirstnameValid)
             {
-                $this->session->addFlashes('error',"Votre prénom ne peut pas contenir de caractères numériques ou autres caractères spéciaux (exceptés ' ','-' et '_')");
+                $this->session->addFlashes('error',"Votre prénom ne peut pas contenir de caractères numériques ou autres caractères spéciaux (exceptés ' ', '-' et '_')");
             }
             if (!$isNameValid)
             {
-                $this->session->addFlashes('error',"Votre nom ne peut pas contenir de caractères numériques ou autres caractères spéciaux (exceptés ' ','-' et '_')");
+                $this->session->addFlashes('error',"Votre nom ne peut pas contenir de caractères numériques ou autres caractères spéciaux (exceptés ' ', '-' et '_')");
             }
             if (!$isEmailValid)
             {

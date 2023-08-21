@@ -66,7 +66,8 @@ class Router
             $postRepository = new PostRepository($this->database);
             $controller = new PostController($postRepository, $this->view);
             $commentRepository = new CommentRepository($this->database);
-            return $controller->displayPostAction((int) $this->request->query()->get('id'),$commentRepository);
+            $userRepository = new UserRepository($this->database);
+            return $controller->displayPostAction((int) $this->request->query()->get('id'),$commentRepository,$userRepository);
         }
         return new Response("Error 404 - cette page n'existe pas<br><a href='index.php'>Aller Ici</a>", 404);
     }
