@@ -3,19 +3,19 @@
 {% block title %}{{ post.title }}{% endblock %}
 
 {% block content %}
-    <div class="container my-4 border-0 rounded-2">
+    <div class="container my-5">
+
         <div class="row gy-4">
-            <div class="col-12 col-sm-9 text-center text-sm-start ps-sm-4 fw-bold fs-2">
+            <div class="col-12 col-sm-9 text-center text-sm-start pb-sm-4 fw-bold fs-2">
                 {{ post.title }}
             </div>
             <div class="col-12 col-sm-2 offset-sm-1 align-items-center text-center">
-                lastUpdateDate : {{ post.lastUpdateDate }}
-                creationDate : {{ post.creationDate }}
+                <p class="fst-italic">Créé le {{ post.creationDate|date("d/m/Y \\à H\\hi") }}</p>
             </div>
         </div>
 
         <div class="py-4 row">
-            <div class="col">
+            <div class="col text-center text-sm-start fs-5 fw-bold">
                 {{ post.lede }}
             </div>
         </div>
@@ -26,26 +26,62 @@
             </div>
         </div>
 
-        <h4 class="">Commentaires :</h4>
-        {%  for comment in comments %}
-            <div class="container shadow my-2">
-                <div class="row p-1 fst-italic fs-6">
-                    <div class="col-6">
-                        <p>Par <span class="fw-bold">{{ user.firstName ~ ' ' ~ user.name }}</span></p>
-                    </div>
-                    <div class="col-sm-4">
-                        le {{ comment.creationDate }}
-                    </div>
-                </div>
-                <div class="row p-3 bg-dark-subtle">
-                    <div class="col">
-                        {{ comment.content }}
+
+        <div class="row">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 fw-lighter fw-bold text-center text-success">
+                        {% for flash in flashes.success %}
+                            <p>{{ flash }}</p>
+                        {% endfor %}
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-10 offset-1 col-sm-8 offset-sm-2">
+                        <h4 class="fs-5">Ajouter un commentaire :</h4>
+                    </div>
+                </div>
+                <form action='index.php?action=post&id={{ post.id }}' method="POST" class="form-group">
+                    <div class="row">
+                        <div class="col-10 offset-1 col-sm-8 offset-sm-2">
+                            <label for="content" class="form-label"></label>
+                            <textarea id="content" name="content" class="form-control" placeholder="Votre commentaire" required></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-10 offset-1 col-sm-3 offset-sm-7 my-2">
+                            <input type="submit" value="Soumettre mon commentaire" class="btn btn-primary form-control">
+                        </div>
+                    </div>
+                </form>
             </div>
-        {% endfor %}
-    </div>
-    <div class="container text-end">
-        <p><a href="index.php?action=posts" class="link-info link-underline-info link-offset-2 link-offset-1-hover">Revenir à l'ensemble des posts</a></p>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <h4 class="fs-5">Commentaires :</h4>
+                {%  for comment in comments %}
+                    <div class="container border rounded-2 shadow my-3">
+                        <div class="row fst-italic fs-6">
+                            <div class="col-12 col-sm-6">
+                                Par <span class="fw-bold">{{ comment.firstnameAuthor ~ ' ' ~ comment.nameAuthor }}</span>
+                            </div>
+                            <div class="col-12 col-sm-3 offset-sm-3 text-sm-end">
+                                le {{ comment.creationDate|date("d/m/Y \\à H\\hi") }}
+                            </div>
+                        </div>
+                        <div class="row p-2 bg-dark-subtle">
+                            <div class="col-10">
+                                {{ comment.content }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="row text-end">
+            <div class="col"><a href="index.php?action=posts" class="link-info link-underline-info link-offset-2 link-offset-1-hover">Revenir à l'ensemble des posts</a></div>
+        </div>
     </div>
 {% endblock %}

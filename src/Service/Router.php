@@ -6,8 +6,9 @@ namespace App\Service;
 
 use App\Controller\Frontoffice\UserController;
 use App\Controller\Frontoffice\PostController;
+use App\Controller\Backoffice\PostController as AdminPostController;
 use App\Controller\Frontoffice\HomeController;
-use App\Controller\Frontoffice\CommentController;
+use App\Controller\Backoffice\UserController as AdminUserController;
 use App\Model\Repository\CommentRepository;
 use App\Model\Repository\UserRepository;
 use App\Model\Repository\PostRepository;
@@ -38,12 +39,6 @@ class Router
             $controller = new UserController($userRepository,$this->view, $this->session);
             return $controller->loginAction($this->request);
         }
-        if ($action === 'users')
-        {
-            $userRepository = new UserRepository($this->database);
-            $controller = new UserController($userRepository,$this->view, $this->session);
-            return $controller->displayAllAction();
-        }
         if ($action === 'logout')
         {
             $userRepository = new UserRepository($this->database);
@@ -55,19 +50,38 @@ class Router
             $controller = new HomeController($this->view, $this->session);
             return $controller->displayHomeAction($this->request);
         }
+        if ($action === 'admin')
+        {
+            $userRepository = new UserRepository($this->database);
+            $controller = new AdminUserController($userRepository, $this->view, $this->session);
+            return $controller->displayHomeAdmin($this->request);
+        }
+        if ($action === 'admincomments')
+        {
+            $commentRepository = new CommentRepository($this->database);
+            $postRepository = new PostRepository($this->database);
+            $controller = new AdminPostController($postRepository, $this->view, $this->session);
+            return $controller->getCommentsByState('awaiting',$commentRepository,$this->request);
+        }
         if ($action === 'posts')
         {
             $postRepository = new PostRepository($this->database);
-            $controller = new PostController($postRepository, $this->view);
+            $controller = new PostController($postRepository, $this->view, $this->session);
             return $controller->displayPostsAction('published');
         }
-        if ($action === 'post' && $this->request->query()->has('id'))
+        if ($action === 'post' && $this->request->query()->has('id') && !$this->request->request()->has('content'))
         {
             $postRepository = new PostRepository($this->database);
-            $controller = new PostController($postRepository, $this->view);
+            $controller = new PostController($postRepository, $this->view, $this->session);
             $commentRepository = new CommentRepository($this->database);
-            $userRepository = new UserRepository($this->database);
-            return $controller->displayPostAction((int) $this->request->query()->get('id'),$commentRepository,$userRepository);
+            return $controller->displayPostAction((int) $this->request->query()->get('id'),$commentRepository);
+        }
+        if ($action === 'post' && $this->request->query()->has('id') && $this->request->request()->has('content'))
+        {
+            $postRepository = new PostRepository($this->database);
+            $controller = new PostController($postRepository, $this->view, $this->session);
+            $commentRepository = new CommentRepository($this->database);
+            return $controller->addComment($this->request, $commentRepository);
         }
         return new Response("Error 404 - cette page n'existe pas<br><a href='index.php'>Aller Ici</a>", 404);
     }

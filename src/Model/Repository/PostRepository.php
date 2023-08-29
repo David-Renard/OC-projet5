@@ -22,20 +22,20 @@ class PostRepository implements EntityRepositoryInterface
         $postQuery->execute($criteria);
         $data=$postQuery->fetch(\PDO::FETCH_ASSOC);
 
-        return ($data === null || $data === false) ? null : new Post(
-            (int) $data['ID'],
-            $data['title'],
-            $data['creationDate'],
-            $data['lede'],
-            $data['content'],
-            $data['lastUpdateDate'],
-            $data['idAuthor'],
-            $data['status']);
+        $post = new Post();
+        if ($data === null || $data === false)
+        {
+            return null;
+        }
+        else
+        {
+            $post->fromArray($data);
+            return $post;
+        }
     }
     public function findBy(array $criteria, array $orderBy = null, int $limit = null, int $offset = null): ?array
     {
-//        $publishedPostsQuery=$this->databaseConnection->getConnection()->prepare('SELECT * FROM post WHERE $criteria ORDER BY $orderBy');
-        $publishedPostsQuery=$this->databaseConnection->getConnection()->prepare('SELECT * FROM post WHERE status = :status');
+        $publishedPostsQuery=$this->databaseConnection->getConnection()->prepare('SELECT * FROM post WHERE STATUS = :status ORDER BY creationDate DESC');
         $publishedPostsQuery->execute($criteria);
         $data=$publishedPostsQuery->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -45,17 +45,11 @@ class PostRepository implements EntityRepositoryInterface
         }
 
         $posts=[];
-        foreach ($data as $post)
+        foreach ($data as $arrayPost)
         {
-            $posts[]=new Post(
-                (int) $post['ID'],
-                $post['title'],
-                $post['creationDate'],
-                $post['lede'],
-                $post['content'],
-                $post['lastUpdateDate'],
-                $post['idAuthor'],
-                $post['status']);
+            $post = new Post();
+            $post->fromArray($arrayPost);
+            $posts[] = $post;
         }
         return $posts;
     }
@@ -71,17 +65,11 @@ class PostRepository implements EntityRepositoryInterface
         }
 
         $posts=[];
-        foreach ($data as $post)
+        foreach ($data as $arrayPost)
         {
-            $posts[]=new Post(
-                (int) $post['ID'],
-                $post['title'],
-                $post['creationDate'],
-                $post['lede'],
-                $post['content'],
-                $post['lastUpdateDate'],
-                $post['idAuthor'],
-                $post['status']);
+            $post = new Post();
+            $post->fromArray($arrayPost);
+            $posts[] = $post;
         }
         return $posts;
     }

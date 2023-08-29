@@ -1,0 +1,59 @@
+{% extends "/backoffice/base.html.twig" %}
+
+{% block title %}Administration des commentaires{% endblock %}
+
+{% block content %}
+    <div class="container p-4">
+        {% for flash in flashes.success %}
+            <p class="text-success fw-bold text-center">{{ flash }}</p>
+        {% endfor %}
+        <h1 class="fs-4 text-center my-5">Liste des commentaires en attente de validation :</h1>
+        <form action='index.php?action=admincomments' method="POST" class="form-group">
+            {% for post in posts %}
+                {% if post.comments != null %}
+                    <div class="row border rounded-3 shadow my-4">
+                        <div class="col text-center">
+                            <h2 class="fs-6 bg-dark-subtle py-3">{{ post.title }}</h2>
+                            {% for comment in post.comments %}
+                                {% if (loop.index % 2) == 0 %}
+                                    <div class="container bg-dark-subtle border shadow">
+                                {% else %}
+                                    <div class="container bg-light-subtle border shadow">
+                                {% endif %}
+                                    <div class="row py-2 gy-2 gy-sm-0">
+                                        <div class="col-12 col-sm-6 text-sm-start">
+                                            {{ comment.content }}
+                                        </div>
+                                        <div class="col-12 col-sm-2">
+                                            le {{ comment.creationDate|date("d/m/Y \\à H\\hi") }}
+                                        </div>
+                                        <div class="col-12 col-sm-2">
+                                            par {{ comment.firstnameAuthor ~ " " ~ comment.nameAuthor }}
+                                        </div>
+                                        <div class="col-12 col-sm-2 d-flex flex-sm-column justify-content-around">
+                                            <div>
+                                                <input type="radio" id="valided" name="states[{{ comment.id }}]" value="valided" />
+                                                <label for="valided">Valider</label>
+                                            </div>
+                                            <div>
+                                                <input type="radio" id="rejected" name="states[{{ comment.id }}]" value="rejected" />
+                                                <label for="rejected">Rejeter</label>
+                                            </div>
+                                            <div>
+                                                <input type="radio" id="awaiting" name="states[{{ comment.id }}]" value="awaiting" checked />
+                                                <label for="awaiting">En attente</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+            <div class="col-12 mt-2">
+                <button type="submit" class="btn btn-primary w-100" required>Soumettre la validation</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

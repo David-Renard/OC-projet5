@@ -4,18 +4,15 @@ namespace App\Model\Entity;
 
 class Post
 {
-    public function __construct(
-        private int $id,
-        private string $title,
-        private $creationDate,
-        private string $lede,
-        private string $content,
-        private $lastUpdateDate,
-        private int $idAuthor,
-        private string $status,
-    )
-    {
-    }
+        private ?int $id;
+        private string $title='';
+        private string $creationDate='';
+        private string $lede='';
+        private string $content='';
+        private string $lastUpdateDate='';
+        private ?int $idAuthor;
+        private string $status;
+        private array $comments=[];
     public function getId(): int
     {
         return $this->id;
@@ -69,6 +66,16 @@ class Post
     {
         return $this->idAuthor;
     }
+
+    private function setId(int $id): void
+    {
+        $this->id = $id;
+    }
+
+    private function setCreationDate($creationDate): void
+    {
+        $this->creationDate = $creationDate;
+    }
     public function getStatus(): string
     {
         return $this->status;
@@ -78,4 +85,30 @@ class Post
         $this->status=$status;
         return $this;
     }
+
+    public function setComments(array $comments):void
+    {
+        $this->comments=$comments;
+    }
+
+    /**
+     * @return Comment[]
+     */
+    public function getComments(): array
+    {
+        return $this->comments;
+    }
+
+    public function fromArray(array $data): void
+    {
+        $this->setId((int) $data['ID']);
+        $this->setTitle($data['title']);
+        $this->setCreationDate($data['creationDate']);
+        $this->setLede($data['lede']);
+        $this->setContent($data['content']);
+        $this->setLastUpdateDate($data['lastUpdateDate']);
+        $this->setIdAuthor($data['idAuthor']);
+        $this->setStatus($data['status']);
+    }
+
 }

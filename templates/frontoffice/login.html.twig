@@ -5,6 +5,9 @@
 {% block content %}
     {% if session.user == false %}
         <div class="container">
+            {% for flash in flashes.error %}
+                <h2 class="fs-5 text-danger text-center">{{ flash }}</h2>
+            {% endfor %}
             <h2>Connexion</h2>
             <p>Se connecter pour accéder à votre espace personnel.</p>
             <form action='' method="POST" class="form-group">
@@ -24,7 +27,6 @@
                     </div>
                 </div>
             </form>
-            <em>david.renard1@hotmail.fr pass</em>
         </div>
     {% endif %}
 {% endblock %}
