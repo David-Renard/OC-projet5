@@ -1,0 +1,18 @@
+{% extends "/backoffice/base.html.twig" %}
+
+{% block title %}Administration du site{% endblock %}
+
+{% block content %}
+    <div class="container my-5">
+        <div class="row">
+            <div class="col text-center">
+                {% for flash in flashes.error %}
+                    {{ flash }}
+                {% endfor %}
+                {% for flash in flashes.success %}
+                    {{ flash }}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

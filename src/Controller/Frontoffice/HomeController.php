@@ -17,6 +17,12 @@ class HomeController
     }
     public function displayHomeAction(Request $request): Response
     {
+        $response = new Response($this->view->render(
+            [
+                "template" => 'home',
+                "office" => 'frontoffice',
+            ]));
+
         if ($request->getMethod()==='POST')
         {
             $contactFormValidator= new ContactFormValidator($request, $this->session);
@@ -56,9 +62,8 @@ class HomeController
             {
                 $this->session->addFlashes('error',"Vous avez oublié la checkbox!");
             }
+            $response->redirect();
         }
-        return new Response($this->view->render(
-            ["template" => 'home',
-            ]));
+        return $response;
     }
 }

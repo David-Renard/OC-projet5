@@ -53,28 +53,6 @@
     </nav>
 </header>
 
-{#<main>#}
-{#    <section class="mt-5">#}
-{#        <div class="container">#}
-{#            <a href="">Liste des blogs posts</a><br>#}
-{#            <a href="">Un blog post qui n'existe pas</a><br>#}
-{#            <a href="">Une route qui n'existe pas</a><br>#}
-{#            <h2>Utilisateur</h2>#}
-{#            {%  if session.user %}#}
-{#                <strong>{{ session.user.email }}</strong>#}
-{#                <a href="index.php?action=logout">se déconnecter</a><br>#}
-{#            {% else %}#}
-{#                <a href="index.php?action=login">se connecter</a><br>#}
-{#            {% endif %}#}
-
-{#            {% for message in flashes %}#}
-{#                <h2 class="danger">{{ message }}</h2>#}
-{#            {% endfor %}#}
-{#            <h2>Contenu de ma page</h2>#}
-{#
-{#        </div>#}
-{#    </section>#}
-{#</main>#}
 <main>
     {% block content %}{% endblock %}
 </main>
@@ -115,16 +93,10 @@
             </div>
             <div class="col-12 col-sm-3 py-4 py-sm-0 my-sm-2 d-flex flex-column">
                 <h3 class="fs-5">Copyright David Renard</h3>
-                <a href="index.php?action=users" class="footer-link text-dark">Liste des utilisateurs enregistrés</a>
                 {%  if session.user %}
-                    {% if session.user.role == "super_admin" %}
-                        <a href="" class="footer-link text-dark">Administration du site</a>
-                    {%  elseif session.user.role == "user" %}
-                        <p>Vous ne disposez pas des droits pour accéder à cette partie du site.</p>
-                        <a href="" class="footer-link text-dark">Administration du site</a>
-                    {% endif %}
+                        <a href="index.php?action=admin" class="footer-link text-dark">Administration du site</a>
                 {% elseif session.user == false %}
-                    <a href="index.php?action=login" class="footer-link text-dark">Administration du site</a>
+                    <a href="index.php?action=admin" class="footer-link text-dark">Administration du site</a>
                 {% endif %}
             </div>
         </div>

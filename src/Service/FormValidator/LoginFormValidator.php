@@ -29,4 +29,23 @@ class LoginFormValidator
         $this->session->set('user',$user);
         return true;
     }
+
+    public function isAuthorized():string
+    {
+        if ($this->session->get('user')!=null)
+        {
+            if ($this->session->get('user')->getRole()!== 'user')
+            {
+                return 'authorized';
+            }
+            else
+            {
+                return 'unauthorized';
+            }
+        }
+        else
+        {
+            return 'notLoggedIn';
+        }
+    }
 }

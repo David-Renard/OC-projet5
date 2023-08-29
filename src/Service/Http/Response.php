@@ -16,4 +16,10 @@ final class Response
         echo $this->statusCode . ' ' . implode(',', $this->headers);
         echo $this->content;
     }
+
+    public function redirect(string $location = ''): string
+    {
+        header("Location: index.php" . $location);
+        exit();
+    }
 }

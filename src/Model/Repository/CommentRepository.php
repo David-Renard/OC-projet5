@@ -18,22 +18,24 @@ class CommentRepository implements EntityRepositoryInterface
     }
     public function findOneBy(array $criteria, array $orderBy = null): ?Comment
     {
-        $commentQuery=$this->databaseConnection->getConnection()->prepare("SELECT * FROM comment WHERE ID=:ID AND status=:status");
+        $commentQuery=$this->databaseConnection->getConnection()->prepare("SELECT c.ID,c.content,c.idAuthor,u.name,u.firstname,c.creationDate,c.idPost,c.status FROM comment c LEFT JOIN user u ON c.idAuthor=u.id WHERE c.ID=:ID AND c.status=:status");
         $commentQuery->execute($criteria);
         $data=$commentQuery->fetch(\PDO::FETCH_ASSOC);
 
-        return ($data === null || $data === false) ? null : new Comment(
-            (int) $data['ID'],
-            $data['content'],
-            $data['idAuthor'],
-            $data['creationDate'],
-            $data['idPost'],
-            $data['status'],
-        );
+        $comment = new Comment();
+        if ($data === null || $data === false)
+        {
+            return null;
+        }
+        else
+        {
+            $comment->fromArray($data);
+            return $comment;
+        }
     }
     public function findBy(array $criteria, array $orderBy = null, int $limit = null, int $offset = null): ?array
     {
-        $commentsPostQuery=$this->databaseConnection->getConnection()->prepare("SELECT * FROM comment WHERE IDPost = :id_post AND status = :status");
+        $commentsPostQuery=$this->databaseConnection->getConnection()->prepare("SELECT c.ID,c.content,c.idAuthor,u.name,u.firstname,c.creationDate,c.idPost,c.status FROM comment c LEFT JOIN user u ON c.idAuthor=u.id WHERE c.IDPost = :id_post AND c.status = :status ORDER BY creationDate DESC");
         $commentsPostQuery->execute($criteria);
         $data=$commentsPostQuery->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -43,16 +45,11 @@ class CommentRepository implements EntityRepositoryInterface
         }
 
         $comments=[];
-        foreach ($data as $comment)
+        foreach ($data as $arrayComment)
         {
-            $comments[]= new Comment(
-                (int) $comment['ID'],
-                $comment['content'],
-                $comment['idAuthor'],
-                $comment['creationDate'],
-                $comment['idPost'],
-                $comment['status'],
-            );
+            $comment = new Comment();
+            $comment->fromArray($arrayComment);
+            $comments[] = $comment;
         }
         return $comments;
     }
@@ -68,28 +65,53 @@ class CommentRepository implements EntityRepositoryInterface
         }
 
         $comments=[];
-        foreach ($data as $comment)
+        foreach ($data as $arrayComment)
         {
-            $comments[]=new Comment(
-                (int) $comment['ID'],
-                $comment['content'],
-                $comment['idAuthor'],
-                $comment['creationDate'],
-                $comment['idPost'],
-                $comment['status']
-            );
+            $comment = new Comment();
+            $comment->fromArray($arrayComment);
+            $comments[] = $comment;
         }
         return $comments;
 
     }
     public function create(object $entity): bool
     {
-        return false;
+        $addCommentQuery=$this->databaseConnection->getConnection()->prepare("INSERT INTO comment (content, idAuthor, creationDate, idPost)
+        VALUES (:content, :idAuthor, :creationDate, :idPost)");
+        $creationDate = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
+        $creationDate = $creationDate->format('Y-m-d H:i:s');
+
+        $addCommentQuery->bindValue(':content',htmlspecialchars($entity->getContent()));
+        $addCommentQuery->bindValue(':idAuthor',$entity->getIdAuthor());
+        $addCommentQuery->bindValue(':creationDate',$creationDate);
+        $addCommentQuery->bindValue(':idPost',$entity->getIdPost());
+//        $addCommentQuery->execute();
+
+        if ($addCommentQuery->execute())
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
+
     public function update(object $entity): bool
     {
-        return false;
+        $updateCommentQuery = $this->databaseConnection->getConnection()->prepare("UPDATE comment SET status = :commentStatus WHERE id = :id");
+        $updateCommentQuery -> bindValue(':commentStatus',$entity->getStatus());
+        $updateCommentQuery -> bindValue(':id',$entity->getId());
+        if ($updateCommentQuery->execute())
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
+
     public function delete(object $entity): bool
     {
         return false;
