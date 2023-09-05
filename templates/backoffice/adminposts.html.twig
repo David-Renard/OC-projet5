@@ -1,0 +1,44 @@
+{% extends "/backoffice/base.html.twig" %}
+
+{% block title %}Administration des posts{% endblock %}
+
+{% block content %}
+    <div class="container p-4">
+        {% for flash in flashes.success %}
+            <p class="text-success fw-bold text-center">{{ flash }}</p>
+        {% endfor %}
+        <div class="d-flex justify-content-center mt-4">
+            <button onclick="window.location.href = 'index.php?action=adminpostadd';" class="btn btn-primary">Ajouter un post</button>
+        </div>
+        <form action="index.php?action=adminposts" method="POST" class="form-group">
+            <table class="table table-sm table-striped table-primary table-hover table-bordered border-light text-center">
+                <caption class="fs-4 text-center my-5 caption-top text-dark">Liste des posts :</caption>
+                <thead>
+                <tr>
+                    <th>#ID</th>
+                    <th>Titre</th>
+                    <th>Date de création</th>
+                    <th>Auteur</th>
+                    <th>Statut</th>
+                    <th>Modifier</th>
+                </tr>
+                </thead>
+                <tbody class="fs-6 fst-normal">
+                    {% for post in posts %}
+                        <tr>
+                            <td>{{ post.id }}</td>
+                            <td>{{ post.title }}</td>
+                            <td>{{ post.creationDate|date("d/m/Y \\à H\\hi") }}</td>
+                            <td>{{ post.firstname ~ ' ' ~ post.name }}</td>
+                            <td>{{ post.status }}</td>
+                            <td><a href="index.php?action=updatepost&id={{ post.id }}">Modifier</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="col-12 mt-2">
+                <button type="submit" class="btn btn-primary w-100" required>Soumettre la validation</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

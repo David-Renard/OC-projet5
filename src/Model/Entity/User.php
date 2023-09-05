@@ -4,16 +4,16 @@ namespace App\Model\Entity;
 
 class User
 {
-    public function __construct(
-        private int $id,
-        private string $name,
-        private string $firstName,
-        private string $email,
-        private string $password,
-        private string $role,
-        private string $status,
-    )
+    private ?int $id;
+    private string $name='';
+    private string $firstname='';
+    private string $email='';
+    private string $password='';
+    private string $role='user';
+
+    public function setId(int $id): void
     {
+        $this->id=$id;
     }
     public function getId(): int
     {
@@ -28,13 +28,13 @@ class User
         $this->name=$name;
         return $this;
     }
-    public function getFirstName(): string
+    public function getFirstname(): string
     {
-        return $this->firstName;
+        return $this->firstname;
     }
-    public function setFirstName(string $firstName): self
+    public function setFirstname(string $firstname): self
     {
-        $this->firstName=$firstName;
+        $this->firstname=$firstname;
         return $this;
     }
     public function getEMail(): string
@@ -64,13 +64,14 @@ class User
         $this->role=$role;
         return $this;
     }
-    public function getStatus(): string
+
+    public function fromArray(array $data): void
     {
-        return $this->status;
-    }
-    public function setStatus(string $status): self
-    {
-        $this->status=$status;
-        return $this;
+        $this->setId((int) $data['id']);
+        $this->setName($data['name']);
+        $this->setFirstname($data['firstname']);
+        $this->setEMail($data['email']);
+        $this->setPassword($data['password']);
+        $this->setRole($data['role']);
     }
 }

@@ -23,7 +23,7 @@ class Comment
     }
     public function getContent(): string
     {
-        return $this->content;
+        return html_entity_decode($this->content);
     }
     public function setContent(string $content): self
     {
@@ -87,7 +87,7 @@ class Comment
 
     public function fromArray(array $data): void
     {
-        $this->setId((int) $data['ID']);
+        $this->setId((int) $data['id']);
         $this->setContent($data['content']);
         $this->setIdAuthor($data['idAuthor']);
         $this->setNameAuthor($data['name']);

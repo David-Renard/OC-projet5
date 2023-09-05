@@ -13,10 +13,31 @@
     text-decoration: none;
 }
 
+.rotated
+{
+    rotate: 45deg;
+}
+
+.rotatedinv
+{
+    rotate: -45deg;
+}
+
+.navbar-admin-brand
+{
+    width:53px;
+    height:53px;
+}
+
 @media screen and (max-width: 575px)
 {
     .spaced
     {
         margin-left: 0.3rem;
+    }
+
+    .hidden
+    {
+        display: none;
     }
 }

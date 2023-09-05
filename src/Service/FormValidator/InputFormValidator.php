@@ -4,7 +4,7 @@ namespace App\Service\FormValidator;
 
 use App\Service\Http\Request;
 use App\Service\Http\Session\Session;
-class ContactFormValidator
+class InputFormValidator
 {
     private ?array $contactArray=[];
     public function __construct(private Request $request, private Session $session)
@@ -52,6 +52,17 @@ class ContactFormValidator
     public function isRgpdChecked(mixed $value):bool
     {
         if ($value === 'on')
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    public function isEqualToConfirm(mixed $value1, mixed $value2):bool
+    {
+        if ($value1 === $value2)
         {
             return true;
         }

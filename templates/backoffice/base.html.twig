@@ -15,14 +15,16 @@
     <title>{% block title %}{% endblock %}</title>
 </head>
 
-<body>
+<body class="text-light bg-primary bg-opacity-50">
 <header class="py-4">
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-md fixed-top navbar-light bg-light">
+    <nav class="navbar navbar-expand-md fixed-top navbar-light bg-primary">
         <div class="container">
             <a class="navbar-brand d-flex flex-row align-items-center align-items-sm-end" href="index.php">
-                <img src="img/logo.svg" alt="logo" width="50" height="50">
-                <span class="text-primary fw-bold spaced">David </span>
+                <div class="rotated navbar-admin-brand bg-light bg-opacity-25 rounded-1">
+                    <img src="img/logo.svg" alt="logo" width="50" height="50" class="rotatedinv">
+                </div>
+                <span class="text-light fw-bold spaced">David </span>
                 <span class="text-secondary fw-bold"> Renard</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -31,19 +33,19 @@
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <ul class="navbar-nav">
-                    {% if session.user.role == 'super_admin' %}
+                    {% if session.user.role == 'super_admin' or session.user.role == 'admin' %}
                         <li class="nav-item">
-                            <a class="nav-link" href="index.php?action=admin">Gestion des utilisateurs</a>
+                            <a class="nav-link text-light" href="index.php?action=adminusers">Gestion des utilisateurs</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="index.php?action=admin">Gestion des posts</a>
+                            <a class="nav-link text-light" href="index.php?action=adminposts">Gestion des posts</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="index.php?action=admincomments">Gestion des commentaires</a>
+                            <a class="nav-link text-light" href="index.php?action=admincomments">Gestion des commentaires</a>
                         </li>
                     {% endif %}
                     <li class="nav-item">
-                        <a class="nav-link" href="index.php">Revenir à la vue publique</a>
+                        <a class="nav-link text-light" href="index.php">Revenir à la vue publique</a>
                     </li>
                 </ul>
             </div>
@@ -52,7 +54,11 @@
 </header>
 
 <main>
+    {% if session.user == false or session.user.role == 'user' %}
+    <h1 class="fs-4 text-center my-5">Vous ne disposez pas des droits d'accès à cette partie du site.</h1>
+    {% else %}
     {% block content %}{% endblock %}
+    {% endif %}
 </main>
 
 {#<footer class="footer text-center bg-light">#}

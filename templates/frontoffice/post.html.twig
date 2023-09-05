@@ -6,11 +6,14 @@
     <div class="container my-5">
 
         <div class="row gy-4">
-            <div class="col-12 col-sm-9 text-center text-sm-start pb-sm-4 fw-bold fs-2">
+            <div class="col-12 col-sm-8 text-center text-sm-start pb-sm-4 fw-bold fs-2">
                 {{ post.title }}
             </div>
-            <div class="col-12 col-sm-2 offset-sm-1 align-items-center text-center">
-                <p class="fst-italic">Créé le {{ post.creationDate|date("d/m/Y \\à H\\hi") }}</p>
+            <div class="col-12 col-sm-4 align-items-center text-center fst-italic">
+                <p>Créé le : {{ post.creationDate|date("d/m/Y \\à H\\hi") }} par {{ post.firstname ~ " " ~ post.name }}</p>
+                {% if post.creationDate != post.UpdateDate %}
+                    <p>Modifié le : {{ post.UpdateDate|date("d/m/Y \\à H\\hi") }}</p>
+                {% endif %}
             </div>
         </div>
 
@@ -26,34 +29,42 @@
             </div>
         </div>
 
+        <div class="row text-end">
+            <div class="col"><a href="index.php?action=posts" class="link-info link-underline-info link-offset-2 link-offset-1-hover">Revenir à l'ensemble des posts</a></div>
+        </div>
 
         <div class="row">
             <div class="container">
                 <div class="row">
-                    <div class="col-12 fw-lighter fw-bold text-center text-success">
+                    <div class="col-12 fw-lighter fw-bold text-center">
                         {% for flash in flashes.success %}
-                            <p>{{ flash }}</p>
+                            <p class="text-success">{{ flash }}</p>
+                        {% endfor %}
+                        {% for flash in flashes.error %}
+                            <p class="text-danger">{{ flash }}</p>
                         {% endfor %}
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-10 offset-1 col-sm-8 offset-sm-2">
-                        <h4 class="fs-5">Ajouter un commentaire :</h4>
-                    </div>
-                </div>
-                <form action='index.php?action=post&id={{ post.id }}' method="POST" class="form-group">
+                {% if session.user == true %}
                     <div class="row">
                         <div class="col-10 offset-1 col-sm-8 offset-sm-2">
-                            <label for="content" class="form-label"></label>
-                            <textarea id="content" name="content" class="form-control" placeholder="Votre commentaire" required></textarea>
+                            <h4 class="fs-5">Ajouter un commentaire :</h4>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-10 offset-1 col-sm-3 offset-sm-7 my-2">
-                            <input type="submit" value="Soumettre mon commentaire" class="btn btn-primary form-control">
+                    <form action='index.php?action=post&id={{ post.id }}' method="POST" class="form-group">
+                        <div class="row">
+                            <div class="col-10 offset-1 col-sm-8 offset-sm-2">
+                                <label for="content" class="form-label"></label>
+                                <textarea id="content" name="content" class="form-control" placeholder="Votre commentaire" required></textarea>
+                            </div>
                         </div>
-                    </div>
-                </form>
+                        <div class="row">
+                            <div class="col-10 offset-1 col-sm-3 offset-sm-7 my-2">
+                                <input type="submit" value="Soumettre mon commentaire" class="btn btn-primary form-control">
+                            </div>
+                        </div>
+                    </form>
+                {% endif %}
             </div>
         </div>
 
@@ -78,10 +89,6 @@
                     </div>
                 {% endfor %}
             </div>
-        </div>
-
-        <div class="row text-end">
-            <div class="col"><a href="index.php?action=posts" class="link-info link-underline-info link-offset-2 link-offset-1-hover">Revenir à l'ensemble des posts</a></div>
         </div>
     </div>
 {% endblock %}

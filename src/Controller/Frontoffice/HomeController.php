@@ -8,7 +8,7 @@ use App\View\View;
 use App\Service\Http\Request;
 use App\Service\Http\Response;
 use App\Service\Http\Session\Session;
-use App\Service\FormValidator\ContactFormValidator;
+use App\Service\FormValidator\InputFormValidator;
 
 class HomeController
 {
@@ -25,7 +25,7 @@ class HomeController
 
         if ($request->getMethod()==='POST')
         {
-            $contactFormValidator= new ContactFormValidator($request, $this->session);
+            $contactFormValidator= new InputFormValidator($request, $this->session);
 
             $isFirstnameValid=$contactFormValidator->isInputValid("/^[A-Za-z- _]+$/",$request->request()->get('firstname'));
             $isNameValid=$contactFormValidator->isInputValid("/^[A-Za-z- _]+$/",$request->request()->get('name'));
@@ -44,15 +44,15 @@ class HomeController
 
             if (!$isFirstnameValid)
             {
-                $this->session->addFlashes('error',"Votre prénom ne peut pas contenir de caractères numériques ou autres caractères spéciaux (exceptés ' ', '-' et '_')");
+                $this->session->addFlashes('error',"Votre prénom ne peut pas contenir de caractères numériques ou autres caractères spéciaux (exceptés ' ', '-' et '_').");
             }
             if (!$isNameValid)
             {
-                $this->session->addFlashes('error',"Votre nom ne peut pas contenir de caractères numériques ou autres caractères spéciaux (exceptés ' ', '-' et '_')");
+                $this->session->addFlashes('error',"Votre nom ne peut pas contenir de caractères numériques ou autres caractères spéciaux (exceptés ' ', '-' et '_').");
             }
             if (!$isEmailValid)
             {
-                $this->session->addFlashes('error',"Votre email ne correspond pas");
+                $this->session->addFlashes('error',"Votre email ne correspond pas.");
             }
             if (!$isMessageValid)
             {

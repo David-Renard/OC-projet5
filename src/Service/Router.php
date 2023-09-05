@@ -9,6 +9,7 @@ use App\Controller\Frontoffice\PostController;
 use App\Controller\Backoffice\PostController as AdminPostController;
 use App\Controller\Frontoffice\HomeController;
 use App\Controller\Backoffice\UserController as AdminUserController;
+use App\Model\Entity\User;
 use App\Model\Repository\CommentRepository;
 use App\Model\Repository\UserRepository;
 use App\Model\Repository\PostRepository;
@@ -45,6 +46,12 @@ class Router
             $controller = new UserController($userRepository, $this->view, $this->session);
             return $controller->logoutAction();
         }
+        if ($action === 'registration')
+        {
+            $userRepository = new UserRepository($this->database);
+            $controller = new UserController($userRepository, $this->view, $this->session);
+            return $controller->registration($this->request, $userRepository);
+        }
         if ($action === 'home')
         {
             $controller = new HomeController($this->view, $this->session);
@@ -56,6 +63,12 @@ class Router
             $controller = new AdminUserController($userRepository, $this->view, $this->session);
             return $controller->displayHomeAdmin($this->request);
         }
+        if ($action === 'adminusers')
+        {
+            $userRepository = new UserRepository($this->database);
+            $controller = new AdminUserController($userRepository, $this->view, $this->session);
+            return $controller->displayUsers($this->request,$userRepository);
+        }
         if ($action === 'admincomments')
         {
             $commentRepository = new CommentRepository($this->database);
@@ -63,11 +76,30 @@ class Router
             $controller = new AdminPostController($postRepository, $this->view, $this->session);
             return $controller->getCommentsByState('awaiting',$commentRepository,$this->request);
         }
+        if ($action === 'adminposts')
+        {
+            $postRepository = new PostRepository($this->database);
+            $controller = new AdminPostController($postRepository, $this->view, $this->session);
+            return $controller->displayPost($this->request);
+        }
+        if ($action === 'updatepost' && $this->request->query()->has('id'))
+        {
+            $postRepository = new PostRepository($this->database);
+            $controller = new AdminPostController($postRepository, $this->view, $this->session);
+            return $controller->updatePost($this->request, $postRepository);
+        }
+        if ($action === 'adminpostadd')
+        {
+            $userRepository = new UserRepository($this->database);
+            $postRepository = new PostRepository($this->database);
+            $controller = new AdminPostController($postRepository, $this->view, $this->session);
+            return $controller->addPost($this->request, $postRepository);
+        }
         if ($action === 'posts')
         {
             $postRepository = new PostRepository($this->database);
             $controller = new PostController($postRepository, $this->view, $this->session);
-            return $controller->displayPostsAction('published');
+            return $controller->displayPostsAction('published',$this->request);
         }
         if ($action === 'post' && $this->request->query()->has('id') && !$this->request->request()->has('content'))
         {
