@@ -12,9 +12,10 @@ class UserRepository implements EntityRepositoryInterface
     public function __construct(private DatabaseConnection $databaseConnection)
     {
     }
+
     public function find(int $id): ?User
     {
-        $userQuery=$this->databaseConnection->getConnection()->prepare("SELECT * FROM user WHERE id = $id");
+        $userQuery = $this->databaseConnection->getConnection()->prepare("SELECT * FROM user WHERE id = $id");
         $userQuery->execute();
         $data=$userQuery->fetch(\PDO::FETCH_ASSOC);
 
@@ -29,11 +30,12 @@ class UserRepository implements EntityRepositoryInterface
             return $user;
         }
     }
+
     public function findOneBy(array $criteria, array $orderBy = null): ?User
     {
-        $userQuery=$this->databaseConnection->getConnection()->prepare("SELECT * FROM user WHERE email=:email");
+        $userQuery = $this->databaseConnection->getConnection()->prepare("SELECT * FROM user WHERE email=:email");
         $userQuery->execute($criteria);
-        $data=$userQuery->fetch(\PDO::FETCH_ASSOC);
+        $data = $userQuery->fetch(\PDO::FETCH_ASSOC);
 
         $user = new User();
         if ($data === null || $data === false)
@@ -46,13 +48,33 @@ class UserRepository implements EntityRepositoryInterface
             return $user;
         }
     }
+
     public function findBy(array $criteria, array $orderBy = null, int $limit = null, int $offset = null): ?array
     {
-        return null;
+        $usersQuery = $this->databaseConnection->getConnection()->prepare("SELECT * 
+        FROM user
+        WHERE role = :role");
+        $usersQuery->execute($criteria);
+        $data = $usersQuery->fetchAll(\PDO::FETCH_ASSOC);
+
+        if ($data === null)
+        {
+            return null;
+        }
+
+        $users=[];
+        foreach ($data as $arrayUser)
+        {
+            $user = new User();
+            $user->fromArray($arrayUser);
+            $users[] = $user;
+        }
+        return $users;
     }
+
     public function findAll(): ?array
     {
-        $usersQuery=$this->databaseConnection->getConnection()->prepare("SELECT * FROM user");
+        $usersQuery = $this->databaseConnection->getConnection()->prepare("SELECT * FROM user");
         $usersQuery->execute();
         $data=$usersQuery->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -71,6 +93,7 @@ class UserRepository implements EntityRepositoryInterface
         return $users;
         
     }
+
     public function create(object $entity): bool
     {
         $registration=$this->databaseConnection->getConnection()->prepare("INSERT INTO user
@@ -83,40 +106,27 @@ class UserRepository implements EntityRepositoryInterface
         $registration->bindValue(':password',$entity->getPassword());
         $registration->bindValue(':role',$entity->getRole());
 
-        if ($registration->execute())
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return $registration->execute();
     }
+
     public function update(object $entity): bool
     {
-//        $updateUserQuery = $this->databaseConnection->getConnection()->prepare("UPDATE user
-//        SET role = :role, name = :name, firstname = :firstname, email = :email
-//        WHERE id = :id");
         $updateUserQuery = $this->databaseConnection->getConnection()->prepare("UPDATE user 
         SET role = :role
         WHERE id = :id");
         $updateUserQuery->bindValue(':role',$entity->getRole());
-//        $updateUserQuery->bindValue(':name',$entity->getName());
-//        $updateUserQuery->bindValue(':firstname',$entity->getFirstname());
-//        $updateUserQuery->bindValue(':email',$entity->getEMail());
         $updateUserQuery->bindValue(':id',$entity->getId());
-        if ($updateUserQuery->execute())
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+
+        return $updateUserQuery->execute();
     }
+
     public function delete(object $entity): bool
     {
-        return false;
+        $deleteUserQuery = $this->databaseConnection->getConnection()->prepare("DELETE FROM user
+        WHERE id = :id");
+        $deleteUserQuery->bindValue(':id',$entity->getId());
+
+        return $deleteUserQuery->execute();
     }
 
     public function count(): int
@@ -124,7 +134,7 @@ class UserRepository implements EntityRepositoryInterface
         $countQuery = $this->databaseConnection->getConnection()->prepare("SELECT COUNT(id) as Total 
         FROM user");
         $countQuery->execute();
-        $data=$countQuery->fetch(\PDO::FETCH_ASSOC);
+        $data = $countQuery->fetch(\PDO::FETCH_ASSOC);
 
         return $data;
     }

@@ -5,11 +5,11 @@ namespace App\Model\Entity;
 class Comment
 {
     private ?int $id;
-    private string $content='';
+    private string $content = '';
     private ?int $idAuthor;
-    private string $name='';
-    private string $firstname='';
-    private string $creationDate='';
+    private string $name = '';
+    private string $firstname = '';
+    private string $creationDate = '';
     private ?int $idPost;
     private string $status;
 

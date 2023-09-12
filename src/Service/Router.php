@@ -9,7 +9,6 @@ use App\Controller\Frontoffice\PostController;
 use App\Controller\Backoffice\PostController as AdminPostController;
 use App\Controller\Frontoffice\HomeController;
 use App\Controller\Backoffice\UserController as AdminUserController;
-use App\Model\Entity\User;
 use App\Model\Repository\CommentRepository;
 use App\Model\Repository\UserRepository;
 use App\Model\Repository\PostRepository;
@@ -50,7 +49,7 @@ class Router
         {
             $userRepository = new UserRepository($this->database);
             $controller = new UserController($userRepository, $this->view, $this->session);
-            return $controller->registration($this->request, $userRepository);
+            return $controller->registration($this->request);
         }
         if ($action === 'home')
         {
@@ -67,7 +66,20 @@ class Router
         {
             $userRepository = new UserRepository($this->database);
             $controller = new AdminUserController($userRepository, $this->view, $this->session);
-            return $controller->displayUsers($this->request,$userRepository);
+            return $controller->displayUsers();
+        }
+        if ($action === 'adminupdateuser' && $this->request->query()->has('id'))
+        {
+            $userRepository = new UserRepository($this->database);
+            $controller = new AdminUserController($userRepository, $this->view, $this->session);
+            return $controller->updateUser($this->request);
+        }
+        if ($action === 'admindeleteuser' && $this->request->query()->has('id'))
+        {
+            $userRepository = new UserRepository($this->database);
+            $postRepository = new PostRepository($this->database);
+            $controller = new AdminUserController($userRepository, $this->view, $this->session);
+            return $controller->deleteUser($this->request, $postRepository);
         }
         if ($action === 'admincomments')
         {
@@ -76,21 +88,33 @@ class Router
             $controller = new AdminPostController($postRepository, $this->view, $this->session);
             return $controller->getCommentsByState('awaiting',$commentRepository,$this->request);
         }
+        if ($action === 'admincomment' && $this->request->query()->has('id') && $this->request->query()->has('moderate'))
+        {
+            $commentRepository = new CommentRepository($this->database);
+            $postRepository = new PostRepository($this->database);
+            $controller = new AdminPostController($postRepository, $this->view, $this->session);
+            return $controller->moderateComment($commentRepository,$this->request);
+        }
         if ($action === 'adminposts')
         {
             $postRepository = new PostRepository($this->database);
             $controller = new AdminPostController($postRepository, $this->view, $this->session);
-            return $controller->displayPost($this->request);
+            return $controller->displayPost();
         }
-        if ($action === 'updatepost' && $this->request->query()->has('id'))
+        if ($action === 'adminupdatepost' && $this->request->query()->has('id'))
         {
             $postRepository = new PostRepository($this->database);
             $controller = new AdminPostController($postRepository, $this->view, $this->session);
             return $controller->updatePost($this->request, $postRepository);
         }
+        if ($action === 'admindeletepost' && $this->request->query()->has('id'))
+        {
+            $postRepository = new PostRepository($this->database);
+            $controller = new AdminPostController($postRepository, $this->view, $this->session);
+            return $controller->deletePost($this->request, $postRepository);
+        }
         if ($action === 'adminpostadd')
         {
-            $userRepository = new UserRepository($this->database);
             $postRepository = new PostRepository($this->database);
             $controller = new AdminPostController($postRepository, $this->view, $this->session);
             return $controller->addPost($this->request, $postRepository);

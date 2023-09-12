@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller\Backoffice;
 
+use App\Model\Repository\CommentRepository;
+use App\Model\Repository\PostRepository;
+use App\Model\Entity\Post;
 use App\Service\FormValidator\LoginFormValidator;
 use App\View\View;
 use App\Service\Http\Request;
@@ -20,92 +23,128 @@ class UserController
 
     public function displayHomeAdmin(Request $request): Response
     {
+        $response = new Response();
         $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
         $authorizationLevel = $loginFormValidator->isAuthorized();
         if ($authorizationLevel === 'unauthorized')
         {
-            $this->session->addFlashes("error","Vous ne disposez pas des droits d'accès à cette partie du site.");
+            $this->session->addFlashes("unauthorized","Vous ne disposez pas des droits d'accès à la partie administration du site.");
+            $response -> redirect();
         }
         elseif ($authorizationLevel === 'authorized')
         {
-            $this->session->addFlashes('success','Bienvenue sur la partie administration du site');
+            $this->session->addFlashes('info','Bienvenue sur la partie administration du site');
+            $response -> redirect('?action=adminposts');
         }
         else
         {
-            $this->session->addFlashes("error","Vous devez être connecté et disposer des droits d'accès pour accéder à cette partie du site.");
+            $this->session->addFlashes("unauthorized","Vous devez être connecté et disposer des droits d'accès pour accéder à la partie administration du site.");
+            $response -> redirect();
         }
-
-        return new Response($this->view->render(
+        $response = new Response($this->view->render(
             [
                 "template" => 'admin',
                 'office' => 'backoffice',
             ]));
+        return $response;
     }
 
-    public function displayUsers(Request $request, UserRepository $userRepository): Response
+    public function displayUsers(): Response
     {
-        $users=$this->userRepository->findAll();
-        $roleArray=['super_admin','admin','user'];
-        $response = new Response($this->view->render(
+        $adminsUsers = $this->userRepository->findBy(['role' => 'admin']);
+        $usersUsers = $this->userRepository->findBy(['role' => 'user']);
+        $users = array_merge($adminsUsers, $usersUsers);
+
+        return new Response($this->view->render(
             [
                 "template" => 'adminusers',
                 'data' => [
                     'users' => $users,
-                    'rolearray' => $roleArray,
                 ],
                 'office' => 'backoffice',
             ]));
+    }
 
-        if ($request->getMethod() === 'POST')
+    public function updateUser(Request $request): Response
+    {
+        $response = new Response($this->view->render([
+            'template' => 'adminusers',
+            'office' => 'backoffice',
+        ]));
+        $userId = intval($request->query()->get('id'));
+        $currentRole = $this->userRepository->find($userId)->getRole();
+
+        $user = new User();
+        if ($currentRole === 'admin')
         {
-            $userRole = $request->request()->get('role');
-            if ($userRole === null)
+            $user->setRole('user');
+        }
+        else
+        {
+            $user->setRole('admin');
+        }
+        $user->setId($userId);
+
+        if ($this->userRepository->update($user))
+        {
+            $this->session->addFlashes('success','Le rôle a bien été modifié avec succès.');
+        }
+        else
+        {
+            $this->session->addFlashes('error','Le rôle n\'a pas pu être modifié.');
+        }
+        $response->redirect('?action=adminusers');
+        return $response;
+    }
+
+    public function deleteUser(Request $request, PostRepository $postRepository): Response
+    {
+        if ($request->query()->has('id'))
+        {
+            $idUser = intval($request->query()->get('id'));
+            $user = new User();
+            $user->setId($idUser);
+            $userPost = $postRepository->findBy(['u.id' => $idUser]);
+//                var_dump($userPost);die;
+
+            if ($userPost != [])
             {
-                $this->session->addFlashes('info', 'Il n\'y a pas d\'utilisateur dont le role a changé.');
+//                $anonymous = new User();
+//                $anonymous->setName('Anonyme');
+//                $anonymous->setFirstname('Auteur');
+//                $anonymous->setPassword('');
+//                $anonymous->setEMail('');
+//                $anonymous->setRole('unknown');
+//                $anonymous->setId(32);
+//                $this->userRepository->create($anonymous);
+//                var_dump($anonymous);die;
+                foreach($userPost as $currentPost)
+                {
+                    $post = new Post();
+                    $post->setId($currentPost->getId());
+                    $post->setTitle($currentPost->getTitle());
+                    $post->setLede($currentPost->getLede());
+                    $post->setContent($currentPost->getContent());
+                    $post->setLastUpdateDate($currentPost->getUpdateDate());
+                    $post->setCreationDate($currentPost->getCreationDate());
+                    $post->setStatus($currentPost->getStatus());
+                    $post->setIdAuthor(32);
+//                    var_dump($post);die;
+                    $postRepository->update($post);
+                }
+            }
+
+            if ($this->userRepository->delete($user))
+            {
+                $this->session->addFlashes('success', 'L\'utilisateur a bien été supprimé.');
             }
             else
             {
-                foreach ($userRole as $key => $role)
-                {
-                    $user = new User();
-                    $user->setRole($role);
-                    $user->setId($key);
-//                    $user->setName($this->session->get('user')->getName());
-//                    $user->setFirstname($this->session->get('user')->getFirstname());
-//                    $user->setEMail($this->session->get('user')->getEmail());
-//                    ?><!--<pre>--><?php
-//                    var_dump($user);die;
-//                    ?><!--<pre>--><?php
-                    $userRepository->update($user);
-                }
-                $this->session->addFlashes('success', 'Les rôles ont été modifié avec succès.');
-                $response->redirect('?action=adminusers');
+                $this->session->addFlashes('error',"L'utilisateur n'a pas pu être supprimé.");
             }
-
-//            $userToDelete = $request->request()->get('states');
-//            if ($userToDelete === null)
-//            {
-//                $this->session->addFlashes('info', 'Il n\'y a pas d\'utilisateur supprimé.');
-//            }
-//            else
-//            {
-//                foreach ($userToDelete as $key => $states)
-//                {
-//                    $user = new User();
-//                    $user->setRole($this->session->get('user')->getRole());
-//                    $user->setId($key);
-//                    $user->setName('anonyme');
-//                    $user->setFirstname('Utilisateur');
-//                    $user->setEMail('utilisateur anonyme');
-//                    $userRepository->update($user);
-//                }
-//                $this->session->addFlashes('success', 'Les utilisateurs sélectionnés ont été supprimé avec succès.');
-////                $response->redirect('?action=adminusers');
-//            }
         }
-//            ?><!--<pre>--><?php
-//            var_dump($userRole,$userToDelete);die;
-//            ?><!--<pre>--><?php
+        $response = new Response('',301,[]);
+        $response->redirect('?action=adminusers');
         return $response;
     }
 }

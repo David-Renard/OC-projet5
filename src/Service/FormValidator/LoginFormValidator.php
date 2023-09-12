@@ -22,7 +22,7 @@ class LoginFormValidator
         }
         $user=$this->userRepository->findOneBy(['email' => $this->infoUser['email']]);
 
-        if (!$user instanceof (User::class) || $this->infoUser['password'] !== $user->getPassword())
+        if (!$user instanceof (User::class) || password_verify($user->getPassword(),$this->infoUser['password']))
         {
             return false;
         }

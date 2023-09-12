@@ -10,6 +10,8 @@ use App\Service\Http\Response;
 use App\Service\Http\Session\Session;
 use App\Service\FormValidator\InputFormValidator;
 
+use App\Service\Http\SendEmail;
+
 class HomeController
 {
     public function __construct(private View $view, private Session $session)
@@ -23,23 +25,30 @@ class HomeController
                 "office" => 'frontoffice',
             ]));
 
-        if ($request->getMethod()==='POST')
+        if ($request->getMethod() === 'POST')
         {
             $contactFormValidator= new InputFormValidator($request, $this->session);
 
-            $isFirstnameValid=$contactFormValidator->isInputValid("/^[A-Za-z- _]+$/",$request->request()->get('firstname'));
-            $isNameValid=$contactFormValidator->isInputValid("/^[A-Za-z- _]+$/",$request->request()->get('name'));
-            $isEmailValid=$contactFormValidator->isEmailValid($request->request()->get('email'));
-            $isMessageValid=$contactFormValidator->isTextareaValid($request->request()->get('message'));
-            $isRgpdChecked=$contactFormValidator->isRgpdChecked($request->request()->get('rgpd'));
+            $firstName = $request->request()->get('firstname');
+            $name = $request->request()->get('name');
+            $email = $request->request()->get('email');
+            $message = $request->request()->get('message');
+            $rgpd = $request->request()->get('rgpd');
+
+            $isFirstnameValid = $contactFormValidator->isInputValid("/^[A-Za-z- _]+$/", $firstName);
+            $isNameValid = $contactFormValidator->isInputValid("/^[A-Za-z- _]+$/", $name);
+            $isEmailValid = $contactFormValidator->isEmailValid($email);
+            $isMessageValid = $contactFormValidator->isTextareaValid($message);
+            $isRgpdChecked = $contactFormValidator->isRgpdChecked($rgpd);
 
             if ($isFirstnameValid
                 && $isNameValid
                 && $isEmailValid
                 && $isMessageValid
-                && $isRgpdChecked)
+                && $isRgpdChecked
+            )
             {
-                $this->session->addFlashes('success','Formulaire valide, votre message : "'.$request->request()->get("message").'" est bien envoyé!');
+                $this->session->addFlashes('success','Formulaire valide, votre message : "'.$message.'" est bien envoyé!');
             }
 
             if (!$isFirstnameValid)
@@ -62,7 +71,13 @@ class HomeController
             {
                 $this->session->addFlashes('error',"Vous avez oublié la checkbox!");
             }
-            $response->redirect();
+
+            $mail = new SendEmail();
+            if ($mail->sendMail('david.renard@g2a-consulting.fr', $name . ' ' . $firstName, 'Message de contact de ' . $email, $message))
+            {
+//                var_dump($mail);die;
+                $response->redirect();
+            }
         }
         return $response;
     }

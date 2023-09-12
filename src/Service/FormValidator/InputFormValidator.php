@@ -11,6 +11,7 @@ class InputFormValidator
     {
         $this->contactArray = $this->request->request()->all();
     }
+
     public function isInputValid(string $pattern, string $value):mixed
     {
         if ($this->contactArray === null)
@@ -27,6 +28,7 @@ class InputFormValidator
             return true;
         }
     }
+
     public function isEmailValid(string $value): bool
     {
         if (!filter_var($value, FILTER_VALIDATE_EMAIL))
@@ -38,6 +40,7 @@ class InputFormValidator
             return true;
         }
     }
+
     public function isTextareaValid(mixed $value):bool
     {
         if ($value !== NULL && $value!=="")
@@ -49,6 +52,7 @@ class InputFormValidator
             return false;
         }
     }
+
     public function isRgpdChecked(mixed $value):bool
     {
         if ($value === 'on')
@@ -60,15 +64,19 @@ class InputFormValidator
             return false;
         }
     }
+
     public function isEqualToConfirm(mixed $value1, mixed $value2):bool
     {
-        if ($value1 === $value2)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return $value1 === $value2;
+    }
+
+    public function isEmpty(mixed $value): bool
+    {
+        return empty($value);
+    }
+
+    public function isNotToLong(string $value, int $length): bool
+    {
+        return strlen($value) <= $length;
     }
 }

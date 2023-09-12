@@ -51,6 +51,43 @@ class PostRepository implements EntityRepositoryInterface
 
     public function findBy(array $criteria, array $orderBy = null, int $limit = null, int $offset = null): ?array
     {
+        $countCriteria = 0;
+        $sCriteria = '';
+        foreach ($criteria as $key => $value)
+        {
+            $countCriteria++;
+            if (is_string($value))
+            {
+                $value = "'$value'";
+            }
+            if ($countCriteria === 1)
+            {
+                $sCriteria = " WHERE $key = $value";
+            }
+            else
+            {
+                $sCriteria = $sCriteria . ' AND ' . $key . "=:" . $value;
+            }
+        }
+
+        $sOrderBy = '';
+        if ($orderBy != [])
+        {
+            $countOrderBy = 0;
+            foreach ($orderBy as $key => $value)
+            {
+                $countOrderBy++;
+                if ($countOrderBy === 1)
+                {
+                    $sOrderBy = ' ORDER BY ' . $key . " " . $value;
+                }
+                else
+                {
+                    $sOrderBy = $sOrderBy . ' AND ' . $key . " " . $value;
+                }
+            }
+        }
+
         if ($limit == null)
         {
             $sLimit='';
@@ -59,6 +96,7 @@ class PostRepository implements EntityRepositoryInterface
         {
             $sLimit = ' LIMIT ' . $limit;
         }
+
         if ($offset == null)
         {
             $sOffset='';
@@ -71,19 +109,19 @@ class PostRepository implements EntityRepositoryInterface
         $query = 'SELECT p.id, p.title, p.creationDate, p.lede, p.content, p.lastUpdateDate, p.idAuthor, u.name, u.firstname, p.status
     FROM post p
     LEFT JOIN user u
-    ON p.idAuthor=u.id
-    WHERE p.status = :status
-    ORDER BY p.creationDate DESC';
-        $publishedPostsQuery=$this->databaseConnection->getConnection()->prepare($query . $sLimit . $sOffset);
-        $publishedPostsQuery->execute($criteria);
-        $data=$publishedPostsQuery->fetchAll(\PDO::FETCH_ASSOC);
+    ON p.idAuthor = u.id';
+        $concatenatedQuery = $query . $sCriteria . $sOrderBy . $sLimit . $sOffset;
+        $publishedPostsQuery = $this->databaseConnection->getConnection()->prepare($concatenatedQuery);
+
+        $publishedPostsQuery->execute();
+        $data = $publishedPostsQuery->fetchAll(\PDO::FETCH_ASSOC);
 
         if ($data === null)
         {
             return null;
         }
 
-        $posts=[];
+        $posts = [];
         foreach ($data as $arrayPost)
         {
             $post = new Post();
@@ -95,16 +133,16 @@ class PostRepository implements EntityRepositoryInterface
 
     public function findAll(): ?array
     {
-        $postsQuery=$this->databaseConnection->getConnection()->prepare("SELECT  p.id, p.title, p.creationDate, p.lede, p.content, p.lastUpdateDate, p.idAuthor, u.name, u.firstname, p.status FROM post p LEFT JOIN user u ON p.idAuthor=u.id ORDER BY creationDate DESC");
+        $postsQuery = $this->databaseConnection->getConnection()->prepare("SELECT  p.id, p.title, p.creationDate, p.lede, p.content, p.lastUpdateDate, p.idAuthor, u.name, u.firstname, p.status FROM post p LEFT JOIN user u ON p.idAuthor=u.id ORDER BY creationDate DESC");
         $postsQuery->execute();
-        $data=$postsQuery->fetchAll(\PDO::FETCH_ASSOC);
+        $data = $postsQuery->fetchAll(\PDO::FETCH_ASSOC);
 
         if ($data === null)
         {
             return null;
         }
 
-        $posts=[];
+        $posts = [];
         foreach ($data as $arrayPost)
         {
             $post = new Post();
@@ -127,23 +165,16 @@ class PostRepository implements EntityRepositoryInterface
         $addPostQuery->bindValue(':creationDate',$creationDate);
         $addPostQuery->bindValue(':lastUpdateDate',$creationDate);
         $addPostQuery->bindValue(':lede',$entity->getLede());
-        $addPostQuery->bindValue(':status',$entity->getStatus());
+        $addPostQuery->bindValue(':status','published');
         $addPostQuery->bindValue(':content',$entity->getContent());
 
-        if ($addPostQuery->execute())
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return $addPostQuery->execute();
     }
 
     public function update(object $entity): bool
     {
         $updateQuery = $this->databaseConnection->getConnection()->prepare("UPDATE post
-        SET title = :title, lede = :lede, content = :content, lastUpdateDate = :lastUpdateDate, status = :status
+        SET title = :title, lede = :lede, content = :content, lastUpdateDate = :lastUpdateDate, idAuthor = :idAuthor
         WHERE id = :id");
         $updateDate = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
         $updateDate = $updateDate->format('Y-m-d H:i:s');
@@ -151,22 +182,25 @@ class PostRepository implements EntityRepositoryInterface
         $updateQuery->bindValue(':title', $entity->getTitle());
         $updateQuery->bindValue(':lede', $entity->getLede());
         $updateQuery->bindValue(':content', $entity->getContent());
-        $updateQuery->bindValue(':status', $entity->getStatus());
         $updateQuery->bindValue(':lastUpdateDate', $updateDate);
+        $updateQuery->bindValue(':idAuthor', $entity->getIdAuthor());
         $updateQuery->bindValue(':id', $entity->getId());
-        if ($updateQuery->execute())
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+
+        return $updateQuery->execute();
     }
 
     public function delete(object $entity): bool
     {
-        return false;
+        $deleteQuery = $this->databaseConnection->getConnection()->prepare("UPDATE post
+        SET lastUpdateDate = :lastUpdateDate, status = :status WHERE id = :id");
+        $deleteDate = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
+        $deleteDate = $deleteDate->format('Y-m-d H:i:s');
+
+        $deleteQuery->bindValue(':status', $entity->getStatus());
+        $deleteQuery->bindValue(':lastUpdateDate', $deleteDate);
+        $deleteQuery->bindValue(':id', $entity->getId());
+
+        return $deleteQuery->execute();
     }
 
     public function count(): int

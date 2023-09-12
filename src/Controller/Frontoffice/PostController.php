@@ -9,7 +9,7 @@ use App\Service\FormValidator\InputFormValidator;
 use App\View\View;
 use App\Service\Http\Request;
 use App\Service\Http\Response;
-use App\Service\Http\Pagination;
+use App\Service\Pagination;
 use App\Service\Http\Session\Session;
 use App\Model\Repository\PostRepository;
 use App\Model\Repository\CommentRepository;
@@ -21,7 +21,7 @@ class PostController
     }
     public function displayPostsAction(string $status, Request $request): Response
     {
-        $posts = $this->postRepository->findBy(['status'=>$status]);
+        $posts = $this->postRepository->findBy(['status' => $status],['creationDate' => 'DESC']);
         $pagination = new Pagination($request,$posts);
 //        var_dump($this->postRepository->count());die;
         $limit = $pagination->nbPerPage();
@@ -36,7 +36,7 @@ class PostController
 //        ?><!--<pre>--><?php
 //        var_dump($limit);die;
 //        ?><!--<pre>--><?php
-        $posts = $this->postRepository->findBy(['status'=>$status],null, $limit, $offset);
+        $posts = $this->postRepository->findBy(['status' => $status],['creationDate' => 'DESC'], $limit, $offset);
 
         return new Response($this->view->render([
             'template' => 'posts',
@@ -73,12 +73,13 @@ class PostController
 
     public function displayPostAction(int $id, CommentRepository $commentRepository): Response
     {
-        $response = new Response("Ce post n'existe pas ou plus, <a href='index.php?action=posts'>revenir à la page des posts.</a>");
+        $response = new Response();
         $postCommentsArray = $this->postCommentsArray($id,$commentRepository);
-
+//        var_dump($postCommentsArray);die;
         if ($postCommentsArray == [])
         {
-            return $response;
+            $this->session->addFlashes('error','Ce post n\'existe pas ou plus. Vous avez été redirigé vers l\'ensemble des posts.');
+            $response->redirect('?action=posts');
         }
         else
         {
@@ -89,8 +90,8 @@ class PostController
                     "office" => 'frontoffice',
                 ],
             ));
-            return $response;
         }
+        return $response;
     }
 
     public function addComment(Request $request, CommentRepository $commentRepository): Response
@@ -108,7 +109,7 @@ class PostController
                 $idAuthor = $user->getId();
                 $content = $request->request()->get('content');
 
-                $newComment=new Comment();
+                $newComment = new Comment();
                 $newComment->setContent(htmlspecialchars($content));
                 $newComment->setIdPost((int)$idPost);
                 $newComment->setIdAuthor($idAuthor);

@@ -12,7 +12,7 @@ use App\Service\Http\Response;
 use App\Service\Http\Session\Session;
 use App\Model\Repository\PostRepository;
 use App\Model\Repository\CommentRepository;
-use App\Model\Repository\UserRepository;
+use App\Service\FormValidator\InputFormValidator;
 
 class PostController
 {
@@ -34,11 +34,6 @@ class PostController
     public function getCommentsByState(string $status, CommentRepository $commentRepository, Request $request): Response
     {
         $posts = $this->displayCommentsByState($status,$commentRepository);
-//        $count=$this->postRepository->count($posts);
-//            ?><!--<pre>--><?php
-//            var_dump($count['Total']);die;
-//            ?><!--<pre>--><?php
-
         $response = new Response($this->view->render([
             'template' => 'admincomments',
             'data' => [
@@ -46,42 +41,10 @@ class PostController
             ],
             "office" => 'backoffice',
         ]));
-
-        if ($request -> getMethod() === 'POST')
-        {
-            $commentStatus = $request->request()->get('states');
-
-//            ?><!--<pre>--><?php
-//            var_dump($commentStatus,$count,$status);die;
-//            ?><!--<pre>--><?php
-
-            if ($commentStatus === null)
-            {
-                $this->session->addFlashes('success', "Il n'y a pas de commentaires à mettre à jour.");
-//                $response->redirect('?action=admincomments');
-            }
-            else
-            {
-                foreach ($commentStatus as $key => $states)
-                {
-                    $comment = new Comment();
-                    $comment->setStatus($states);
-                    $comment->setId($key);
-//                    $count=$commentRepository->count($comment);
-//            ?><!--<pre>--><?php
-//            var_dump($count['Total']);die;
-//            ?><!--<pre>--><?php
-                    $commentRepository->update($comment);
-                }
-                $this->session->addFlashes('success', 'Les commentaires ont été mis à jour.');
-                $response->redirect('?action=admincomments');
-            }
-        }
-
         return $response;
     }
 
-    public function displayPost(Request $request): Response
+    public function displayPost(): Response
     {
         $posts = $this->postRepository->findAll();
         $response = new Response($this->view->render([
@@ -91,84 +54,223 @@ class PostController
             ],
             'office' => 'backoffice',
         ]));
-//            ?><!--<pre>--><?php
-//            var_dump($posts);die;
-//            ?><!--<pre>--><?php
         return $response;
     }
 
-    public function addPost(Request $request, PostRepository $postRepository): Response
+    public function addPost(Request $request, PostRepository $postRepository, array $inputs=[]): Response
     {
         $response = new Response($this->view->render([
             'template' => 'adminpostadd',
             'office' => 'backoffice',
+            'data' => [
+                    'inputs' => $inputs,
+            ]
         ]));
-        //            ?><!--<pre>--><?php
-        //            var_dump($posts);die;
-        //            ?><!--<pre>--><?php
 
         if ($request->getMethod() === 'POST')
         {
-            $post = new Post();
-            $post->setTitle($request->request()->get('title'));
-            $post->setLede($request->request()->get('lede'));
-            $post->setContent($request->request()->get('content'));
-            $post->setStatus($request->request()->get('status'));
-            $post->setIdAuthor(intval($this->session->get('user')->getId()));
+            $title = $request->request()->get('title');
+            $lede = $request->request()->get('lede');
+            $content = $request->request()->get('content');
 
-            if ($postRepository->create($post))
+            $addPostValidator = new InputFormValidator($request,$this->session);
+            $isTitleEmpty = $addPostValidator->isEmpty($title);
+            $isLedeEmpty = $addPostValidator->isEmpty($lede);
+            $isContentEmpty = $addPostValidator->isEmpty($content);
+            $isTitleOk = $addPostValidator->isNotToLong($title,120);
+            $isLedeOk = $addPostValidator->isNotToLong($lede,255);
+            $isContentOk = $addPostValidator->isNotToLong($content,65535);
+
+            if (!$isTitleEmpty && !$isLedeEmpty && !$isContentEmpty && $isTitleOk && $isLedeOk && $isContentOk)
             {
-                $this->session->addFlashes('success','Le post a bien été ajouté.');
-                $response->redirect('?action=adminposts');
+                $post = new Post();
+                $post->setTitle($title);
+                $post->setLede($lede);
+                $post->setContent($content);
+                $post->setIdAuthor(intval($this->session->get('user')->getId()));
+
+                if ($postRepository->create($post)) {
+                    $this->session->addFlashes('success', 'Le post a bien été ajouté.');
+                    $response->redirect('?action=adminposts');
+                } else {
+                    $this->session->addFlashes('error', 'Le post n\'a pas pu être ajouté.');
+                }
             }
-            else
+            elseif (empty($inputs))
             {
-                $this->session->addFlashes('error','Le post n\'a pas pu être ajouté.');
+                if ($isTitleEmpty)
+                {
+                    $this->session->addFlashes('error','Le titre de l\'article ne peut pas être vide.');
+                }
+                if ($isLedeEmpty)
+                {
+                    $this->session->addFlashes('error','Le chapô de l\'article ne peut pas être vide.');
+                }
+                if ($isContentEmpty)
+                {
+                    $this->session->addFlashes('error','Le contenu de l\'article ne peut pas être vide.');
+                }
+                if (!$isTitleOk)
+                {
+                    $this->session->addFlashes('error','Le titre de l\'article est trop long.');
+                }
+                if (!$isLedeOk)
+                {
+                    $this->session->addFlashes('error','Le chapô de l\'article est trop long.');
+                }
+                if (!$isContentOk)
+                {
+                    $this->session->addFlashes('error','Le contenu de l\'article est trop long.');
+                }
+
+                $inputs = [
+                    'title' => $title,
+                    'lede' => $lede,
+                    'content' => $content,
+                ];
+                return $this->addPost($request,$postRepository,$inputs);
             }
         }
         return $response;
     }
 
-    public function updatePost(Request $request, PostRepository $postRepository): Response
+    public function updatePost(Request $request, PostRepository $postRepository, array $inputs=[]): Response
     {
-        $response = new Response();
+        $updateAuthor = $this->session->get('user');
 
-        if ($request->getMethod() === 'GET')
-        {
-            $arrayStatus = ['published','deleted'];
-            $idPost = $request->query()->get('id');
-            $post = $this->postRepository->find((int) $idPost);
+        $idPost = $request->query()->get('id');
+        $post = $this->postRepository->find((int) $idPost);
 
-            $response = new Response($this->view->render([
-            'template' => 'updatepost',
+        $response = new Response($this->view->render([
+            'template' => 'adminupdatepost',
             'office' => 'backoffice',
             'data' => [
                 'post' => $post,
-                'arrayStatus' => $arrayStatus,
+                'updateauthor' => $updateAuthor,
+                'inputs' => $inputs,
             ]
         ]));
-        }
 
         if ($request->getMethod() === 'POST')
         {
+            $title = $request->request()->get('title');
+            $lede = $request->request()->get('lede');
+            $content = $request->request()->get('content');
+
+            $updatePostValidator = new InputFormValidator($request,$this->session);
+            $isTitleEmpty = $updatePostValidator->isEmpty($title);
+            $isLedeEmpty = $updatePostValidator->isEmpty($lede);
+            $isContentEmpty = $updatePostValidator->isEmpty($content);
+            $isTitleOk = $updatePostValidator->isNotToLong($title,120);
+            $isLedeOk = $updatePostValidator->isNotToLong($lede,255);
+            $isContentOk = $updatePostValidator->isNotToLong($content,65535);
+
+            if (!$isTitleEmpty && !$isLedeEmpty && !$isContentEmpty && $isTitleOk && $isLedeOk && $isContentOk)
+            {
+                $post = new Post();
+                $post->setTitle($title);
+                $post->setLede($lede);
+                $post->setContent($content);
+                $post->setId(intval($request->query()->get('id')));
+                $post->setIdAuthor(intval($updateAuthor->getId()));
+
+                if ($postRepository->update($post))
+                {
+                    $this->session->addFlashes('success','Le post a bien été mis à jour.');
+                    $response->redirect('?action=adminposts');
+                }
+                else
+                {
+                    $this->session->addFlashes('error','Le post n\'a pas pu être mis à jour.');
+                }
+            }
+            elseif (empty($inputs))
+            {
+                if ($isTitleEmpty)
+                {
+                    $this->session->addFlashes('error','Le titre de l\'article ne peut pas être vide.');
+                }
+                if ($isLedeEmpty)
+                {
+                    $this->session->addFlashes('error','Le chapô de l\'article ne peut pas être vide.');
+                }
+                if ($isContentEmpty)
+                {
+                    $this->session->addFlashes('error','Le contenu de l\'article ne peut pas être vide.');
+                }
+                if (!$isTitleOk)
+                {
+                    $this->session->addFlashes('error','Le titre de l\'article est trop long.');
+                }
+                if (!$isLedeOk)
+                {
+                    $this->session->addFlashes('error','Le chapô de l\'article est trop long.');
+                }
+                if (!$isContentOk)
+                {
+                    $this->session->addFlashes('error','Le contenu de l\'article est trop long.');
+                }
+
+                $inputs = [
+                    'title' => $title,
+                    'lede' => $lede,
+                    'content' => $content,
+                ];
+                return $this->updatePost($request,$postRepository,$inputs);
+            }
+            return $response;
+        }
+        return $response;
+    }
+
+    public function deletePost(Request $request, PostRepository $postRepository): Response
+    {
+        $response = new Response($this->view->render([
+            'template' => 'adminposts',
+            'office' => 'backoffice',
+        ]));
+
+        if ($request->getMethod() === 'GET')
+        {
             $post = new Post();
-            $post->setTitle($request->request()->get('title'));
-            $post->setLede($request->request()->get('lede'));
-            $post->setContent($request->request()->get('content'));
-            $post->setStatus($request->request()->get('status'));
+            $post->setStatus('deleted');
             $post->setId(intval($request->query()->get('id')));
 
-            if ($postRepository->update($post))
+            if ($postRepository->delete($post))
             {
-                $this->session->addFlashes('success','Le post a bien été mis à jour.');
-                $response->redirect('?action=adminposts');
+                $this->session->addFlashes('success','Le post a bien été supprimé.');
             }
             else
             {
-                $this->session->addFlashes('error','Le post n\'a pas pu être mis à jour.');
+                $this->session->addFlashes('error','Le post n\'a pas pu être supprimé.');
+            }
+            $response->redirect('?action=adminposts');
+        }
+        return $response;
+    }
+
+    public function moderateComment(CommentRepository $commentRepository, Request $request): Response
+    {
+        if ($request->query()->has('id') && $request->query()->has('moderate'))
+        {
+            $commentId = intval($request->query()->get('id'));
+            $commentStatus = $request->query()->get('moderate');
+
+            $comment = new Comment();
+            $comment->setId($commentId);
+            $comment->setStatus($commentStatus);
+
+            if ($commentRepository->update($comment))
+            {
+                $this->session->addFlashes('success','Le commentaire a bien été modéré.');
+            }
+            else
+            {
+                $this->session->addFlashes('error','Le commentaire n\'a pas pu être modéré.');
             }
         }
-
+        $response = new Response();
+        $response->redirect('?action=admincomments');
         return $response;
     }
 }

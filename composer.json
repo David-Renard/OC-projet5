@@ -1,7 +1,8 @@
 {
     "require": {
         "twig/twig": "^3.7",
-        "filp/whoops": "^2.15"
+        "filp/whoops": "^2.15",
+        "phpmailer/phpmailer": "^6.8"
     },
     "autoload" : {
         "psr-4":{

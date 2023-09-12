@@ -4,6 +4,9 @@
 
 {% block content %}
     <div class="container">
+        {% for flash in flashes.error %}
+            <p class="text-danger fst-italic my-4 text-center">{{ flash }}</p>
+        {% endfor %}
         <h3 class="text-center my-4">Mes posts :</h3>
         <p>Maecenas porta efficitur tempus. Maecenas facilisis quis ipsum in finibus. Phasellus auctor luctus aliquam. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras ac leo sed risus volutpat consectetur. Nullam mattis aliquet placerat. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam at mauris vel elit eleifend consectetur a sit amet nulla. Nunc eget tellus et mauris faucibus consequat. Curabitur volutpat erat id vestibulum vehicula. Nullam ultrices ornare turpis.</p>
         <div class="row my-4">
@@ -15,9 +18,9 @@
                     <div class="container">
                         <div class="d-flex">
                             <select name="per" id="per" class="form-select me-2 w-50">
-                                <option value="3">3</option>
-                                <option value="5" selected>5</option>
-                                <option value="10">10</option>
+                                <option value="3" {% if pagination.limit == 3 %}selected{% endif %}>3</option>
+                                <option value="5" {% if pagination.limit == 5 %}selected{% endif %}>5</option>
+                                <option value="10" {% if pagination.limit == 10 %}selected{% endif %}>10</option>
                             </select>
                             <button type="submit" class="btn btn-primary" required>OK</button>
                         </div>
@@ -31,11 +34,16 @@
                 <div class="col-12 col-sm-8 text-center text-sm-start ps-sm-4 fw-bold fs-2">
                     <a href="index.php?action=post&id={{ post.id }}" class="text-decoration-none">{{ post.title }}</a>
                 </div>
-                <div class="col-12 col-sm-4 text-center text-sm-end">
-                    <p>Créé le : {{ post.creationDate|date("d/m/Y \\à H\\hi") }} par {{ post.firstname ~ " " ~ post.name }}</p>
-                    {% if post.creationDate != post.UpdateDate %}
-                        <p class="fst-italic">Modifié le : {{ post.UpdateDate|date("d/m/Y \\à H\\hi") }}</p>
-                    {% endif %}
+                <div class="col-12 col-sm-4 text-center text-sm-end fst-italic">
+                    <p>Par {{ post.firstname ~ " " ~ post.name }}</p>
+                    <p>
+                        {% if post.creationDate != post.UpdateDate %}
+                            Modifié le :
+                        {% else %}
+                            Créé le :
+                        {% endif %}
+                        {{ post.UpdateDate|date("d/m/Y \\à H\\hi") }}</p>
+                    </p>
                 </div>
             </div>
 

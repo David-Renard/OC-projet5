@@ -5,11 +5,11 @@ namespace App\Model\Entity;
 class User
 {
     private ?int $id;
-    private string $name='';
-    private string $firstname='';
-    private string $email='';
-    private string $password='';
-    private string $role='user';
+    private string $name = '';
+    private string $firstname = '';
+    private string $email = '';
+    private string $password = '';
+    private string $role = 'user';
 
     public function setId(int $id): void
     {

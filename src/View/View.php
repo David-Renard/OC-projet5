@@ -15,6 +15,7 @@ final class View
         $loader = new FilesystemLoader('../templates');
         $this->twig = new Environment($loader);
     }
+
     public function render(array $data): string
     {
         $data['data']['session'] = $this->session->toArray();

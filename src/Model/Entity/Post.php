@@ -5,16 +5,16 @@ namespace App\Model\Entity;
 class Post
 {
     private ?int $id;
-    private string $title='';
-    private string $creationDate='';
-    private string $lede='';
-    private string $content='';
-    private string $lastUpdateDate='';
+    private string $title = '';
+    private string $creationDate = '';
+    private string $lede = '';
+    private string $content = '';
+    private string $lastUpdateDate = '';
     private ?int $idAuthor;
-    private string $name='';
-    private string $firstname='';
+    private string $name = '';
+    private string $firstname = '';
     private string $status;
-    private array $comments=[];
+    private array $comments = [];
     public function getId(): int
     {
         return $this->id;
@@ -93,7 +93,7 @@ class Post
         return $this;
     }
 
-    private function setCreationDate($creationDate): void
+    public function setCreationDate($creationDate): void
     {
         $this->creationDate = $creationDate;
     }

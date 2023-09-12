@@ -14,4 +14,3 @@ $request = new Request($_GET,$_POST,$_FILES,$_SERVER);
 $router = new Router($request);
 $response=$router->run();
 $response->send();
-

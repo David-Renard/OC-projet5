@@ -7,63 +7,35 @@
         {% for flash in flashes.success %}
             <p class="text-success fw-bold text-center">{{ flash }}</p>
         {% endfor %}
-        <form action="index.php?action=adminusers" method="POST" class="form-group">
-            <table class="table table-sm table-striped table-primary table-hover table-bordered border-light text-center">
-                <caption class="fs-4 text-center my-5 caption-top">Liste des utilisateurs :</caption>
-                <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th>Prénom</th>
-                        <th class="hidden">Email</th>
-                        <th>Rôle</th>
-                        <th>Suppr.</th>
-                    </tr>
-                </thead>
-                <tbody class="fs-6 fst-normal">
-                {% for user in users %}
-                    <tr>
-                        <td>{{ user.name }}</td>
-                        <td>{{ user.firstname }}</td>
-                        <td class="hidden">{{ user.email }}</td>
-                        <td>
-                            <div class="container">
-                                <div class="row">
-                                    <div class="col-12 col-sm-8 offset-sm-2">
-                                        <select name="role[{{ user.id }}]" id="role[{{ user.id }}]" class="form-select form-select-sm">
-                                            <option selected value="{{ user.role }}">{{ user.role }}</option>
-                                            {% for role in rolearray %}
-                                                {% if user.role != role %}
-                                                    <option value="{{ role }}">{{ role }}</option>
-                                                {% endif %}
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="container">
-                                <div class="row">
-                                    <div class="col-12 d-flex justify-content-around">
-                                        <div>
-                                            <input type="radio" id="no" name="states[{{ user.id }}]" value="no" checked />
-                                            <label for="no">Non</label>
-                                        </div>
-                                        <div>
-                                            <input type="radio" id="yes" name="states[{{ user.id }}]" value="yes" />
-                                            <label for="yes">Oui</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            <div class="col-12 mt-2">
-                <button type="submit" class="btn btn-primary w-100" required>Soumettre la validation</button>
-            </div>
-        </form>
+        <h1 class="fs-4 text-center mt-5">Gestion des utilisateurs</h1>
+        <table class="table table-sm table-striped table-primary table-hover table-bordered border-light text-center">
+            <caption class="fs-4 text-center my-5 caption-top">Liste des utilisateurs :</caption>
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th class="hidden">Email</th>
+                    <th>Rôle</th>
+                    <th>Suppr.</th>
+                </tr>
+            </thead>
+            <tbody class="fs-6 fst-normal">
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.firstname }}</td>
+                    <td class="hidden">{{ user.email }}</td>
+                    <td>
+                        {% if user.role == 'user' %}
+                            <a href="index.php?action=adminupdateuser&id={{ user.id }}" class="btn btn-primary opacity-75 m-1">Passer admin</a>
+                        {% elseif user.role == 'admin' %}
+                            <a href="index.php?action=adminupdateuser&id={{ user.id }}" class="btn btn-primary m-1">Passer user</a>
+                        {% endif %}
+                    </td>
+                    <td><a href="index.php?action=admindeleteuser&id={{ user.id }}" class="btn btn-warning m-1">Supprimer</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 {% endblock %}
