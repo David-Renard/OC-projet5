@@ -5,27 +5,45 @@ declare(strict_types=1);
 namespace App\Controller\Frontoffice;
 
 use App\Model\Entity\Comment;
-use App\Service\FormValidator\CommentFormValidator;
+use App\Service\FormValidator\InputFormValidator;
 use App\View\View;
 use App\Service\Http\Request;
 use App\Service\Http\Response;
+use App\Service\Pagination;
 use App\Service\Http\Session\Session;
 use App\Model\Repository\PostRepository;
 use App\Model\Repository\CommentRepository;
-use App\Model\Repository\UserRepository;
-use App\Service\FormValidator\LoginFormValidator;
 
 class PostController
 {
     public function __construct(private PostRepository $postRepository, private View $view, private Session $session)
     {
     }
-    public function displayPostsAction(string $status): Response
+    public function displayPostsAction(string $status, Request $request): Response
     {
-        $posts = $this->postRepository->findBy(['status'=>$status],['creationDate'=>'DESC']);
+        $posts = $this->postRepository->findBy(['status' => $status],['creationDate' => 'DESC']);
+        $pagination = new Pagination($request,$posts);
+//        var_dump($this->postRepository->count());die;
+        $limit = $pagination->nbPerPage();
+        $nbPages = $pagination->nbPages();
+        $current = $pagination->currentPage();
+        $offset = $limit * ($current - 1);
+        $paginationArray = [
+                'limit' => $limit,
+                'nbPages' => $nbPages,
+                'current' => $current,
+            ];
+//        ?><!--<pre>--><?php
+//        var_dump($limit);die;
+//        ?><!--<pre>--><?php
+        $posts = $this->postRepository->findBy(['status' => $status],['creationDate' => 'DESC'], $limit, $offset);
+
         return new Response($this->view->render([
             'template' => 'posts',
-            'data' => ['posts' => $posts],
+            'data' => [
+                    'posts' => $posts,
+                    'pagination' => $paginationArray,
+                ],
             "office" => 'frontoffice',
         ]));
     }
@@ -36,13 +54,13 @@ class PostController
         $array=[];
         $post = $this->postRepository->findOneBy(
             [
-                'ID'=>$id,
+                'id'=>$id,
             ]
         );
 
         if ($post !== null)
         {
-            $comments = $commentRepository -> findBy(['id_post'=>$id,'status'=>'valided'],['creationDate'=>'ASC']);
+            $comments = $commentRepository -> findBy(['id_post'=>$id,'status'=>'valided']);
 
             $array = [
                 'post' => $post,
@@ -55,12 +73,13 @@ class PostController
 
     public function displayPostAction(int $id, CommentRepository $commentRepository): Response
     {
-        $response = new Response("Ce post n'existe pas ou plus, <a href='index.php?action=posts'>revenir à la page des posts.</a>");
+        $response = new Response();
         $postCommentsArray = $this->postCommentsArray($id,$commentRepository);
-
+//        var_dump($postCommentsArray);die;
         if ($postCommentsArray == [])
         {
-            return $response;
+            $this->session->addFlashes('error','Ce post n\'existe pas ou plus. Vous avez été redirigé vers l\'ensemble des posts.');
+            $response->redirect('?action=posts');
         }
         else
         {
@@ -71,63 +90,52 @@ class PostController
                     "office" => 'frontoffice',
                 ],
             ));
-            return $response;
         }
+        return $response;
     }
 
     public function addComment(Request $request, CommentRepository $commentRepository): Response
     {
-        $response = new Response('nécessite connexion',200);
         if ($request->getMethod() === 'POST')
         {
-            $commentFormValidator = new CommentFormValidator($request, $this->session);
+            $commentFormValidator = new InputFormValidator($request, $this->session);
             $user = $this->session->get('user');
             $isContentValid = $commentFormValidator->isTextareaValid($request->request()->get('content'));
-            $isLogged = $commentFormValidator->isLogged();
 
-            if ($isContentValid && $isLogged)
+            $redirectResponse = new Response();
+            $idPost = $request->query()->get('id');
+            if ($isContentValid)
             {
                 $idAuthor = $user->getId();
-                $idPost = $request->query()->get('id');
                 $content = $request->request()->get('content');
 
-                $newComment=new Comment();
+                $newComment = new Comment();
                 $newComment->setContent(htmlspecialchars($content));
                 $newComment->setIdPost((int)$idPost);
                 $newComment->setIdAuthor($idAuthor);
 
-                $postCommentsArray = $this->postCommentsArray(intval($idPost),$commentRepository);
-
                 if ($commentRepository->create($newComment))
                 {
-                    $this->session->addFlashes('success','Votre commentaire "' . $content . '" est ajouté et en attente de validation.');
+                    $this->session->addFlashes('success','Votre commentaire "' . html_entity_decode($content) . '" est ajouté et en attente de validation.');
                 }
                 else
                 {
-                    $this->session->addFlashes('error','Votre commentaire "' . $content . '" n\'a pas pu être ajouté.');
+                    $this->session->addFlashes('error','Votre commentaire "' . html_entity_decode($content) . '" n\'a pas pu être ajouté.');
                 }
-
-                $response = new Response($this->view->render([
-                    'template' => 'post',
-                    'data' => $postCommentsArray,
-                    "office" => 'frontoffice',
-            ]));
-                $response -> redirect('?action=post&id=' . $idPost);
-//        ?><!--<pre>--><?php
-//        var_dump($this->session);die;
-//        ?><!--</pre>--><?php
             }
-
-            if (!$isContentValid)
+            else
             {
                 $this->session->addFlashes('error','Faites-nous part de votre commentaire, ne nous envoyez pas un message vide!');
             }
-            if (!$isLogged)
-            {
-                $this->session->addFlashes('error','Vous devez être connecté pour pouvoir commenter ce post!');
-                $response->redirect('?action=login');
-            }
         }
-        return $response;
+        else
+        {
+            $idPost=1;
+        }
+//        ?><!--<pre>--><?php
+//        var_dump($this->session->getFlashes());die;
+//        ?><!--</pre>--><?php
+        $redirectResponse->redirect('?action=post&id=' . $idPost);
+        return $redirectResponse;
     }
 }

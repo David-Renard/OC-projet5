@@ -4,15 +4,17 @@ namespace App\Model\Entity;
 
 class Post
 {
-        private ?int $id;
-        private string $title='';
-        private string $creationDate='';
-        private string $lede='';
-        private string $content='';
-        private string $lastUpdateDate='';
-        private ?int $idAuthor;
-        private string $status;
-        private array $comments=[];
+    private ?int $id;
+    private string $title = '';
+    private string $creationDate = '';
+    private string $lede = '';
+    private string $content = '';
+    private string $lastUpdateDate = '';
+    private ?int $idAuthor;
+    private string $name = '';
+    private string $firstname = '';
+    private string $status;
+    private array $comments = [];
     public function getId(): int
     {
         return $this->id;
@@ -20,6 +22,11 @@ class Post
     public function getTitle(): string
     {
         return $this->title;
+    }
+    public function setId(int $id): self
+    {
+        $this->id=$id;
+        return $this;
     }
     public function setTitle(string $title): self
     {
@@ -67,12 +74,26 @@ class Post
         return $this->idAuthor;
     }
 
-    private function setId(int $id): void
+    public function getName(): string
     {
-        $this->id = $id;
+        return $this->name;
+    }
+    public function setName(string $name): self
+    {
+        $this->name=$name;
+        return $this;
+    }
+    public function getFirstname(): string
+    {
+        return $this->firstname;
+    }
+    public function setFirstname(string $firstname): self
+    {
+        $this->firstname=$firstname;
+        return $this;
     }
 
-    private function setCreationDate($creationDate): void
+    public function setCreationDate($creationDate): void
     {
         $this->creationDate = $creationDate;
     }
@@ -101,14 +122,15 @@ class Post
 
     public function fromArray(array $data): void
     {
-        $this->setId((int) $data['ID']);
+        $this->setId((int) $data['id']);
         $this->setTitle($data['title']);
         $this->setCreationDate($data['creationDate']);
         $this->setLede($data['lede']);
         $this->setContent($data['content']);
         $this->setLastUpdateDate($data['lastUpdateDate']);
-        $this->setIdAuthor($data['idAuthor']);
+        $this->setIdAuthor((int) $data['idAuthor']);
+        $this->setName($data['name']);
+        $this->setFirstname($data['firstname']);
         $this->setStatus($data['status']);
     }
-
 }

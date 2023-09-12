@@ -4,16 +4,46 @@
 
 {% block content %}
     <div class="container">
+        {% for flash in flashes.error %}
+            <p class="text-danger fst-italic my-4 text-center">{{ flash }}</p>
+        {% endfor %}
         <h3 class="text-center my-4">Mes posts :</h3>
         <p>Maecenas porta efficitur tempus. Maecenas facilisis quis ipsum in finibus. Phasellus auctor luctus aliquam. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras ac leo sed risus volutpat consectetur. Nullam mattis aliquet placerat. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam at mauris vel elit eleifend consectetur a sit amet nulla. Nunc eget tellus et mauris faucibus consequat. Curabitur volutpat erat id vestibulum vehicula. Nullam ultrices ornare turpis.</p>
-        {%  for post in posts %}
+        <div class="row my-4">
+            <div class="col-6 offset-6 col-sm-2 offset-sm-10">
+                <form action="index.php?action=posts"  method="GET" class="form-group">
+                    <input type="hidden" value="posts" name="action" />
+                    <input type="hidden" value="{{ pagination.current }}" name="page" />
+                    <label for="per" class="form-label bg-primary text-light py-2 px-3 rounded-2">Articles par page :</label>
+                    <div class="container">
+                        <div class="d-flex">
+                            <select name="per" id="per" class="form-select me-2 w-50">
+                                <option value="3" {% if pagination.limit == 3 %}selected{% endif %}>3</option>
+                                <option value="5" {% if pagination.limit == 5 %}selected{% endif %}>5</option>
+                                <option value="10" {% if pagination.limit == 10 %}selected{% endif %}>10</option>
+                            </select>
+                            <button type="submit" class="btn btn-primary" required>OK</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% for post in posts %}
         <div class="container bg-light text-primary rounded-4 p-4 border shadow">
             <div class="row gy-sm-4">
                 <div class="col-12 col-sm-8 text-center text-sm-start ps-sm-4 fw-bold fs-2">
-                    {{ post.title }}
+                    <a href="index.php?action=post&id={{ post.id }}" class="text-decoration-none">{{ post.title }}</a>
                 </div>
-                <div class="col-12 col-sm-3 offset-sm-1 text-center">
-                    <p>Créé le : {{ post.creationDate|date("d/m/Y \\à H\\hi") }}</p>
+                <div class="col-12 col-sm-4 text-center text-sm-end fst-italic">
+                    <p>Par {{ post.firstname ~ " " ~ post.name }}</p>
+                    <p>
+                        {% if post.creationDate != post.UpdateDate %}
+                            Modifié le :
+                        {% else %}
+                            Créé le :
+                        {% endif %}
+                        {{ post.UpdateDate|date("d/m/Y \\à H\\hi") }}</p>
+                    </p>
                 </div>
             </div>
 
@@ -30,16 +60,31 @@
                             accéder au blog post
                         </a>
                     </div>
-                    {% if session.user %}
-                        {% if session.user.role == "super_admin" %}
-                            <div class="p-4"><a href="" class="nav-link">modifier le post</a></div>
-                            <div class="p-4"><a href="" class="nav-link">supprimer le post</a></div>
-                        {% endif %}
-                    {% endif %}
                 </div>
             </div>
         </div>
             <br/>
         {% endfor %}
+    </div>
+    <div class="container d-flex justify-content-center">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <li class="page-item">
+                    <a class="page-link {% if pagination.current == 1 %}disabled{% endif %}" href="index.php?action=posts&per={{ pagination.limit }}&page={{ pagination.current - 1 }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% if pagination.current > 1 %}<li class="page-item"><a class="page-link" href="index.php?action=posts&per={{ pagination.limit }}&page={{ pagination.current - 1 }}">{{ pagination.current -1 }}</a></li>{% endif %}
+                <li class="page-item"><a class="page-link disabled" href="index.php?action=posts&per={{ pagination.limit }}&page={{ pagination.current }}">{{ pagination.current }}</a></li>
+                {% if pagination.current < pagination.nbPages %}<li class="page-item"><a class="page-link" href="index.php?action=posts&per={{ pagination.limit }}&page={{ pagination.current + 1 }}">{{ pagination.current + 1 }}</a></li>{% endif %}
+                <li class="page-item">
+                    <a class="page-link {% if pagination.current == pagination.nbPages %}disabled{% endif %}"
+                       href="index.php?action=posts&per={{ pagination.limit }}&page={{ pagination.current + 1 }}"
+                       aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
     </div>
 {% endblock %}

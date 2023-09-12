@@ -13,5 +13,6 @@ interface EntityRepositoryInterface
     public function create(object $entity): bool;
     public function update(object $entity): bool;
     public function delete(object $entity): bool;
+    public function count(): int;
 }
 

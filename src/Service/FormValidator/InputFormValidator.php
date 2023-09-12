@@ -4,13 +4,14 @@ namespace App\Service\FormValidator;
 
 use App\Service\Http\Request;
 use App\Service\Http\Session\Session;
-class ContactFormValidator
+class InputFormValidator
 {
     private ?array $contactArray=[];
     public function __construct(private Request $request, private Session $session)
     {
         $this->contactArray = $this->request->request()->all();
     }
+
     public function isInputValid(string $pattern, string $value):mixed
     {
         if ($this->contactArray === null)
@@ -27,6 +28,7 @@ class ContactFormValidator
             return true;
         }
     }
+
     public function isEmailValid(string $value): bool
     {
         if (!filter_var($value, FILTER_VALIDATE_EMAIL))
@@ -38,6 +40,7 @@ class ContactFormValidator
             return true;
         }
     }
+
     public function isTextareaValid(mixed $value):bool
     {
         if ($value !== NULL && $value!=="")
@@ -49,6 +52,7 @@ class ContactFormValidator
             return false;
         }
     }
+
     public function isRgpdChecked(mixed $value):bool
     {
         if ($value === 'on')
@@ -59,5 +63,20 @@ class ContactFormValidator
         {
             return false;
         }
+    }
+
+    public function isEqualToConfirm(mixed $value1, mixed $value2):bool
+    {
+        return $value1 === $value2;
+    }
+
+    public function isEmpty(mixed $value): bool
+    {
+        return empty($value);
+    }
+
+    public function isNotToLong(string $value, int $length): bool
+    {
+        return strlen($value) <= $length;
     }
 }

@@ -5,9 +5,12 @@
 {% block content %}
     <section class="my-5">
         <div class="container">
-            <div class="row text-center">
-                {% for flash in flashes.logout %}
-                    {{ flash }}
+            <div class="row">
+                {% for flash in flashes.info %}
+                    <p class="text-info fst-italic">{{ flash }}</p>
+                {% endfor %}
+                {% for flash in flashes.unauthorized %}
+                    <p class="text-danger text-center fs-3">{{ flash }}</p>
                 {% endfor %}
             </div>
             <div class="row gy-2 gy-sm-5 text-center align-items-center">

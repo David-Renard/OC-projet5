@@ -1,0 +1,32 @@
+{% extends "/backoffice/base.html.twig" %}
+
+{% block title %}Administration des posts{% endblock %}
+
+{% block content %}
+    <div class="container p-4 bg-primary my-3 rounded-3">
+        {% for flash in flashes.success %}
+            <p class="text-success fw-bold text-center">{{ flash }}</p>
+        {% endfor %}
+        {% for flash in flashes.error %}
+            <p class="text-danger fw-bold text-center">{{ flash }}</p>
+        {% endfor %}
+        <h1 class="fs-4 text-center mt-2">Ajouter un post :</h1>
+        <form action="" method="POST" class="form-group text-light">
+            <div class="col-10 offset-1 my-2">
+                <label for="title" class="form-label">Titre du post</label>
+                <input type="text" id="title" name="title" class="form-control" value="{{ inputs.title }}" required>
+            </div>
+            <div class="col-10 offset-1 my-2">
+                <label for="lede" class="form-label">Chapô du post</label>
+                <textarea id="lede" name="lede" rows="3" class="form-control" required>{{ inputs.lede }}</textarea>
+            </div>
+            <div class="col-10 offset-1 my-2">
+                <label for="content" class="form-label">Contenu du post</label>
+                <textarea id="content" name="content" rows="15" class="form-control" required>{{ inputs.content }}</textarea>
+            </div>
+            <div class="col-8 offset-2 mt-2">
+                <button type="submit" class="btn btn-dark w-100" required>Soumettre la validation</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "/backoffice/base.html.twig" %}
+
+{% block title %}Administration des utilisateurs{% endblock %}
+
+{% block content %}
+    <div class="container p-4">
+        {% for flash in flashes.success %}
+            <p class="text-success fw-bold text-center">{{ flash }}</p>
+        {% endfor %}
+        <h1 class="fs-4 text-center mt-5">Gestion des utilisateurs</h1>
+        <table class="table table-sm table-striped table-primary table-hover table-bordered border-light text-center">
+            <caption class="fs-4 text-center my-5 caption-top">Liste des utilisateurs :</caption>
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th class="hidden">Email</th>
+                    <th>Rôle</th>
+                    <th>Suppr.</th>
+                </tr>
+            </thead>
+            <tbody class="fs-6 fst-normal">
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.firstname }}</td>
+                    <td class="hidden">{{ user.email }}</td>
+                    <td>
+                        {% if user.role == 'user' %}
+                            <a href="index.php?action=adminupdateuser&id={{ user.id }}" class="btn btn-primary opacity-75 m-1">Passer admin</a>
+                        {% elseif user.role == 'admin' %}
+                            <a href="index.php?action=adminupdateuser&id={{ user.id }}" class="btn btn-primary m-1">Passer user</a>
+                        {% endif %}
+                    </td>
+                    <td><a href="index.php?action=admindeleteuser&id={{ user.id }}" class="btn btn-warning m-1">Supprimer</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
