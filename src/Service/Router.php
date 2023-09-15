@@ -66,7 +66,7 @@ class Router
         {
             $userRepository = new UserRepository($this->database);
             $controller = new AdminUserController($userRepository, $this->view, $this->session);
-            return $controller->displayUsers();
+            return $controller->displayUsers($this->request);
         }
         if ($action === 'adminupdateuser' && $this->request->query()->has('id'))
         {
@@ -85,45 +85,51 @@ class Router
         {
             $commentRepository = new CommentRepository($this->database);
             $postRepository = new PostRepository($this->database);
-            $controller = new AdminPostController($postRepository, $this->view, $this->session);
+            $userRepository = new UserRepository($this->database);
+            $controller = new AdminPostController($postRepository, $this->view, $this->session, $userRepository);
             return $controller->getCommentsByState('awaiting',$commentRepository,$this->request);
         }
         if ($action === 'admincomment' && $this->request->query()->has('id') && $this->request->query()->has('moderate'))
         {
             $commentRepository = new CommentRepository($this->database);
             $postRepository = new PostRepository($this->database);
-            $controller = new AdminPostController($postRepository, $this->view, $this->session);
+            $userRepository = new UserRepository($this->database);
+            $controller = new AdminPostController($postRepository, $this->view, $this->session, $userRepository);
             return $controller->moderateComment($commentRepository,$this->request);
         }
         if ($action === 'adminposts')
         {
             $postRepository = new PostRepository($this->database);
-            $controller = new AdminPostController($postRepository, $this->view, $this->session);
-            return $controller->displayPost();
+            $userRepository = new UserRepository($this->database);
+            $controller = new AdminPostController($postRepository, $this->view, $this->session, $userRepository);
+            return $controller->displayPost($this->request);
         }
         if ($action === 'adminupdatepost' && $this->request->query()->has('id'))
         {
             $postRepository = new PostRepository($this->database);
-            $controller = new AdminPostController($postRepository, $this->view, $this->session);
+            $userRepository = new UserRepository($this->database);
+            $controller = new AdminPostController($postRepository, $this->view, $this->session, $userRepository);
             return $controller->updatePost($this->request, $postRepository);
         }
         if ($action === 'admindeletepost' && $this->request->query()->has('id'))
         {
             $postRepository = new PostRepository($this->database);
-            $controller = new AdminPostController($postRepository, $this->view, $this->session);
+            $userRepository = new UserRepository($this->database);
+            $controller = new AdminPostController($postRepository, $this->view, $this->session, $userRepository);
             return $controller->deletePost($this->request, $postRepository);
         }
         if ($action === 'adminpostadd')
         {
             $postRepository = new PostRepository($this->database);
-            $controller = new AdminPostController($postRepository, $this->view, $this->session);
+            $userRepository = new UserRepository($this->database);
+            $controller = new AdminPostController($postRepository, $this->view, $this->session, $userRepository);
             return $controller->addPost($this->request, $postRepository);
         }
         if ($action === 'posts')
         {
             $postRepository = new PostRepository($this->database);
             $controller = new PostController($postRepository, $this->view, $this->session);
-            return $controller->displayPostsAction('published',$this->request);
+            return $controller->displayPostsAction($this->request);
         }
         if ($action === 'post' && $this->request->query()->has('id') && !$this->request->request()->has('content'))
         {

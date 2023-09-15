@@ -57,6 +57,9 @@
                                 <label for="content" class="form-label"></label>
                                 <textarea id="content" name="content" class="form-control" placeholder="Votre commentaire" required></textarea>
                             </div>
+                            <div class="col-10 offset-1 my-2 d-flex justify-content-center text-start">
+                                <input id="token" name="token" type="hidden" value="{{ session.token }}" />
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-10 offset-1 col-sm-3 offset-sm-7 my-2">

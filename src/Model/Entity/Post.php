@@ -13,7 +13,6 @@ class Post
     private ?int $idAuthor;
     private string $name = '';
     private string $firstname = '';
-    private string $status;
     private array $comments = [];
     public function getId(): int
     {
@@ -97,15 +96,6 @@ class Post
     {
         $this->creationDate = $creationDate;
     }
-    public function getStatus(): string
-    {
-        return $this->status;
-    }
-    public function setStatus(string $status): self
-    {
-        $this->status=$status;
-        return $this;
-    }
 
     public function setComments(array $comments):void
     {
@@ -131,6 +121,5 @@ class Post
         $this->setIdAuthor((int) $data['idAuthor']);
         $this->setName($data['name']);
         $this->setFirstname($data['firstname']);
-        $this->setStatus($data['status']);
     }
 }

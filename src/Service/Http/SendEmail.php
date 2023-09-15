@@ -32,7 +32,7 @@ class SendEmail
         if($mail->SMTPAuth){
             $mail->SMTPSecure = 'tls';
             $mail->Username = $from;
-            $mail->Password = 'xxxxxxx';
+            $mail->Password = 'david365+';
         }
 
         $mail->Subject = $subject;

@@ -21,15 +21,17 @@
                 <label for="content" class="form-label">Contenu du post</label>
                 <textarea id="content" name="content" rows="15" class="form-control" required>{% if inputs.content is defined %}{{ inputs.content }}{% else %}{{ post.content }}{% endif %}</textarea>
             </div>
-            <div class="col-10 offset-1 col-sm-2 my-2">
-                <label for="author" class="form-label">Auteur du post</label>
-                <select name="author" id="author" class="form-select form-select-sm">
-                    <option selected value="{{ post.firstname ~ ' ' ~ post.name }}">{{ post.firstname ~ ' ' ~ post.name }}</option>
-                    {% if updateauthor.id != post.idAuthor %}
-                        <option value="{{ updateauthor.firstname ~ ' ' ~ updateauthor.name }}">{{ updateauthor.firstname ~ ' ' ~ updateauthor.name }}</option>
-                    {% endif %}
-                </select>
+            <div class="col-10 offset-1 col-sm-4 my-2">
+                <p>Auteur du post : {{ post.firstname ~ ' ' ~ post.name }}</p>
+                {% if updateauthor.id != post.idAuthor %}
+                    <input type="checkbox" name="updateAuthor" id="updateAuthor">
+                    <label for="updateAuthor" class="px-2 pb-3">M'attribuer ce post</label>
+                {% endif %}
             </div>
+            <div>
+                <input id="token" name="token" type="hidden" value="{{ session.token }}" />
+            </div>
+
             <div class="col-8 offset-2 mt-2">
                 <button type="submit" class="btn btn-dark w-100" required>Soumettre la modification</button>
             </div>

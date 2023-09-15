@@ -20,9 +20,9 @@ class LoginFormValidator
         {
             return false;
         }
-        $user=$this->userRepository->findOneBy(['email' => $this->infoUser['email']]);
+        $user = $this->userRepository->findOneBy(['email' => $this->infoUser['email']]);
 
-        if (!$user instanceof (User::class) || password_verify($user->getPassword(),$this->infoUser['password']))
+        if (!$user instanceof (User::class) || !password_verify($this->infoUser['password'],$user->getPassword()))
         {
             return false;
         }
@@ -30,22 +30,32 @@ class LoginFormValidator
         return true;
     }
 
-    public function isAuthorized():string
+    /* return int : 0 for unauthorrized / unlogged user, 1 for admin, 2 for super_admin
+     *
+     */
+    public function isAuthorized():int
     {
+        $return = 0;
         if ($this->session->get('user')!=null)
         {
-            if ($this->session->get('user')->getRole()!== 'user')
+            if ($this->session->get('user')->getRole() === 'super_admin')
             {
-                return 'authorized';
+                $return = 2;
+            }
+            elseif ($this->session->get('user')->getRole() !== 'user')
+            {
+                $this->session->addFlashes('unauthorized','Vous ne disposez pas des droits d\'accès à cette partie du site.');
+                $return = 1;
             }
             else
             {
-                return 'unauthorized';
+                $this->session->addFlashes("unauthorized","Vous ne disposez pas des droits d'accès à la partie administration du site.");
             }
         }
         else
         {
-            return 'notLoggedIn';
+            $this->session->addFlashes("unauthorized","Vous devez être connecté et disposer des droits d'accès pour accéder à la partie administration du site.");
         }
+        return $return;
     }
 }

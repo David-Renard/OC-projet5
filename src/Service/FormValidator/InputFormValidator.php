@@ -7,12 +7,12 @@ use App\Service\Http\Session\Session;
 class InputFormValidator
 {
     private ?array $contactArray=[];
-    public function __construct(private Request $request, private Session $session)
+    public function __construct(private Request $request)
     {
         $this->contactArray = $this->request->request()->all();
     }
 
-    public function isInputValid(string $pattern, string $value):mixed
+    public function isInputValid(string $pattern, string $value) : mixed
     {
         if ($this->contactArray === null)
         {

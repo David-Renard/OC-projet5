@@ -26,19 +26,12 @@ class UserController
         $response = new Response();
         $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
         $authorizationLevel = $loginFormValidator->isAuthorized();
-        if ($authorizationLevel === 'unauthorized')
+        if ($authorizationLevel > 0)
         {
-            $this->session->addFlashes("unauthorized","Vous ne disposez pas des droits d'accès à la partie administration du site.");
-            $response -> redirect();
-        }
-        elseif ($authorizationLevel === 'authorized')
-        {
-            $this->session->addFlashes('info','Bienvenue sur la partie administration du site');
             $response -> redirect('?action=adminposts');
         }
         else
         {
-            $this->session->addFlashes("unauthorized","Vous devez être connecté et disposer des droits d'accès pour accéder à la partie administration du site.");
             $response -> redirect();
         }
         $response = new Response($this->view->render(
@@ -49,20 +42,28 @@ class UserController
         return $response;
     }
 
-    public function displayUsers(): Response
+    public function displayUsers(Request $request): Response
     {
         $adminsUsers = $this->userRepository->findBy(['role' => 'admin']);
         $usersUsers = $this->userRepository->findBy(['role' => 'user']);
         $users = array_merge($adminsUsers, $usersUsers);
 
-        return new Response($this->view->render(
-            [
-                "template" => 'adminusers',
-                'data' => [
-                    'users' => $users,
-                ],
-                'office' => 'backoffice',
-            ]));
+        $response = new Response($this->view->render(
+        [
+            "template" => 'adminusers',
+            'data' => [
+                'users' => $users,
+            ],
+            'office' => 'backoffice',
+        ]));
+        $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
+        $authorizationLevel = $loginFormValidator->isAuthorized();
+
+        if ($authorizationLevel < 2)
+        {
+            $response->redirect();
+        }
+        return $response;
     }
 
     public function updateUser(Request $request): Response
@@ -73,6 +74,14 @@ class UserController
         ]));
         $userId = intval($request->query()->get('id'));
         $currentRole = $this->userRepository->find($userId)->getRole();
+
+        $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
+        $authorizationLevel = $loginFormValidator->isAuthorized();
+
+        if ($authorizationLevel < 2)
+        {
+            $response->redirect();
+        }
 
         $user = new User();
         if ($currentRole === 'admin')
@@ -94,30 +103,31 @@ class UserController
             $this->session->addFlashes('error','Le rôle n\'a pas pu être modifié.');
         }
         $response->redirect('?action=adminusers');
+
         return $response;
     }
 
     public function deleteUser(Request $request, PostRepository $postRepository): Response
     {
+        $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
+        $authorizationLevel = $loginFormValidator->isAuthorized();
+
+        $response = new Response('',301,[]);
+
+        if ($authorizationLevel < 2)
+        {
+            $response->redirect();
+        }
+
         if ($request->query()->has('id'))
         {
             $idUser = intval($request->query()->get('id'));
             $user = new User();
             $user->setId($idUser);
             $userPost = $postRepository->findBy(['u.id' => $idUser]);
-//                var_dump($userPost);die;
 
             if ($userPost != [])
             {
-//                $anonymous = new User();
-//                $anonymous->setName('Anonyme');
-//                $anonymous->setFirstname('Auteur');
-//                $anonymous->setPassword('');
-//                $anonymous->setEMail('');
-//                $anonymous->setRole('unknown');
-//                $anonymous->setId(32);
-//                $this->userRepository->create($anonymous);
-//                var_dump($anonymous);die;
                 foreach($userPost as $currentPost)
                 {
                     $post = new Post();
@@ -143,7 +153,6 @@ class UserController
                 $this->session->addFlashes('error',"L'utilisateur n'a pas pu être supprimé.");
             }
         }
-        $response = new Response('',301,[]);
         $response->redirect('?action=adminusers');
         return $response;
     }
