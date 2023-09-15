@@ -176,8 +176,11 @@
                             <input type="checkbox" name="rgpd" id="rgpd" required>
                             <label for="rgpd" class="p-4">J'autorise ce site à conserver mes données personnelles transmises via ce formulaire. Aucune exploitation commerciale ne sera faite des données conservées.</label>
                         </div>
+                        <div class="col-10 offset-1 my-2 d-flex justify-content-center text-start">
+                            <input id="token" name="token" type="hidden" value="{{ session.token }}" />
+                        </div>
                         <div class="col-12 mt-2">
-                            <button type="submit" class="btn btn-primary w-100" required>Envoyer</button>
+                            <button type="submit" class="btn btn-primary w-100">Envoyer</button>
                         </div>
                     </form>
                 </div>

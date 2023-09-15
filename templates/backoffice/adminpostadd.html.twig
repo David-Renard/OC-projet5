@@ -24,6 +24,9 @@
                 <label for="content" class="form-label">Contenu du post</label>
                 <textarea id="content" name="content" rows="15" class="form-control" required>{{ inputs.content }}</textarea>
             </div>
+            <div>
+                <input id="token" name="token" type="hidden" value="{{ session.token }}" />
+            </div>
             <div class="col-8 offset-2 mt-2">
                 <button type="submit" class="btn btn-dark w-100" required>Soumettre la validation</button>
             </div>

@@ -6,17 +6,21 @@ namespace App\Controller\Backoffice;
 
 use App\Model\Entity\Comment;
 use App\Model\Entity\Post;
+use App\Model\Entity\User;
+use App\Service\FormValidator\LoginFormValidator;
 use App\View\View;
 use App\Service\Http\Request;
 use App\Service\Http\Response;
 use App\Service\Http\Session\Session;
+use App\Service\Http\Session\Token;
 use App\Model\Repository\PostRepository;
 use App\Model\Repository\CommentRepository;
+use App\Model\Repository\UserRepository;
 use App\Service\FormValidator\InputFormValidator;
 
 class PostController
 {
-    public function __construct(private PostRepository $postRepository, private View $view, private Session $session)
+    public function __construct(private PostRepository $postRepository, private View $view, private Session $session, private UserRepository $userRepository)
     {
     }
 
@@ -41,10 +45,17 @@ class PostController
             ],
             "office" => 'backoffice',
         ]));
+        $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
+        $authorizationLevel = $loginFormValidator->isAuthorized();
+
+        if ($authorizationLevel < 1)
+        {
+            $response->redirect();
+        }
         return $response;
     }
 
-    public function displayPost(): Response
+    public function displayPost(Request $request): Response
     {
         $posts = $this->postRepository->findAll();
         $response = new Response($this->view->render([
@@ -54,11 +65,22 @@ class PostController
             ],
             'office' => 'backoffice',
         ]));
+
+        $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
+        $authorizationLevel = $loginFormValidator->isAuthorized();
+
+        if ($authorizationLevel < 1)
+        {
+            $response->redirect();
+        }
         return $response;
     }
 
     public function addPost(Request $request, PostRepository $postRepository, array $inputs=[]): Response
     {
+        $token = new Token($this->session);
+        $token->setToken();
+
         $response = new Response($this->view->render([
             'template' => 'adminpostadd',
             'office' => 'backoffice',
@@ -69,77 +91,109 @@ class PostController
 
         if ($request->getMethod() === 'POST')
         {
-            $title = $request->request()->get('title');
-            $lede = $request->request()->get('lede');
-            $content = $request->request()->get('content');
-
-            $addPostValidator = new InputFormValidator($request,$this->session);
-            $isTitleEmpty = $addPostValidator->isEmpty($title);
-            $isLedeEmpty = $addPostValidator->isEmpty($lede);
-            $isContentEmpty = $addPostValidator->isEmpty($content);
-            $isTitleOk = $addPostValidator->isNotToLong($title,120);
-            $isLedeOk = $addPostValidator->isNotToLong($lede,255);
-            $isContentOk = $addPostValidator->isNotToLong($content,65535);
-
-            if (!$isTitleEmpty && !$isLedeEmpty && !$isContentEmpty && $isTitleOk && $isLedeOk && $isContentOk)
+            if ($token->verifyToken($request))
             {
-                $post = new Post();
-                $post->setTitle($title);
-                $post->setLede($lede);
-                $post->setContent($content);
-                $post->setIdAuthor(intval($this->session->get('user')->getId()));
 
-                if ($postRepository->create($post)) {
-                    $this->session->addFlashes('success', 'Le post a bien été ajouté.');
-                    $response->redirect('?action=adminposts');
-                } else {
-                    $this->session->addFlashes('error', 'Le post n\'a pas pu être ajouté.');
+                $title = $request->request()->get('title');
+                $lede = $request->request()->get('lede');
+                $content = $request->request()->get('content');
+                $isTitleTaken = $this->postRepository->findOneBy(['title' => $title]);
+
+                $addPostValidator = new InputFormValidator($request);
+                $isTitleEmpty = $addPostValidator->isEmpty($title);
+                $isLedeEmpty = $addPostValidator->isEmpty($lede);
+                $isContentEmpty = $addPostValidator->isEmpty($content);
+                $isTitleOk = $addPostValidator->isNotToLong($title,120);
+                $isLedeOk = $addPostValidator->isNotToLong($lede,255);
+                $isContentOk = $addPostValidator->isNotToLong($content,65535);
+
+                if (!$isTitleEmpty
+                    && !$isLedeEmpty
+                    && !$isContentEmpty
+                    && $isTitleOk
+                    && $isLedeOk
+                    && $isContentOk
+                    && !$isTitleTaken)
+                {
+                    $post = new Post();
+                    $post->setTitle($title);
+                    $post->setLede($lede);
+                    $post->setContent($content);
+                    $post->setIdAuthor(intval($this->session->get('user')->getId()));
+
+                    if ($postRepository->create($post)) {
+                        $this->session->addFlashes('success', 'Le post a bien été ajouté.');
+                        $response->redirect('?action=adminposts');
+                    }
+                    else {
+                        $this->session->addFlashes('error', 'Le post n\'a pas pu être ajouté.');
+                    }
+                }
+                elseif (empty($inputs))
+                {
+                    if ($isTitleEmpty)
+                    {
+                        $this->session->addFlashes('error','Le titre de l\'article ne peut pas être vide.');
+                    }
+                    if ($isLedeEmpty)
+                    {
+                        $this->session->addFlashes('error','Le chapô de l\'article ne peut pas être vide.');
+                    }
+                    if ($isContentEmpty)
+                    {
+                        $this->session->addFlashes('error','Le contenu de l\'article ne peut pas être vide.');
+                    }
+                    if (!$isTitleOk)
+                    {
+                        $this->session->addFlashes('error','Le titre de l\'article est trop long.');
+                    }
+                    if (!$isLedeOk)
+                    {
+                        $this->session->addFlashes('error','Le chapô de l\'article est trop long.');
+                    }
+                    if (!$isContentOk)
+                    {
+                        $this->session->addFlashes('error','Le contenu de l\'article est trop long.');
+                    }
+                    if ($isTitleTaken)
+                    {
+                        $this->session->addFlashes('error','Ce titre est déjà attribué à un autre post.');
+                    }
+
+                    $inputs = [
+                        'title' => $title,
+                        'lede' => $lede,
+                        'content' => $content,
+                    ];
+                    return $this->addPost($request,$postRepository,$inputs);
                 }
             }
-            elseif (empty($inputs))
+            else
             {
-                if ($isTitleEmpty)
-                {
-                    $this->session->addFlashes('error','Le titre de l\'article ne peut pas être vide.');
-                }
-                if ($isLedeEmpty)
-                {
-                    $this->session->addFlashes('error','Le chapô de l\'article ne peut pas être vide.');
-                }
-                if ($isContentEmpty)
-                {
-                    $this->session->addFlashes('error','Le contenu de l\'article ne peut pas être vide.');
-                }
-                if (!$isTitleOk)
-                {
-                    $this->session->addFlashes('error','Le titre de l\'article est trop long.');
-                }
-                if (!$isLedeOk)
-                {
-                    $this->session->addFlashes('error','Le chapô de l\'article est trop long.');
-                }
-                if (!$isContentOk)
-                {
-                    $this->session->addFlashes('error','Le contenu de l\'article est trop long.');
-                }
-
-                $inputs = [
-                    'title' => $title,
-                    'lede' => $lede,
-                    'content' => $content,
-                ];
-                return $this->addPost($request,$postRepository,$inputs);
+                $this->session->addFlashes('error','Il semblerait que ce ne soit pas vous qui tentez d\'ajouter un post!?');
+                $response->redirect('?action=adminpostadd');
             }
+        }
+        $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
+        $authorizationLevel = $loginFormValidator->isAuthorized();
+
+        if ($authorizationLevel < 1)
+        {
+            $response->redirect();
         }
         return $response;
     }
 
     public function updatePost(Request $request, PostRepository $postRepository, array $inputs=[]): Response
     {
+        $token = new Token($this->session);
+        $token->setToken();
+
         $updateAuthor = $this->session->get('user');
 
         $idPost = $request->query()->get('id');
         $post = $this->postRepository->find((int) $idPost);
+        $originalAuthor = $post->getIdAuthor();
 
         $response = new Response($this->view->render([
             'template' => 'adminupdatepost',
@@ -153,72 +207,112 @@ class PostController
 
         if ($request->getMethod() === 'POST')
         {
-            $title = $request->request()->get('title');
-            $lede = $request->request()->get('lede');
-            $content = $request->request()->get('content');
-
-            $updatePostValidator = new InputFormValidator($request,$this->session);
-            $isTitleEmpty = $updatePostValidator->isEmpty($title);
-            $isLedeEmpty = $updatePostValidator->isEmpty($lede);
-            $isContentEmpty = $updatePostValidator->isEmpty($content);
-            $isTitleOk = $updatePostValidator->isNotToLong($title,120);
-            $isLedeOk = $updatePostValidator->isNotToLong($lede,255);
-            $isContentOk = $updatePostValidator->isNotToLong($content,65535);
-
-            if (!$isTitleEmpty && !$isLedeEmpty && !$isContentEmpty && $isTitleOk && $isLedeOk && $isContentOk)
+            if ($token->verifyToken($request))
             {
-                $post = new Post();
-                $post->setTitle($title);
-                $post->setLede($lede);
-                $post->setContent($content);
-                $post->setId(intval($request->query()->get('id')));
-                $post->setIdAuthor(intval($updateAuthor->getId()));
+                $title = $request->request()->get('title');
+                $lede = $request->request()->get('lede');
+                $content = $request->request()->get('content');
+                $isModifiedBy = $request->request()->get('updateAuthor');
 
-                if ($postRepository->update($post))
+                $isTitleTaken = $this->postRepository->findOneBy(['title' => $title]);
+                if (!empty($isTitleTaken) && $isTitleTaken->getId() === intval($idPost))
                 {
-                    $this->session->addFlashes('success','Le post a bien été mis à jour.');
-                    $response->redirect('?action=adminposts');
+                    $isTitleTaken = false;
                 }
-                else
+
+                $updatePostValidator = new InputFormValidator($request);
+                $isTitleEmpty = $updatePostValidator->isEmpty($title);
+                $isLedeEmpty = $updatePostValidator->isEmpty($lede);
+                $isContentEmpty = $updatePostValidator->isEmpty($content);
+                $isTitleOk = $updatePostValidator->isNotToLong($title,120);
+                $isLedeOk = $updatePostValidator->isNotToLong($lede,255);
+                $isContentOk = $updatePostValidator->isNotToLong($content,65535);
+
+                if (!$isTitleEmpty
+                    && !$isLedeEmpty
+                    && !$isContentEmpty
+                    && $isTitleOk
+                    && $isLedeOk
+                    && $isContentOk
+                    && !$isTitleTaken)
                 {
-                    $this->session->addFlashes('error','Le post n\'a pas pu être mis à jour.');
+                    $post = new Post();
+                    $post->setTitle($title);
+                    $post->setLede($lede);
+                    $post->setContent($content);
+                    $post->setId(intval($request->query()->get('id')));
+                    if ($isModifiedBy != null)
+                    {
+                        $post->setIdAuthor(intval($updateAuthor->getId()));
+                    }
+                    else
+                    {
+                        $post->setIdAuthor($originalAuthor);
+                    }
+
+                    if ($postRepository->update($post))
+                    {
+                        $this->session->addFlashes('success','Le post n°'. $idPost .' a bien été mis à jour.');
+                        $response->redirect('?action=adminposts');
+                    }
+                    else
+                    {
+                        $this->session->addFlashes('error','Le post n\'a pas pu être mis à jour.');
+                    }
+                }
+                elseif (empty($inputs))
+                {
+                    if ($isTitleEmpty)
+                    {
+                        $this->session->addFlashes('error','Le titre de l\'article ne peut pas être vide.');
+                    }
+                    if ($isLedeEmpty)
+                    {
+                        $this->session->addFlashes('error','Le chapô de l\'article ne peut pas être vide.');
+                    }
+                    if ($isContentEmpty)
+                    {
+                        $this->session->addFlashes('error','Le contenu de l\'article ne peut pas être vide.');
+                    }
+                    if (!$isTitleOk)
+                    {
+                        $this->session->addFlashes('error','Le titre de l\'article est trop long.');
+                    }
+                    if (!$isLedeOk)
+                    {
+                        $this->session->addFlashes('error','Le chapô de l\'article est trop long.');
+                    }
+                    if (!$isContentOk)
+                    {
+                        $this->session->addFlashes('error','Le contenu de l\'article est trop long.');
+                    }
+                    if ($isTitleTaken)
+                    {
+                        $this->session->addFlashes('error','Ce titre est déjà attribué à un autre post.');
+                    }
+
+                    $inputs = [
+                        'title' => $title,
+                        'lede' => $lede,
+                        'content' => $content,
+                    ];
+                    return $this->updatePost($request,$postRepository,$inputs);
                 }
             }
-            elseif (empty($inputs))
+            else
             {
-                if ($isTitleEmpty)
-                {
-                    $this->session->addFlashes('error','Le titre de l\'article ne peut pas être vide.');
-                }
-                if ($isLedeEmpty)
-                {
-                    $this->session->addFlashes('error','Le chapô de l\'article ne peut pas être vide.');
-                }
-                if ($isContentEmpty)
-                {
-                    $this->session->addFlashes('error','Le contenu de l\'article ne peut pas être vide.');
-                }
-                if (!$isTitleOk)
-                {
-                    $this->session->addFlashes('error','Le titre de l\'article est trop long.');
-                }
-                if (!$isLedeOk)
-                {
-                    $this->session->addFlashes('error','Le chapô de l\'article est trop long.');
-                }
-                if (!$isContentOk)
-                {
-                    $this->session->addFlashes('error','Le contenu de l\'article est trop long.');
-                }
-
-                $inputs = [
-                    'title' => $title,
-                    'lede' => $lede,
-                    'content' => $content,
-                ];
-                return $this->updatePost($request,$postRepository,$inputs);
+                $this->session->addFlashes('error','Il semblerait que ce ne soit pas vous qui tentez de modifier un post!?');
+                $response->redirect('?action=adminupdatepost&id=' . $idPost);
             }
+
             return $response;
+        }
+        $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
+        $authorizationLevel = $loginFormValidator->isAuthorized();
+
+        if ($authorizationLevel < 1)
+        {
+            $response->redirect();
         }
         return $response;
     }
@@ -230,10 +324,12 @@ class PostController
             'office' => 'backoffice',
         ]));
 
-        if ($request->getMethod() === 'GET')
+        $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
+        $authorizationLevel = $loginFormValidator->isAuthorized();
+
+        if ($request->getMethod() === 'GET' && $authorizationLevel > 0)
         {
             $post = new Post();
-            $post->setStatus('deleted');
             $post->setId(intval($request->query()->get('id')));
 
             if ($postRepository->delete($post))
@@ -245,6 +341,10 @@ class PostController
                 $this->session->addFlashes('error','Le post n\'a pas pu être supprimé.');
             }
             $response->redirect('?action=adminposts');
+        }
+        if ($authorizationLevel === 0)
+        {
+            $response->redirect();
         }
         return $response;
     }

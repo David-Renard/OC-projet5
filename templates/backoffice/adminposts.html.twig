@@ -22,8 +22,7 @@
                 <th>Titre</th>
                 <th>Date de création</th>
                 <th>Auteur</th>
-                <th>Statut</th>
-                <th>Modifier</th>
+                <th>Action</th>
             </tr>
             </thead>
             <tbody class="fs-6 fst-normal">
@@ -34,12 +33,9 @@
                         <td>{{ post.creationDate|date("d/m/Y \\à H\\hi") }}</td>
                         <td>{{ post.firstname ~ ' ' ~ post.name }}</td>
                         <td>
-                            {% if post.status == 'published' %}
-                                <a href="index.php?action=admindeletepost&id={{ post.id }}" class="btn btn-warning m-1">Supprimer</a>
-                            {% else %}
-                                <a class="btn btn-info">Supprimé</a>
-                            {% endif %}
-                        <td><a href="index.php?action=adminupdatepost&id={{ post.id }}" class="btn btn-primary m-1">Modifier</a></td>
+                            <a href="index.php?action=admindeletepost&id={{ post.id }}" class="btn btn-warning m-1">Supprimer</a>
+                            <a href="index.php?action=adminupdatepost&id={{ post.id }}" class="btn btn-primary m-1">Modifier</a>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>

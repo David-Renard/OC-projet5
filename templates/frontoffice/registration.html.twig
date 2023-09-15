@@ -49,6 +49,9 @@
                                 <label for="passwordConfirm" class="form-label">Confirmer votre mot de passe:</label>
                                 <input type="password" id="passwordConfirm" name="passwordConfirm" pattern="(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^<>&*-]).{8,}" class="form-control" required>
                             </div>
+                            <div>
+                                <input id="token" name="token" type="hidden" value="{{ session.token }}" />
+                            </div>
                         </div>
                         <div class="row d-flex justify-content-sm-center-center">
                             <div class="col-10 offset-1 col-sm-3 my-2">

@@ -15,7 +15,11 @@ class PostRepository implements EntityRepositoryInterface
 
     public function find(int $id): ?Post
     {
-        $postQuery = $this->databaseConnection->getConnection()->prepare("SELECT p.id, p.title, p.creationDate, p.lede, p.content, p.lastUpdateDate, p.idAuthor, u.name, u.firstname, p.status FROM post p LEFT JOIN user u on p.idAuthor=u.id WHERE p.id = $id");
+        $postQuery = $this->databaseConnection->getConnection()->prepare("SELECT p.id, p.title, p.creationDate, p.lede, p.content, p.lastUpdateDate, p.idAuthor, u.name, u.firstname 
+    FROM post p 
+    LEFT JOIN user u 
+    ON p.idAuthor=u.id 
+    WHERE p.id = $id");
         $postQuery->execute();
         $data=$postQuery->fetch(\PDO::FETCH_ASSOC);
 
@@ -33,7 +37,7 @@ class PostRepository implements EntityRepositoryInterface
 
     public function findOneBy(array $criteria, array $orderBy = null): ?Post
     {
-        $postQuery=$this->databaseConnection->getConnection()->prepare("SELECT p.id, p.title, p.creationDate, p.lede, p.content, p.lastUpdateDate, p.idAuthor, u.name, u.firstname, p.status FROM post p LEFT JOIN user u on p.idAuthor=u.id WHERE p.id = :id");
+        $postQuery=$this->databaseConnection->getConnection()->prepare("SELECT p.id, p.title, p.creationDate, p.lede, p.content, p.lastUpdateDate, p.idAuthor, u.name, u.firstname FROM post p LEFT JOIN user u on p.idAuthor=u.id WHERE p.title = :title");
         $postQuery->execute($criteria);
         $data=$postQuery->fetch(\PDO::FETCH_ASSOC);
 
@@ -106,7 +110,7 @@ class PostRepository implements EntityRepositoryInterface
             $sOffset = ' OFFSET ' . $offset;
         }
 
-        $query = 'SELECT p.id, p.title, p.creationDate, p.lede, p.content, p.lastUpdateDate, p.idAuthor, u.name, u.firstname, p.status
+        $query = 'SELECT p.id, p.title, p.creationDate, p.lede, p.content, p.lastUpdateDate, p.idAuthor, u.name, u.firstname
     FROM post p
     LEFT JOIN user u
     ON p.idAuthor = u.id';
@@ -131,9 +135,32 @@ class PostRepository implements EntityRepositoryInterface
         return $posts;
     }
 
-    public function findAll(): ?array
+    public function findAll(int $limit = null , int $offset = null): ?array
     {
-        $postsQuery = $this->databaseConnection->getConnection()->prepare("SELECT  p.id, p.title, p.creationDate, p.lede, p.content, p.lastUpdateDate, p.idAuthor, u.name, u.firstname, p.status FROM post p LEFT JOIN user u ON p.idAuthor=u.id ORDER BY creationDate DESC");
+        if ($limit == null)
+        {
+            $sLimit='';
+        }
+        else
+        {
+            $sLimit = ' LIMIT ' . $limit;
+        }
+
+        if ($offset == null)
+        {
+            $sOffset='';
+        }
+        else
+        {
+            $sOffset = ' OFFSET ' . $offset;
+        }
+
+        $query = "SELECT  p.id, p.title, p.creationDate, p.lede, p.content, p.lastUpdateDate, p.idAuthor, u.name, u.firstname 
+    FROM post p 
+    LEFT JOIN user u 
+    ON p.idAuthor=u.id 
+    ORDER BY creationDate DESC";
+        $postsQuery = $this->databaseConnection->getConnection()->prepare($query . $sLimit . $sOffset);
         $postsQuery->execute();
         $data = $postsQuery->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -155,8 +182,8 @@ class PostRepository implements EntityRepositoryInterface
     public function create(object $entity): bool
     {
         $addPostQuery=$this->databaseConnection->getConnection()->prepare("INSERT INTO post 
-        (title, creationDate, lede, content, lastUpdateDate, idAuthor, status)
-        VALUES (:title, :creationDate, :lede, :content, :lastUpdateDate, :idAuthor, :status)");
+        (title, creationDate, lede, content, lastUpdateDate, idAuthor)
+        VALUES (:title, :creationDate, :lede, :content, :lastUpdateDate, :idAuthor)");
         $creationDate = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
         $creationDate = $creationDate->format('Y-m-d H:i:s');
 
@@ -165,7 +192,6 @@ class PostRepository implements EntityRepositoryInterface
         $addPostQuery->bindValue(':creationDate',$creationDate);
         $addPostQuery->bindValue(':lastUpdateDate',$creationDate);
         $addPostQuery->bindValue(':lede',$entity->getLede());
-        $addPostQuery->bindValue(':status','published');
         $addPostQuery->bindValue(':content',$entity->getContent());
 
         return $addPostQuery->execute();
@@ -191,13 +217,8 @@ class PostRepository implements EntityRepositoryInterface
 
     public function delete(object $entity): bool
     {
-        $deleteQuery = $this->databaseConnection->getConnection()->prepare("UPDATE post
-        SET lastUpdateDate = :lastUpdateDate, status = :status WHERE id = :id");
-        $deleteDate = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
-        $deleteDate = $deleteDate->format('Y-m-d H:i:s');
-
-        $deleteQuery->bindValue(':status', $entity->getStatus());
-        $deleteQuery->bindValue(':lastUpdateDate', $deleteDate);
+        $deleteQuery = $this->databaseConnection->getConnection()->prepare("DELETE FROM post
+        WHERE id = :id");
         $deleteQuery->bindValue(':id', $entity->getId());
 
         return $deleteQuery->execute();
@@ -206,8 +227,7 @@ class PostRepository implements EntityRepositoryInterface
     public function count(): int
     {
         $countQuery = $this->databaseConnection->getConnection()->prepare("SELECT COUNT(id) as Total 
-        FROM post
-        WHERE STATUS='published'");
+        FROM post");
         $countQuery->execute();
         $data=$countQuery->fetch(\PDO::FETCH_NUM)[0];
         return $data;
