@@ -35,7 +35,12 @@ class CommentRepository implements EntityRepositoryInterface
     }
     public function findBy(array $criteria, array $orderBy = null, int $limit = null, int $offset = null): ?array
     {
-        $commentsPostQuery=$this->databaseConnection->getConnection()->prepare("SELECT c.id,c.content,c.idAuthor,u.name,u.firstname,c.creationDate,c.idPost,c.status FROM comment c LEFT JOIN user u ON c.idAuthor=u.id WHERE c.idPost = :id_post AND c.status = :status ORDER BY creationDate DESC");
+        $commentsPostQuery=$this->databaseConnection->getConnection()->prepare("SELECT c.id,c.content,c.idAuthor,u.name,u.firstname,c.creationDate,c.idPost,c.status 
+FROM comment c 
+    LEFT JOIN user u 
+        ON c.idAuthor=u.id 
+WHERE c.idPost = :id_post AND c.status = :status 
+ORDER BY creationDate DESC");
         $commentsPostQuery->execute($criteria);
         $data=$commentsPostQuery->fetchAll(\PDO::FETCH_ASSOC);
 

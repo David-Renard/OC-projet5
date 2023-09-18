@@ -97,7 +97,9 @@ class PostController
                 $title = $request->request()->get('title');
                 $lede = $request->request()->get('lede');
                 $content = $request->request()->get('content');
-                $isTitleTaken = $this->postRepository->findOneBy(['title' => $title]);
+                $isTitleTaken = $this->postRepository->findOneBy([':id' => 19]);
+//                $isTitleTaken = $this->postRepository->findOneBy([':title' => $title]);
+//                var_dump($title,$lede,$content,$isTitleTaken);die;
 
                 $addPostValidator = new InputFormValidator($request);
                 $isTitleEmpty = $addPostValidator->isEmpty($title);
@@ -214,7 +216,7 @@ class PostController
                 $content = $request->request()->get('content');
                 $isModifiedBy = $request->request()->get('updateAuthor');
 
-                $isTitleTaken = $this->postRepository->findOneBy(['title' => $title]);
+                $isTitleTaken = $this->postRepository->findOneBy([':title' => $title]);
                 if (!empty($isTitleTaken) && $isTitleTaken->getId() === intval($idPost))
                 {
                     $isTitleTaken = false;

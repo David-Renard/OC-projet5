@@ -124,7 +124,8 @@ class UserController
             $idUser = intval($request->query()->get('id'));
             $user = new User();
             $user->setId($idUser);
-            $userPost = $postRepository->findBy(['u.id' => $idUser]);
+            $userPost = $postRepository->findBy([':id' => $idUser]);
+            var_dump($userPost);die;
 
             if ($userPost != [])
             {
@@ -137,7 +138,6 @@ class UserController
                     $post->setContent($currentPost->getContent());
                     $post->setLastUpdateDate($currentPost->getUpdateDate());
                     $post->setCreationDate($currentPost->getCreationDate());
-                    $post->setStatus($currentPost->getStatus());
                     $post->setIdAuthor(32);
 //                    var_dump($post);die;
                     $postRepository->update($post);
