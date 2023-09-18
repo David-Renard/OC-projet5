@@ -19,7 +19,8 @@ class PostRepository implements EntityRepositoryInterface
     FROM post p 
     LEFT JOIN user u 
     ON p.idAuthor=u.id 
-    WHERE p.id = $id");
+    WHERE p.id = :id");
+        $postQuery->bindValue(':id', $id, \PDO::PARAM_INT);
         $postQuery->execute();
         $data=$postQuery->fetch(\PDO::FETCH_ASSOC);
 
@@ -37,10 +38,43 @@ class PostRepository implements EntityRepositoryInterface
 
     public function findOneBy(array $criteria, array $orderBy = null): ?Post
     {
-        $postQuery=$this->databaseConnection->getConnection()->prepare("SELECT p.id, p.title, p.creationDate, p.lede, p.content, p.lastUpdateDate, p.idAuthor, u.name, u.firstname FROM post p LEFT JOIN user u on p.idAuthor=u.id WHERE p.title = :title");
+        $countCriteria = 0;
+        $sCriteria = '';
+        foreach ($criteria as $key => $value)
+        {
+            $countCriteria++;
+            if (is_string($value))
+            {
+                $value = "'$value'";
+            }
+            if ($countCriteria === 1)
+            {
+                $sCriteria = " WHERE $key = $value";
+            }
+            else
+            {
+                $sCriteria = $sCriteria . ' AND ' . $key . "=" . $value;
+            }
+        }
+        $query = "SELECT p.id, p.title, p.creationDate, p.lede, p.content, p.lastUpdateDate, p.idAuthor, u.name, u.firstname 
+FROM post p 
+    LEFT JOIN user u 
+        ON p.idAuthor=u.id";
+        $concatenatedQuery = $query . $sCriteria;
+//var_dump($concatenatedQuery);die;
+        $postQuery = $this->databaseConnection->getConnection()->prepare($concatenatedQuery);
+//        $postQuery = $this->databaseConnection->getConnection()->prepare("SELECT p.id, p.title, p.creationDate, p.lede, p.content, p.lastUpdateDate, p.idAuthor, u.name, u.firstname
+// FROM post p
+// LEFT JOIN user u
+// ON p.idAuthor=u.id
+// WHERE p.title = :title");
+        foreach ($criteria as $key => $value)
+        {
+            $postQuery->bindValue(":$key", $value);
+        }
         $postQuery->execute($criteria);
         $data=$postQuery->fetch(\PDO::FETCH_ASSOC);
-
+var_dump($data);die;
         $post = new Post();
         if ($data === null || $data === false)
         {
@@ -117,7 +151,13 @@ class PostRepository implements EntityRepositoryInterface
         $concatenatedQuery = $query . $sCriteria . $sOrderBy . $sLimit . $sOffset;
         $publishedPostsQuery = $this->databaseConnection->getConnection()->prepare($concatenatedQuery);
 
+        foreach ($criteria as $key => $value)
+        {
+            $publishedPostsQuery->bindValue($key,$value);
+        }
+
         $publishedPostsQuery->execute();
+//        $data = $publishedPostsQuery->fetchAll(\PDO::FETCH_CLASS,"Post");
         $data = $publishedPostsQuery->fetchAll(\PDO::FETCH_ASSOC);
 
         if ($data === null)

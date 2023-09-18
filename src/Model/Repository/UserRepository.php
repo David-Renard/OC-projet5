@@ -16,6 +16,7 @@ class UserRepository implements EntityRepositoryInterface
     public function find(int $id): ?User
     {
         $userQuery = $this->databaseConnection->getConnection()->prepare("SELECT * FROM user WHERE id = $id");
+        $userQuery->bindValue(':id',$id,\PDO::PARAM_INT);
         $userQuery->execute();
         $data=$userQuery->fetch(\PDO::FETCH_ASSOC);
 
@@ -34,6 +35,10 @@ class UserRepository implements EntityRepositoryInterface
     public function findOneBy(array $criteria, array $orderBy = null): ?User
     {
         $userQuery = $this->databaseConnection->getConnection()->prepare("SELECT * FROM user WHERE email=:email");
+        foreach($criteria as $key => $value)
+        {
+            $userQuery->bindValue($key, $value);
+        }
         $userQuery->execute($criteria);
         $data = $userQuery->fetch(\PDO::FETCH_ASSOC);
 
@@ -54,6 +59,10 @@ class UserRepository implements EntityRepositoryInterface
         $usersQuery = $this->databaseConnection->getConnection()->prepare("SELECT * 
         FROM user
         WHERE role = :role");
+        foreach ($criteria as $key => $value)
+        {
+            $usersQuery->bindValue($key,$value);
+        }
         $usersQuery->execute($criteria);
         $data = $usersQuery->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -74,7 +83,8 @@ class UserRepository implements EntityRepositoryInterface
 
     public function findAll(): ?array
     {
-        $usersQuery = $this->databaseConnection->getConnection()->prepare("SELECT * FROM user");
+        $usersQuery = $this->databaseConnection->getConnection()->prepare("SELECT * 
+FROM user");
         $usersQuery->execute();
         $data=$usersQuery->fetchAll(\PDO::FETCH_ASSOC);
 
