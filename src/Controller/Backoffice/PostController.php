@@ -26,10 +26,10 @@ class PostController
 
     private function displayCommentsByState(string $status, CommentRepository $commentRepository)
     {
-        $posts = $this -> postRepository -> findAll();
+        $posts = $this->postRepository->findAll();
         foreach ($posts as $post)
         {
-            $post -> setComments($commentRepository -> findBy(['id_post'=>$post->getID(),'status'=>$status]));
+            $post->setComments($commentRepository->findBy(['idPost' => $post->getID(),'status' => $status]));
         }
 
         return $posts;
@@ -97,9 +97,8 @@ class PostController
                 $title = $request->request()->get('title');
                 $lede = $request->request()->get('lede');
                 $content = $request->request()->get('content');
-                $isTitleTaken = $this->postRepository->findOneBy([':id' => 19]);
-//                $isTitleTaken = $this->postRepository->findOneBy([':title' => $title]);
-//                var_dump($title,$lede,$content,$isTitleTaken);die;
+                $isTitleTaken = $this->postRepository->findOneBy(['title' => $title]);
+//                var_dump($isTitleTaken);die;
 
                 $addPostValidator = new InputFormValidator($request);
                 $isTitleEmpty = $addPostValidator->isEmpty($title);
@@ -216,7 +215,7 @@ class PostController
                 $content = $request->request()->get('content');
                 $isModifiedBy = $request->request()->get('updateAuthor');
 
-                $isTitleTaken = $this->postRepository->findOneBy([':title' => $title]);
+                $isTitleTaken = $this->postRepository->findOneBy(['title' => $title]);
                 if (!empty($isTitleTaken) && $isTitleTaken->getId() === intval($idPost))
                 {
                     $isTitleTaken = false;

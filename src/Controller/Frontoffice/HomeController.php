@@ -79,10 +79,9 @@ class HomeController
                 }
 
                 $mail = new SendEmail();
-                if ($mail->sendMail('david.renard@g2a-consulting.fr', $name . ' ' . $firstName, 'Message de contact de ' . $email, $message))
+                if ($mail->sendMail($email, $name . ' ' . $firstName, 'Message de contact de ' . $email, $message))
                 {
-    //                var_dump($mail);die;
-                    return $response;
+                    $response->redirect('#contact');
                 }
             }
             else

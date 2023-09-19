@@ -19,21 +19,23 @@ class SendEmail
     {
         $mail = new PHPMailer();
         $mail->isSMTP();
-        $mail->Host = 'smtp-mail.outlook.com';
-        $mail->SMTPAuth = 1;
+//        $mail->Host = 'smtp-mail.outlook.com';
+        $mail->Host = 'localhost';
+//        $mail->SMTPAuth = 1;
         $mail->CharSet = 'UTF-8';
-        $mail->Port = 587;
+//        $mail->Port = 587;
+        $mail->Port = 1025;
         $mail->SMTPDebug = 4;
 
-        $mail->From = $from;
+        $mail->setFrom($from, 'contact');
         $mail->FromName = $fromName;
         $mail->addAddress($from,'Contact');
 
-        if($mail->SMTPAuth){
-            $mail->SMTPSecure = 'tls';
-            $mail->Username = $from;
-            $mail->Password = 'david365+';
-        }
+//        if($mail->SMTPAuth){
+//            $mail->SMTPSecure = 'tls';
+//            $mail->Username = $from;
+//            $mail->Password = 'david365+';
+//        }
 
         $mail->Subject = $subject;
         $mail->WordWrap = 100;
@@ -43,7 +45,7 @@ class SendEmail
 <html>
     <div style='font-weight: bold'>Subject : $subject</div>
     <div style='font-style: italic'>From : $fromName</div>
-    <div style='font-style: italic; font-size: 0.8rem'><p>Merci pour votre message, nous reviendrons vers vous dans les plus brefs délais.</p></div>
+    <div style='font-style: italic; font-size: 0.9rem'><p>Merci pour votre message, nous reviendrons vers vous dans les plus brefs délais.</p></div>
     <div style='font-style: italic'>Message : $body</div>
 </html>";
         $mail->AltBody = $body;

@@ -13,9 +13,50 @@ class UserRepository implements EntityRepositoryInterface
     {
     }
 
+    private function where(array $criteria = []): ?string
+    {
+        $sCriteria = '';
+        $countCriteria = 0;
+        foreach ($criteria as $key => $value)
+        {
+            $countCriteria++;
+            if ($countCriteria === 1)
+            {
+                $sCriteria = " WHERE u.$key = :$key";
+            }
+            else
+            {
+                $sCriteria = $sCriteria . " AND u.$key = :$key";
+            }
+        }
+        return $sCriteria;
+    }
+
+    private function orderBy(array $criteria = null): ?string
+    {
+        $sCriteria = '';
+        $countCriteria = 0;
+        if ($criteria != null)
+        {
+            foreach ($criteria as $key => $value)
+            {
+                $countCriteria++;
+                if ($countCriteria === 1)
+                {
+                    $sCriteria = " ORDER BY u.$key $value";
+                }
+                else
+                {
+                    $sCriteria = $sCriteria . " AND u.$key $value";
+                }
+            }
+        }
+        return $sCriteria;
+    }
+
     public function find(int $id): ?User
     {
-        $userQuery = $this->databaseConnection->getConnection()->prepare("SELECT * FROM user WHERE id = $id");
+        $userQuery = $this->databaseConnection->getConnection()->prepare("SELECT * FROM user WHERE id = :id");
         $userQuery->bindValue(':id',$id,\PDO::PARAM_INT);
         $userQuery->execute();
         $data=$userQuery->fetch(\PDO::FETCH_ASSOC);
@@ -34,7 +75,12 @@ class UserRepository implements EntityRepositoryInterface
 
     public function findOneBy(array $criteria, array $orderBy = null): ?User
     {
-        $userQuery = $this->databaseConnection->getConnection()->prepare("SELECT * FROM user WHERE email=:email");
+        $query = "SELECT * FROM user u";
+        $where = $this->where($criteria);
+        $sortBy = $this->orderBy($orderBy);
+        $concatenatedQuery = $query . $where . $sortBy;
+
+        $userQuery = $this->databaseConnection->getConnection()->prepare($concatenatedQuery);
         foreach($criteria as $key => $value)
         {
             $userQuery->bindValue($key, $value);
@@ -56,9 +102,11 @@ class UserRepository implements EntityRepositoryInterface
 
     public function findBy(array $criteria, array $orderBy = null, int $limit = null, int $offset = null): ?array
     {
-        $usersQuery = $this->databaseConnection->getConnection()->prepare("SELECT * 
-        FROM user
-        WHERE role = :role");
+        $query = "SELECT * 
+        FROM user u";
+        $where = $this->where($criteria);
+        $concatenatedQuery = $query . $where;
+        $usersQuery = $this->databaseConnection->getConnection()->prepare($concatenatedQuery);
         foreach ($criteria as $key => $value)
         {
             $usersQuery->bindValue($key,$value);
