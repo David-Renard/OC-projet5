@@ -23,8 +23,8 @@ class PostController
     public function displayPostsAction(Request $request): Response
     {
         $posts = $this->postRepository->findAll();
+
         $pagination = new Pagination($request,$posts);
-//        var_dump($this->postRepository->count());die;
         $limit = $pagination->nbPerPage();
         $nbPages = $pagination->nbPages();
         $current = $pagination->currentPage();
@@ -34,8 +34,9 @@ class PostController
                 'nbPages' => $nbPages,
                 'current' => $current,
             ];
+
 //        ?><!--<pre>--><?php
-//        var_dump($limit);die;
+//        var_dump($limit, $offset);die;
 //        ?><!--<pre>--><?php
         $posts = $this->postRepository->findAll($limit, $offset);
 
@@ -57,7 +58,7 @@ class PostController
 
         if ($post !== null)
         {
-            $comments = $commentRepository -> findBy(['id_post'=>$id,'status'=>'valided']);
+            $comments = $commentRepository -> findBy(['idPost'=>$id,'status'=>'valided'],['creationDate' => 'DESC']);
 
             $array = [
                 'post' => $post,

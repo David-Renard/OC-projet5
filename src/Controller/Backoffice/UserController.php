@@ -88,7 +88,7 @@ class UserController
         {
             $user->setRole('user');
         }
-        else
+        elseif ($currentRole === 'user')
         {
             $user->setRole('admin');
         }
@@ -124,8 +124,7 @@ class UserController
             $idUser = intval($request->query()->get('id'));
             $user = new User();
             $user->setId($idUser);
-            $userPost = $postRepository->findBy([':id' => $idUser]);
-            var_dump($userPost);die;
+            $userPost = $postRepository->findBy(['idAuthor' => $idUser]);
 
             if ($userPost != [])
             {

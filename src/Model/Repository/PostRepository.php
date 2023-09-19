@@ -13,6 +13,67 @@ class PostRepository implements EntityRepositoryInterface
     {
     }
 
+    private function where(array $criteria = []): ?string
+    {
+        $sCriteria = '';
+        $countCriteria = 0;
+        foreach ($criteria as $key => $value)
+        {
+            $countCriteria++;
+            if ($countCriteria === 1)
+            {
+                $sCriteria = " WHERE p.$key = :$key";
+            }
+            else
+            {
+                $sCriteria = $sCriteria . " AND p.$key = :$key";
+            }
+        }
+        return $sCriteria;
+    }
+
+    private function orderBy(array $criteria = null): ?string
+    {
+        $sCriteria = '';
+        $countCriteria = 0;
+        if ($criteria != null)
+        {
+            foreach ($criteria as $key => $value)
+            {
+                $countCriteria++;
+                if ($countCriteria === 1)
+                {
+                    $sCriteria = " ORDER BY p.$key $value";
+                }
+                else
+                {
+                    $sCriteria = $sCriteria . " AND p.$key $value";
+                }
+            }
+        }
+        return $sCriteria;
+    }
+
+    private function setLimit(int $limit = null): string
+    {
+        $sLimit = "";
+        if ($limit != null)
+        {
+            $sLimit = " LIMIT $limit";
+        }
+        return $sLimit;
+    }
+
+    private function setOffset(int $offset = null): string
+    {
+        $sOffset = "";
+        if ($offset != null)
+        {
+            $sOffset = " OFFSET $offset";
+        }
+        return $sOffset;
+    }
+
     public function find(int $id): ?Post
     {
         $postQuery = $this->databaseConnection->getConnection()->prepare("SELECT p.id, p.title, p.creationDate, p.lede, p.content, p.lastUpdateDate, p.idAuthor, u.name, u.firstname 
@@ -38,43 +99,21 @@ class PostRepository implements EntityRepositoryInterface
 
     public function findOneBy(array $criteria, array $orderBy = null): ?Post
     {
-        $countCriteria = 0;
-        $sCriteria = '';
-        foreach ($criteria as $key => $value)
-        {
-            $countCriteria++;
-            if (is_string($value))
-            {
-                $value = "'$value'";
-            }
-            if ($countCriteria === 1)
-            {
-                $sCriteria = " WHERE $key = $value";
-            }
-            else
-            {
-                $sCriteria = $sCriteria . ' AND ' . $key . "=" . $value;
-            }
-        }
         $query = "SELECT p.id, p.title, p.creationDate, p.lede, p.content, p.lastUpdateDate, p.idAuthor, u.name, u.firstname 
 FROM post p 
     LEFT JOIN user u 
         ON p.idAuthor=u.id";
-        $concatenatedQuery = $query . $sCriteria;
-//var_dump($concatenatedQuery);die;
+        $where = $this->where($criteria);
+
+        $concatenatedQuery = $query . $where;
         $postQuery = $this->databaseConnection->getConnection()->prepare($concatenatedQuery);
-//        $postQuery = $this->databaseConnection->getConnection()->prepare("SELECT p.id, p.title, p.creationDate, p.lede, p.content, p.lastUpdateDate, p.idAuthor, u.name, u.firstname
-// FROM post p
-// LEFT JOIN user u
-// ON p.idAuthor=u.id
-// WHERE p.title = :title");
         foreach ($criteria as $key => $value)
         {
-            $postQuery->bindValue(":$key", $value);
+            $param_type = is_string($value) ? \PDO::PARAM_STR : \PDO::PARAM_INT;
+            $postQuery->bindValue(":$key", $value, $param_type);
         }
-        $postQuery->execute($criteria);
+        $postQuery->execute();
         $data=$postQuery->fetch(\PDO::FETCH_ASSOC);
-var_dump($data);die;
         $post = new Post();
         if ($data === null || $data === false)
         {
@@ -89,71 +128,22 @@ var_dump($data);die;
 
     public function findBy(array $criteria, array $orderBy = null, int $limit = null, int $offset = null): ?array
     {
-        $countCriteria = 0;
-        $sCriteria = '';
-        foreach ($criteria as $key => $value)
-        {
-            $countCriteria++;
-            if (is_string($value))
-            {
-                $value = "'$value'";
-            }
-            if ($countCriteria === 1)
-            {
-                $sCriteria = " WHERE $key = $value";
-            }
-            else
-            {
-                $sCriteria = $sCriteria . ' AND ' . $key . "=:" . $value;
-            }
-        }
-
-        $sOrderBy = '';
-        if ($orderBy != [])
-        {
-            $countOrderBy = 0;
-            foreach ($orderBy as $key => $value)
-            {
-                $countOrderBy++;
-                if ($countOrderBy === 1)
-                {
-                    $sOrderBy = ' ORDER BY ' . $key . " " . $value;
-                }
-                else
-                {
-                    $sOrderBy = $sOrderBy . ' AND ' . $key . " " . $value;
-                }
-            }
-        }
-
-        if ($limit == null)
-        {
-            $sLimit='';
-        }
-        else
-        {
-            $sLimit = ' LIMIT ' . $limit;
-        }
-
-        if ($offset == null)
-        {
-            $sOffset='';
-        }
-        else
-        {
-            $sOffset = ' OFFSET ' . $offset;
-        }
-
         $query = 'SELECT p.id, p.title, p.creationDate, p.lede, p.content, p.lastUpdateDate, p.idAuthor, u.name, u.firstname
     FROM post p
     LEFT JOIN user u
     ON p.idAuthor = u.id';
-        $concatenatedQuery = $query . $sCriteria . $sOrderBy . $sLimit . $sOffset;
+        $where = $this->where($criteria);
+        $sortBy = $this->orderBy($orderBy);
+        $sLimit = $this->setLimit($limit);
+        $sOffset = $this->setOffset($offset);
+
+        $concatenatedQuery = $query . $where . $sortBy . $sLimit . $sOffset;
         $publishedPostsQuery = $this->databaseConnection->getConnection()->prepare($concatenatedQuery);
 
         foreach ($criteria as $key => $value)
         {
-            $publishedPostsQuery->bindValue($key,$value);
+            $param_type = is_string($value) ? \PDO::PARAM_STR : \PDO::PARAM_INT;
+            $publishedPostsQuery->bindValue(":$key", $value, $param_type);
         }
 
         $publishedPostsQuery->execute();
@@ -177,31 +167,17 @@ var_dump($data);die;
 
     public function findAll(int $limit = null , int $offset = null): ?array
     {
-        if ($limit == null)
-        {
-            $sLimit='';
-        }
-        else
-        {
-            $sLimit = ' LIMIT ' . $limit;
-        }
-
-        if ($offset == null)
-        {
-            $sOffset='';
-        }
-        else
-        {
-            $sOffset = ' OFFSET ' . $offset;
-        }
-
-        $query = "SELECT  p.id, p.title, p.creationDate, p.lede, p.content, p.lastUpdateDate, p.idAuthor, u.name, u.firstname 
+        $query = "SELECT p.id, p.title, p.creationDate, p.lede, p.content, p.lastUpdateDate, p.idAuthor, u.name, u.firstname 
     FROM post p 
     LEFT JOIN user u 
-    ON p.idAuthor=u.id 
-    ORDER BY creationDate DESC";
-        $postsQuery = $this->databaseConnection->getConnection()->prepare($query . $sLimit . $sOffset);
-        $postsQuery->execute();
+    ON p.idAuthor=u.id
+    ORDER BY p.creationDate DESC";
+        $sLimit = $this->setLimit($limit);
+        $sOffset = $this->setOffset($offset);
+        $concatenatedQuery = $query . $sLimit . $sOffset;
+
+        $postsQuery = $this->databaseConnection->getConnection()->prepare($concatenatedQuery);
+        $postsQuery->execute([]);
         $data = $postsQuery->fetchAll(\PDO::FETCH_ASSOC);
 
         if ($data === null)
@@ -228,7 +204,7 @@ var_dump($data);die;
         $creationDate = $creationDate->format('Y-m-d H:i:s');
 
         $addPostQuery->bindValue(':title',htmlspecialchars($entity->getTitle()));
-        $addPostQuery->bindValue(':idAuthor',$entity->getIdAuthor());
+        $addPostQuery->bindValue(':idAuthor',$entity->getIdAuthor(),\PDO::PARAM_INT);
         $addPostQuery->bindValue(':creationDate',$creationDate);
         $addPostQuery->bindValue(':lastUpdateDate',$creationDate);
         $addPostQuery->bindValue(':lede',$entity->getLede());
@@ -249,8 +225,8 @@ var_dump($data);die;
         $updateQuery->bindValue(':lede', $entity->getLede());
         $updateQuery->bindValue(':content', $entity->getContent());
         $updateQuery->bindValue(':lastUpdateDate', $updateDate);
-        $updateQuery->bindValue(':idAuthor', $entity->getIdAuthor());
-        $updateQuery->bindValue(':id', $entity->getId());
+        $updateQuery->bindValue(':idAuthor', $entity->getIdAuthor(),\PDO::PARAM_INT);
+        $updateQuery->bindValue(':id', $entity->getId(),\PDO::PARAM_INT);
 
         return $updateQuery->execute();
     }

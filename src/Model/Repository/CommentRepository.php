@@ -12,13 +12,68 @@ class CommentRepository implements EntityRepositoryInterface
     public function __construct(private DatabaseConnection $databaseConnection)
     {
     }
+
+    private function where(array $criteria = []): ?string
+    {
+        $sCriteria = '';
+        $countCriteria = 0;
+        foreach ($criteria as $key => $value)
+        {
+            $countCriteria++;
+            if ($countCriteria === 1)
+            {
+                $sCriteria = " WHERE c.$key = :$key";
+            }
+            else
+            {
+                $sCriteria = $sCriteria . " AND c.$key = :$key";
+            }
+        }
+        return $sCriteria;
+    }
+
+    private function orderBy(array $criteria = null): ?string
+    {
+        $sCriteria = '';
+        $countCriteria = 0;
+        if ($criteria != null)
+        {
+            foreach ($criteria as $key => $value)
+            {
+                $countCriteria++;
+                if ($countCriteria === 1)
+                {
+                    $sCriteria = " ORDER BY c.$key $value";
+                }
+                else
+                {
+                    $sCriteria = $sCriteria . " AND c.$key $value";
+                }
+            }
+        }
+        return $sCriteria;
+    }
+
     public function find(int $id): ?Comment
     {
         return null;
     }
+
     public function findOneBy(array $criteria, array $orderBy = null): ?Comment
     {
-        $commentQuery=$this->databaseConnection->getConnection()->prepare("SELECT c.id,c.content,c.idAuthor,u.name,u.firstname,c.creationDate,c.idPost,c.status FROM comment c LEFT JOIN user u ON c.idAuthor=u.id WHERE c.id=:id AND c.status=:status");
+        $query = "SELECT c.id,c.content,c.idAuthor,u.name,u.firstname,c.creationDate,c.idPost,c.status 
+FROM comment c 
+    LEFT JOIN user u 
+        ON c.idAuthor=u.id";
+        $where = $this->where($criteria);
+        $sortBy = $this->orderBy($orderBy);
+
+        $concatenatedQuery = $query . $where . $sortBy;
+        $commentQuery=$this->databaseConnection->getConnection()->prepare($concatenatedQuery);
+        foreach ($criteria as $key => $value)
+        {
+            $commentQuery->bindValue($key,$value);
+        }
         $commentQuery->execute($criteria);
         $data=$commentQuery->fetch(\PDO::FETCH_ASSOC);
 
@@ -33,14 +88,22 @@ class CommentRepository implements EntityRepositoryInterface
             return $comment;
         }
     }
+
     public function findBy(array $criteria, array $orderBy = null, int $limit = null, int $offset = null): ?array
     {
-        $commentsPostQuery=$this->databaseConnection->getConnection()->prepare("SELECT c.id,c.content,c.idAuthor,u.name,u.firstname,c.creationDate,c.idPost,c.status 
+        $query = "SELECT c.id,c.content,c.idAuthor,u.name,u.firstname,c.creationDate,c.idPost,c.status 
 FROM comment c 
     LEFT JOIN user u 
-        ON c.idAuthor=u.id 
-WHERE c.idPost = :id_post AND c.status = :status 
-ORDER BY creationDate DESC");
+        ON c.idAuthor=u.id";
+        $where = $this->where($criteria);
+        $sortBy = $this->orderBy($orderBy);
+
+        $concatenatedQuery = $query . $where . $sortBy;
+        $commentsPostQuery=$this->databaseConnection->getConnection()->prepare($concatenatedQuery);
+        foreach ($criteria as $key => $value)
+        {
+            $commentsPostQuery->bindValue($key,$value);
+        }
         $commentsPostQuery->execute($criteria);
         $data=$commentsPostQuery->fetchAll(\PDO::FETCH_ASSOC);
 
