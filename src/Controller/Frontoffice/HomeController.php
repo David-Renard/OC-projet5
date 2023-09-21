@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Frontoffice;
 
-use App\Service\Http\Session\Token;
+use App\Service\Token;
 use App\View\View;
 use App\Service\Http\Request;
 use App\Service\Http\Response;
@@ -20,16 +20,15 @@ class HomeController
     }
     public function displayHomeAction(Request $request): Response
     {
-        $response = new Response($this->view->render(
-            [
-                "template" => 'home',
-                "office" => 'frontoffice',
-            ]));
+        $response = new Response();
 
         $token = new Token($this->session);
-        $token->setToken();
 
-        if ($request->getMethod() === 'POST')
+        if ($request->getMethod() === 'GET')
+        {
+            $token->setToken();
+        }
+        elseif ($request->getMethod() === 'POST')
         {
             if ($token->verifyToken($request))
             {
@@ -79,17 +78,25 @@ class HomeController
                 }
 
                 $mail = new SendEmail();
-                if ($mail->sendMail($email, $name . ' ' . $firstName, 'Message de contact de ' . $email, $message))
+                $fullName = $name . ' ' . $firstName;
+                $subject = "Message de contact de $fullName";
+                $bodyMail = "Vous avez reçu un nouveau message de contact de $fullName : $message";
+
+                if ($mail->sendMail($email, $fullName, $subject, $bodyMail))
                 {
-                    $response->redirect('#contact');
+                    $response->redirect();
                 }
             }
-            else
+            elseif (!$token->verifyToken($request))
             {
                 $this->session->addFlashes('error','Il semblerait que ce ne soit pas vous qui tentez de nous contacter!?');
                 $response->redirect();
             }
         }
-        return $response;
+        return new Response($this->view->render(
+            [
+                "template" => 'home',
+                "office" => 'frontoffice',
+            ]));
     }
 }

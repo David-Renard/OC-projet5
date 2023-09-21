@@ -7,6 +7,8 @@ namespace App\Service\Http;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
 require '../vendor/PHPMailer/PHPMailer/src/Exception.php';
 require '../vendor/PHPMailer/PHPMailer/src/PHPMailer.php';
@@ -14,8 +16,14 @@ require '../vendor/PHPMailer/PHPMailer/src/SMTP.php';
 
 class SendEmail
 {
-//    public function sendMail(string $from, string $fromName, string $subject, string $body) : bool
-    public function sendMail(string $from, string $fromName, string $subject, string $body)
+    private Environment $twig;
+    public function __construct()
+    {
+        $loader = new FilesystemLoader('../templates');
+        $this->twig = new Environment($loader);
+    }
+
+    public function sendMail(string $from, string $fromName, string $subject, string $body): void
     {
         $mail = new PHPMailer();
         $mail->isSMTP();
@@ -29,7 +37,7 @@ class SendEmail
 
         $mail->setFrom($from, 'contact');
         $mail->FromName = $fromName;
-        $mail->addAddress($from,'Contact');
+        $mail->addAddress('contact_davidr@gmail.com','Contact');
 
 //        if($mail->SMTPAuth){
 //            $mail->SMTPSecure = 'tls';
@@ -37,21 +45,20 @@ class SendEmail
 //            $mail->Password = 'david365+';
 //        }
 
+
+        $htmlBody = $this->twig->render("mail/contactmail.html.twig", [
+            'subject' => $subject,
+            'from' => $fromName,
+            'message' => $body,
+            ]);
+
         $mail->Subject = $subject;
         $mail->WordWrap = 100;
         $mail->isHTML(true);
-        $mail->Body =
-"<!DOCTYPE html>
-<html>
-    <div style='font-weight: bold'>Subject : $subject</div>
-    <div style='font-style: italic'>From : $fromName</div>
-    <div style='font-style: italic; font-size: 0.9rem'><p>Merci pour votre message, nous reviendrons vers vous dans les plus brefs délais.</p></div>
-    <div style='font-style: italic'>Message : $body</div>
-</html>";
-        $mail->AltBody = $body;
+        $mail->Body = $htmlBody;
+        $mail->AltBody = $htmlBody;
 
         $mail->send();
-//        return $mail->send();
     }
 }
 

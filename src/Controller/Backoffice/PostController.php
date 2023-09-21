@@ -6,13 +6,12 @@ namespace App\Controller\Backoffice;
 
 use App\Model\Entity\Comment;
 use App\Model\Entity\Post;
-use App\Model\Entity\User;
 use App\Service\FormValidator\LoginFormValidator;
 use App\View\View;
 use App\Service\Http\Request;
 use App\Service\Http\Response;
 use App\Service\Http\Session\Session;
-use App\Service\Http\Session\Token;
+use App\Service\Token;
 use App\Model\Repository\PostRepository;
 use App\Model\Repository\CommentRepository;
 use App\Model\Repository\UserRepository;
@@ -24,7 +23,7 @@ class PostController
     {
     }
 
-    private function displayCommentsByState(string $status, CommentRepository $commentRepository)
+    private function displayCommentsByState(string $status, CommentRepository $commentRepository): ?array
     {
         $posts = $this->postRepository->findAll();
         foreach ($posts as $post)
@@ -64,7 +63,7 @@ class PostController
                 'posts' => $posts,
             ],
             'office' => 'backoffice',
-        ]));
+            ]));
 
         $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
         $authorizationLevel = $loginFormValidator->isAuthorized();
@@ -78,27 +77,29 @@ class PostController
 
     public function addPost(Request $request, PostRepository $postRepository, array $inputs=[]): Response
     {
+        $response = new Response();
+        $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
+        $authorizationLevel = $loginFormValidator->isAuthorized();
+
+        if ($authorizationLevel < 1)
+        {
+            $response->redirect();
+        }
+
         $token = new Token($this->session);
-        $token->setToken();
 
-        $response = new Response($this->view->render([
-            'template' => 'adminpostadd',
-            'office' => 'backoffice',
-            'data' => [
-                    'inputs' => $inputs,
-            ]
-        ]));
-
-        if ($request->getMethod() === 'POST')
+        if ($request->getMethod() === 'GET' && $request->query()->get('action') === 'adminpostadd')
+        {
+            $token->setToken();
+        }
+        elseif ($request->getMethod() === 'POST')
         {
             if ($token->verifyToken($request))
             {
-
                 $title = $request->request()->get('title');
                 $lede = $request->request()->get('lede');
                 $content = $request->request()->get('content');
                 $isTitleTaken = $this->postRepository->findOneBy(['title' => $title]);
-//                var_dump($isTitleTaken);die;
 
                 $addPostValidator = new InputFormValidator($request);
                 $isTitleEmpty = $addPostValidator->isEmpty($title);
@@ -169,12 +170,25 @@ class PostController
                     return $this->addPost($request,$postRepository,$inputs);
                 }
             }
-            else
+            elseif (!$token->verifyToken($request))
             {
                 $this->session->addFlashes('error','Il semblerait que ce ne soit pas vous qui tentez d\'ajouter un post!?');
                 $response->redirect('?action=adminpostadd');
             }
         }
+
+        return new Response($this->view->render([
+            'template' => 'adminpostadd',
+            'office' => 'backoffice',
+            'data' => [
+                'inputs' => $inputs,
+            ]
+        ]));
+    }
+
+    public function updatePost(Request $request, PostRepository $postRepository, array $inputs=[]): Response
+    {
+        $response = new Response();
         $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
         $authorizationLevel = $loginFormValidator->isAuthorized();
 
@@ -182,31 +196,19 @@ class PostController
         {
             $response->redirect();
         }
-        return $response;
-    }
 
-    public function updatePost(Request $request, PostRepository $postRepository, array $inputs=[]): Response
-    {
         $token = new Token($this->session);
-        $token->setToken();
 
         $updateAuthor = $this->session->get('user');
-
         $idPost = $request->query()->get('id');
         $post = $this->postRepository->find((int) $idPost);
         $originalAuthor = $post->getIdAuthor();
 
-        $response = new Response($this->view->render([
-            'template' => 'adminupdatepost',
-            'office' => 'backoffice',
-            'data' => [
-                'post' => $post,
-                'updateauthor' => $updateAuthor,
-                'inputs' => $inputs,
-            ]
-        ]));
-
-        if ($request->getMethod() === 'POST')
+        if ($request->getMethod() === 'GET' && $request->query()->get('action') === 'adminupdatepost')
+        {
+            $token->setToken();
+        }
+        elseif ($request->getMethod() === 'POST')
         {
             if ($token->verifyToken($request))
             {
@@ -300,22 +302,21 @@ class PostController
                     return $this->updatePost($request,$postRepository,$inputs);
                 }
             }
-            else
+            elseif (!$token->verifyToken($request))
             {
                 $this->session->addFlashes('error','Il semblerait que ce ne soit pas vous qui tentez de modifier un post!?');
                 $response->redirect('?action=adminupdatepost&id=' . $idPost);
             }
-
-            return $response;
         }
-        $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
-        $authorizationLevel = $loginFormValidator->isAuthorized();
-
-        if ($authorizationLevel < 1)
-        {
-            $response->redirect();
-        }
-        return $response;
+        return new Response($this->view->render([
+            'template' => 'adminupdatepost',
+            'office' => 'backoffice',
+            'data' => [
+                'post' => $post,
+                'updateauthor' => $updateAuthor,
+                'inputs' => $inputs,
+            ]
+        ]));
     }
 
     public function deletePost(Request $request, PostRepository $postRepository): Response

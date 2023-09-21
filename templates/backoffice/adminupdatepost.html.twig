@@ -3,9 +3,15 @@
 {% block title %}Modification d'un post{% endblock %}
 
 {% block content %}
-    {% for flash in flashes.error %}
-        <p class="text-danger my-4 fw-bold text-center">{{ flash }}</p>
-    {% endfor %}
+    <div class="container">
+        <div class="row">
+            <div class="col mt-5">
+                {% for flash in flashes.error %}
+                    <p class="text-danger fw-bold text-center">{{ flash }}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
     <div class="container p-4 bg-primary my-4 rounded-3">
         <h1 class="fs-4 text-center mt-2">Modifier un post :</h1>
         <form action="" method="POST" class="form-group text-light">
@@ -21,7 +27,7 @@
                 <label for="content" class="form-label">Contenu du post</label>
                 <textarea id="content" name="content" rows="15" class="form-control" required>{% if inputs.content is defined %}{{ inputs.content }}{% else %}{{ post.content }}{% endif %}</textarea>
             </div>
-            <div class="col-10 offset-1 col-sm-4 my-2">
+            <div class="col-10 offset-1 col-sm-6 mt-4">
                 <p>Auteur du post : {{ post.firstname ~ ' ' ~ post.name }}</p>
                 {% if updateauthor.id != post.idAuthor %}
                     <input type="checkbox" name="updateAuthor" id="updateAuthor">

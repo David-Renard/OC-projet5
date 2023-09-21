@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controller\Backoffice;
 
-use App\Model\Repository\CommentRepository;
 use App\Model\Repository\PostRepository;
 use App\Model\Entity\Post;
 use App\Service\FormValidator\LoginFormValidator;
@@ -14,6 +13,7 @@ use App\Service\Http\Response;
 use App\Model\Repository\UserRepository;
 use App\Model\Entity\User;
 use App\Service\Http\Session\Session;
+use App\Service\Token;
 
 class UserController
 {
@@ -44,6 +44,9 @@ class UserController
 
     public function displayUsers(Request $request): Response
     {
+        $token = new Token($this->session);
+        $token->setToken();
+
         $adminsUsers = $this->userRepository->findBy(['role' => 'admin']);
         $usersUsers = $this->userRepository->findBy(['role' => 'user']);
         $users = array_merge($adminsUsers, $usersUsers);
@@ -68,10 +71,9 @@ class UserController
 
     public function updateUser(Request $request): Response
     {
-        $response = new Response($this->view->render([
-            'template' => 'adminusers',
-            'office' => 'backoffice',
-        ]));
+        $response = new Response();
+        $token = new Token($this->session);
+
         $userId = intval($request->query()->get('id'));
         $currentRole = $this->userRepository->find($userId)->getRole();
 
@@ -83,28 +85,34 @@ class UserController
             $response->redirect();
         }
 
-        $user = new User();
-        if ($currentRole === 'admin')
+        if ($token->verifyToken($request))
         {
-            $user->setRole('user');
-        }
-        elseif ($currentRole === 'user')
-        {
-            $user->setRole('admin');
-        }
-        $user->setId($userId);
+            $user = new User();
+            if ($currentRole === 'admin')
+            {
+                $user->setRole('user');
+            }
+            elseif ($currentRole === 'user')
+            {
+                $user->setRole('admin');
+            }
+            $user->setId($userId);
 
-        if ($this->userRepository->update($user))
-        {
-            $this->session->addFlashes('success','Le rôle a bien été modifié avec succès.');
+            if ($this->userRepository->update($user))
+            {
+                $this->session->addFlashes('success','Le rôle a bien été modifié avec succès.');
+            }
+            else
+            {
+                $this->session->addFlashes('error','Le rôle n\'a pas pu être modifié.');
+            }
+            $response->redirect('?action=adminusers');
         }
-        else
-        {
-            $this->session->addFlashes('error','Le rôle n\'a pas pu être modifié.');
-        }
-        $response->redirect('?action=adminusers');
 
-        return $response;
+        return new Response($this->view->render([
+            'template' => 'adminusers',
+            'office' => 'backoffice',
+        ]));
     }
 
     public function deleteUser(Request $request, PostRepository $postRepository): Response
@@ -112,14 +120,15 @@ class UserController
         $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
         $authorizationLevel = $loginFormValidator->isAuthorized();
 
-        $response = new Response('',301,[]);
+        $response = new Response();
+        $token = new Token($this->session);
 
         if ($authorizationLevel < 2)
         {
             $response->redirect();
         }
 
-        if ($request->query()->has('id'))
+        if ($request->query()->has('id') && $token->verifyToken($request))
         {
             $idUser = intval($request->query()->get('id'));
             $user = new User();

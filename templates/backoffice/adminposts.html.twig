@@ -20,7 +20,7 @@
             <tr>
                 <th>#ID</th>
                 <th>Titre</th>
-                <th>Date de création</th>
+                <th class="hidden">Date de création</th>
                 <th>Auteur</th>
                 <th>Action</th>
             </tr>
@@ -30,7 +30,7 @@
                     <tr>
                         <td>{{ post.id }}</td>
                         <td>{{ post.title }}</td>
-                        <td>{{ post.creationDate|date("d/m/Y \\à H\\hi") }}</td>
+                        <td class="hidden">{{ post.creationDate|date("d/m/Y \\à H\\hi") }}</td>
                         <td>{{ post.firstname ~ ' ' ~ post.name }}</td>
                         <td>
                             <a href="index.php?action=admindeletepost&id={{ post.id }}" class="btn btn-warning m-1">Supprimer</a>
