@@ -24,19 +24,25 @@
                                         <div class="col-12 col-sm-6 text-sm-start">
                                             {{ comment.content }}
                                         </div>
-                                        <div class="col-12 col-sm-2">
-                                            le {{ comment.creationDate|date("d/m/Y \\à H\\hi") }}
-                                        </div>
-                                        <div class="col-12 col-sm-2">
-                                            par {{ comment.firstnameAuthor ~ " " ~ comment.nameAuthor }}
+                                        <div class="col-12 col-sm-4 col-lg-4">
+                                            <div class="container">
+                                                <div class="row">
+                                                    <div class="col-12 col-lg-6">
+                                                    le {{ comment.creationDate|date("d/m/Y \\à H\\hi") }}
+                                                    </div>
+                                                    <div class="col-12 col-lg-6">
+                                                    par {{ comment.firstnameAuthor ~ " " ~ comment.nameAuthor }}
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="col-12 col-sm-2 d-flex flex-sm-column justify-content-around">
                                             <div class="container">
                                                 <div class="row">
-                                                    <div class="col-12 col-sm-6">
+                                                    <div class="col-12 col-lg-6">
                                                         <a href="index.php?action=admincomment&id={{ comment.id }}&moderate=valided" class="btn btn-success text-light opacity-75 m-1">Valider</a>
                                                     </div>
-                                                    <div class="col-12 col-sm-6">
+                                                    <div class="col-12 col-lg-6">
                                                         <a href="index.php?action=admincomment&id={{ comment.id }}&moderate=rejected" class="btn btn-danger text-light opacity-75 m-1">Rejeter</a>
                                                     </div>
                                                 </div>

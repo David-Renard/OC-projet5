@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Service\Http\Session;
+namespace App\Service;
 
 use App\Service\Http\Request;
+use App\Service\Http\Session\Session;
 
 class Token
 {
@@ -10,12 +11,13 @@ class Token
     {
     }
 
-    public function setToken(): ?string
+    public function setToken(): void
     {
-        if (empty($this->session->get('token')))
-        {
-            $this->session->set('token',md5(bin2hex(openssl_random_pseudo_bytes(12))));
-        }
+        $this->session->set('token',md5(bin2hex(openssl_random_pseudo_bytes(12))));
+    }
+
+    public function getToken(): string
+    {
         return $this->session->get('token');
     }
 
@@ -23,14 +25,14 @@ class Token
     {
         if ($request->getMethod() === 'POST')
         {
-            if ($this->session->get('token') === $request->request()->get('token'))
+            if ($this->getToken() === $request->request()->get('token'))
             {
                 return true;
             }
         }
         elseif ($request->getMethod() === 'GET')
         {
-            if ($this->session->get('token') === $request->query()->get('token'))
+            if ($this->getToken() === $request->query()->get('token'))
             {
                 return true;
             }

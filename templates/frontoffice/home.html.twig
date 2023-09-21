@@ -34,11 +34,8 @@
         <div class="container">
             <h2 class="mb-0">Mon expertise</h2>
             <h3 class="fw-light fs-5">Développement web et design</h3>
-            <!-- Developpement -->
             <div class="row align-items-center gy-4 mt-4">
                 <div class="col-12 col-md-7">
-
-                    <!-- Progress bar -->
                     <div class="mb-3 p-3 bg-light rounded-3 shadow-sm">
                         <div class="row align-items-center">
                             <div class="col-5 col-sm-4 col-lg-3 col-xl-2">
@@ -151,10 +148,10 @@
             {% endfor %}
 
             <div class="row gy-4 my-4">
-                <div class="col-12 col-md-5 py-4">
+                <div class="col-12 col-lg-5 py-4">
                     <img src="img/contact.jpg" alt="image de contact" width="100%" class="rounded-2 shadow">
                 </div>
-                <div class="col-12 col-md-6 offset-md-1 align-items-center">
+                <div class="col-12 col-lg-6 offset-lg-1 align-items-center">
                     <form action="" method="POST" class="row text-start">
                         <div class="col-6 my-2">
                             <label for="firstname" class="form-label">Prénom</label>
@@ -179,7 +176,7 @@
                         <div class="col-10 offset-1 my-2 d-flex justify-content-center text-start">
                             <input id="token" name="token" type="hidden" value="{{ session.token }}" />
                         </div>
-                        <div class="col-12 mt-2">
+                        <div class="col-10 offset-1 mt-2">
                             <button type="submit" class="btn btn-primary w-100">Envoyer</button>
                         </div>
                     </form>

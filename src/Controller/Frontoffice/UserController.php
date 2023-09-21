@@ -9,7 +9,7 @@ use App\View\View;
 use App\Service\Http\Request;
 use App\Service\Http\Response;
 use App\Service\Http\Session\Session;
-use App\Service\Http\Session\Token;
+use App\Service\Token;
 use App\Model\Repository\UserRepository;
 use App\Service\FormValidator\LoginFormValidator;
 
@@ -21,15 +21,20 @@ class UserController
 
     public function loginAction(Request $request): Response
     {
+        $response = new Response();
+
+        if ($this->session->get('user'))
+        {
+            $response->redirect();
+        }
+
         $token = new Token($this->session);
-        $token->setToken();
 
-        $response = new Response($this->view->render([
-            'template' => 'login',
-            "office" => 'frontoffice',
-        ]));
-
-        if ($request->getMethod()==='POST')
+        if ($request->getMethod() === 'GET')
+        {
+            $token->setToken();
+        }
+        elseif ($request->getMethod() === 'POST')
         {
             if ($token->verifyToken($request))
             {
@@ -52,11 +57,10 @@ class UserController
             }
         }
 
-        if ($this->session->get('user'))
-        {
-            $response->redirect();
-        }
-        return $response;
+        return new Response($this->view->render([
+            'template' => 'login',
+            "office" => 'frontoffice',
+        ]));
     }
 
     public function logoutAction():Response
@@ -74,21 +78,19 @@ class UserController
 
     public function registration(Request $request, array $inputs=[]): Response
     {
-        $token = new Token($this->session);
-        $token->setToken();
-
-        $response = new Response($this->view->render([
-            'template' => 'registration',
-            'office' => 'frontoffice',
-            'data' => ['inputs' => $inputs,]
-        ]));
+        $response = new Response();
 
         if ($this->session->get('user'))
         {
             $response->redirect();
         }
 
-        if ($request->getMethod() === 'POST')
+        $token = new Token($this->session);
+        if ($request->getMethod() === 'GET')
+        {
+            $token->setToken();
+        }
+        elseif ($request->getMethod() === 'POST')
         {
             if ($token->verifyToken($request))
             {
@@ -124,8 +126,6 @@ class UserController
                     $user->setName($name);
                     $user->setFirstname($firstname);
                     $user->setPassword(password_hash($request->request()->get('password'),PASSWORD_BCRYPT));
-    //                $user->setPassword($password);
-    //                                var_dump($user->getPassword(),password_hash($user->getPassword(),PASSWORD_BCRYPT));die;
                     $user->setEmail($email);
 
                     if ($this->userRepository->create($user))
@@ -199,6 +199,10 @@ class UserController
                 $response->redirect('?action=registration');
             }
         }
-        return $response;
+        return new Response($this->view->render([
+            'template' => 'registration',
+            'office' => 'frontoffice',
+            'data' => ['inputs' => $inputs,]
+        ]));
     }
 }

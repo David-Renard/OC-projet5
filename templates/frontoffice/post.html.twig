@@ -3,7 +3,7 @@
 {% block title %}{{ post.title }}{% endblock %}
 
 {% block content %}
-    <div class="container my-5">
+    <div class="container my-5 text-primary">
 
         <div class="row gy-4">
             <div class="col-12 col-sm-8 text-center text-sm-start pb-sm-4 fw-bold fs-2">
@@ -35,7 +35,7 @@
 
         <div class="row">
             <div class="container">
-                <div class="row">
+                <div class="row my-3">
                     <div class="col-12 fw-lighter fw-bold text-center">
                         {% for flash in flashes.success %}
                             <p class="text-success">{{ flash }}</p>
@@ -53,7 +53,7 @@
                     </div>
                     <form action='index.php?action=post&id={{ post.id }}' method="POST" class="form-group">
                         <div class="row">
-                            <div class="col-10 offset-1 col-sm-8 offset-sm-2">
+                            <div class="col-10 offset-1 col-lg-8 offset-lg-2">
                                 <label for="content" class="form-label"></label>
                                 <textarea id="content" name="content" class="form-control" placeholder="Votre commentaire" required></textarea>
                             </div>
@@ -62,7 +62,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-10 offset-1 col-sm-3 offset-sm-7 my-2">
+                            <div class="col-10 offset-1 col-lg-3 offset-lg-7 my-2">
                                 <input type="submit" value="Soumettre mon commentaire" class="btn btn-primary form-control">
                             </div>
                         </div>
@@ -73,24 +73,28 @@
 
         <div class="row">
             <div class="col">
-                <h4 class="fs-5">Commentaires :</h4>
-                {%  for comment in comments %}
-                    <div class="container border rounded-2 shadow my-3">
-                        <div class="row fst-italic fs-6">
-                            <div class="col-12 col-sm-6">
-                                Par <span class="fw-bold">{{ comment.firstnameAuthor ~ ' ' ~ comment.nameAuthor }}</span>
+                {% if count == 0 %}
+                    <h4 class="text-center pt-4 text-sm-start fs-5 fst-italic">Il n'y a pas encore de commentaires validés sur ce post. Soyez le premier !</h4>
+                {% else %}
+                    <h4 class="fs-5">Commentaires <span class="fst-italic fw-lighter">({{ count }}) </span>:</h4>
+                    {%  for comment in comments %}
+                        <div class="container border rounded-2 shadow my-3">
+                            <div class="row fst-italic fs-6">
+                                <div class="col-12 col-sm-6">
+                                    Par <span class="fw-bold">{{ comment.firstnameAuthor ~ ' ' ~ comment.nameAuthor }}</span>
+                                </div>
+                                <div class="col-12 col-sm-3 offset-sm-3 text-sm-end">
+                                    le {{ comment.creationDate|date("d/m/Y \\à H\\hi") }}
+                                </div>
                             </div>
-                            <div class="col-12 col-sm-3 offset-sm-3 text-sm-end">
-                                le {{ comment.creationDate|date("d/m/Y \\à H\\hi") }}
+                            <div class="row p-2 bg-dark-subtle">
+                                <div class="col-10">
+                                    {{ comment.content }}
+                                </div>
                             </div>
                         </div>
-                        <div class="row p-2 bg-dark-subtle">
-                            <div class="col-10">
-                                {{ comment.content }}
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
+                    {% endfor %}
+                {% endif %}
             </div>
         </div>
     </div>

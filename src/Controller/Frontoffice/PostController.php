@@ -11,7 +11,7 @@ use App\Service\Http\Request;
 use App\Service\Http\Response;
 use App\Service\Pagination;
 use App\Service\Http\Session\Session;
-use App\Service\Http\Session\Token;
+use App\Service\Token;
 use App\Model\Repository\PostRepository;
 use App\Model\Repository\CommentRepository;
 
@@ -22,6 +22,7 @@ class PostController
     }
     public function displayPostsAction(Request $request): Response
     {
+
         $posts = $this->postRepository->findAll();
 
         $pagination = new Pagination($request,$posts);
@@ -35,9 +36,6 @@ class PostController
                 'current' => $current,
             ];
 
-//        ?><!--<pre>--><?php
-//        var_dump($limit, $offset);die;
-//        ?><!--<pre>--><?php
         $posts = $this->postRepository->findAll($limit, $offset);
 
         return new Response($this->view->render([
@@ -59,10 +57,12 @@ class PostController
         if ($post !== null)
         {
             $comments = $commentRepository -> findBy(['idPost'=>$id,'status'=>'valided'],['creationDate' => 'DESC']);
+            $countComments = count($comments);
 
             $array = [
                 'post' => $post,
                 'comments' => $comments,
+                'count' => $countComments,
                 "office" => 'frontoffice',
             ];
         }
@@ -71,31 +71,30 @@ class PostController
 
     public function displayPostAction(int $id, CommentRepository $commentRepository): Response
     {
+        $token = new Token($this->session);
+        $token->setToken();
+
         $response = new Response();
         $postCommentsArray = $this->postCommentsArray($id,$commentRepository);
-//        var_dump($postCommentsArray);die;
+
         if ($postCommentsArray == [])
         {
             $this->session->addFlashes('error','Ce post n\'existe pas ou plus. Vous avez été redirigé vers l\'ensemble des posts.');
             $response->redirect('?action=posts');
         }
-        else
-        {
-            $response = new Response($this->view->render(
-                [
-                    'template' => 'post',
-                    'data' => $postCommentsArray,
-                    "office" => 'frontoffice',
-                ],
-            ));
-        }
-        return $response;
+
+        return new Response($this->view->render(
+            [
+                'template' => 'post',
+                'data' => $postCommentsArray,
+                "office" => 'frontoffice',
+            ],
+        ));
     }
 
     public function addComment(Request $request, CommentRepository $commentRepository): Response
     {
         $token = new Token($this->session);
-        $token->setToken();
 
         $redirectResponse = new Response();
         $idPost = $request->query()->get('id');
@@ -122,7 +121,7 @@ class PostController
                     {
                         $this->session->addFlashes('success','Votre commentaire "' . html_entity_decode($content) . '" est ajouté et en attente de validation.');
                     }
-                    else
+                    elseif (!$commentRepository->create($newComment))
                     {
                         $this->session->addFlashes('error','Votre commentaire "' . html_entity_decode($content) . '" n\'a pas pu être ajouté.');
                     }
@@ -132,7 +131,7 @@ class PostController
                     $this->session->addFlashes('error','Faites-nous part de votre commentaire, ne nous envoyez pas un message vide!');
                 }
             }
-            else
+            elseif (!$token->verifyToken($request))
             {
                 $this->session->addFlashes('error','Il semblerait que ce ne soit pas vous qui tentez de commenter ce post!?');
                 $redirectResponse->redirect('?action=post&id=' . $idPost);

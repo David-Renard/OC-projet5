@@ -27,11 +27,11 @@
                 <span class="text-light fw-bold spaced">David </span>
                 <span class="text-secondary fw-bold"> Renard</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            <button class="navbar-toggler bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <div class="collapse navbar-collapse justify-content-end text-sm-center" id="navbarNav">
                 <ul class="navbar-nav">
                     {% if session.user.role == 'super_admin' or session.user.role == 'admin' %}
                         <li class="nav-item">
@@ -57,7 +57,13 @@
     {% if session.user == false or session.user.role == 'user' %}
     <h1 class="fs-4 text-center my-5">Vous ne disposez pas des droits d'accès à cette partie du site.</h1>
     {% else %}
-    {% block content %}{% endblock %}
+        <div class="container">
+            <div class="row">
+                <div class="col mt-4">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </div>
     {% endif %}
 </main>
 
