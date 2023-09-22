@@ -46,4 +46,4 @@ Here is the review of code by Codacy (on develop branch): [![Codacy Badge](https
 5. On this local server, import the db.sql file located in this repository in the "database" directory.
 6. The user is "root" and the password is "".
 7. You have now to install composer at the root of this project by typing the command "composer install".
-8. Your project should now be ready ! 
+8. Your project should now be ready !
