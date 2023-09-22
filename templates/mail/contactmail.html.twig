@@ -7,19 +7,30 @@
     <script src="https://kit.fontawesome.com/d1a8bf2bb5.js" crossorigin="anonymous"></script>
 </head>
 
-<body style = "background-color : #25365E; color : #dee2e6; text-align: center">
+<body style = "background-color : #25365E; color : #dee2e6; text-align: center; padding : 1rem; border:5px solid #EC1D26; border-radius: 10px 100px / 120px;">
+    <nav style = "margin : auto; width:20%; font-family : sans-serif; background-color : RGB(198, 199, 200); border-radius: 120px / 10px 100px;">
+        <span style="color : #25365E; font-size : 10rem;">d</span>
+        <span style="color : #EC1D26; font-size : 10rem;">r</span>
+    </nav>
 
-<main style = "margin : 3rem; background-color : #6c757d; border-radius: 10px">
-    <section>
-        <h1 style = "color : #e9ecef; width : 70%; margin : auto; padding: 2rem 0; text-transform: uppercase">{{ subject }}</h1>
-    </section>
-    <section style = "background-color: #929baf; margin: auto; width: 90%; padding: 1rem 0; border: 2px solid #CCC; border-radius: 5px">
-        {{ message }}
-    </section>
-</main>
+    <main style = "margin : 3rem; background-color : #6c757d; border-radius: 10px">
+        <section style="color : #e9ecef; width : 70%; margin : auto; padding: 2rem 0;">
+            <h1 style = "text-transform: uppercase">{{ subject }}</h1>
+            <hr/>
+            <p>Un visiteur du site a rempli le formulaire de contact. N'hésitez pas à répondre dans les plus brefs délais avec cette adresse mail.</p>
+        </section>
+        <section style = "background-color: #c2cbcf; color: #25365E; margin: auto; width: 90%; padding: 1rem 0; border: 2px solid #CCC; border-radius: 5px; font-size: 1.1rem; font-weight: bold">
+            {{ message }}
+        </section>
+    </main>
 
-<footer class="footer text-center bg-light">
-</footer>
-
+    <footer style = "margin : 3rem 3rem 0 3rem; padding: 1rem; background-color : #6c757d; border-radius: 10px">
+        <table style="width : 100%">
+            <thead>
+                <th style="width : 50%">Copyright David Renard</th>
+                <th style = "font-size: 1.1rem; width:50%">Merci pour votre contribution apportée à la vie du blog.</th>
+            </thead>
+        </table>
+    </footer>
 </body>
 </html>

@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Model\Repository;
 
 use App\Model\Entity\Comment;
@@ -17,15 +18,11 @@ class CommentRepository implements EntityRepositoryInterface
     {
         $sCriteria = '';
         $countCriteria = 0;
-        foreach ($criteria as $key => $value)
-        {
+        foreach ($criteria as $key => $value) {
             $countCriteria++;
-            if ($countCriteria === 1)
-            {
+            if ($countCriteria === 1) {
                 $sCriteria = " WHERE c.$key = :$key";
-            }
-            else
-            {
+            } else {
                 $sCriteria = $sCriteria . " AND c.$key = :$key";
             }
         }
@@ -36,17 +33,12 @@ class CommentRepository implements EntityRepositoryInterface
     {
         $sCriteria = '';
         $countCriteria = 0;
-        if ($criteria != null)
-        {
-            foreach ($criteria as $key => $value)
-            {
+        if ($criteria != null) {
+            foreach ($criteria as $key => $value) {
                 $countCriteria++;
-                if ($countCriteria === 1)
-                {
+                if ($countCriteria === 1) {
                     $sCriteria = " ORDER BY c.$key $value";
-                }
-                else
-                {
+                } else {
                     $sCriteria = $sCriteria . " AND c.$key $value";
                 }
             }
@@ -69,21 +61,17 @@ FROM comment c
         $sortBy = $this->orderBy($orderBy);
 
         $concatenatedQuery = $query . $where . $sortBy;
-        $commentQuery=$this->databaseConnection->getConnection()->prepare($concatenatedQuery);
-        foreach ($criteria as $key => $value)
-        {
-            $commentQuery->bindValue($key,$value);
+        $commentQuery = $this->databaseConnection->getConnection()->prepare($concatenatedQuery);
+        foreach ($criteria as $key => $value) {
+            $commentQuery->bindValue($key, $value);
         }
         $commentQuery->execute($criteria);
-        $data=$commentQuery->fetch(\PDO::FETCH_ASSOC);
+        $data = $commentQuery->fetch(\PDO::FETCH_ASSOC);
 
         $comment = new Comment();
-        if ($data === null || $data === false)
-        {
+        if ($data === null || $data === false) {
             return null;
-        }
-        else
-        {
+        } else {
             $comment->fromArray($data);
             return $comment;
         }
@@ -99,42 +87,38 @@ FROM comment c
         $sortBy = $this->orderBy($orderBy);
 
         $concatenatedQuery = $query . $where . $sortBy;
-        $commentsPostQuery=$this->databaseConnection->getConnection()->prepare($concatenatedQuery);
-        foreach ($criteria as $key => $value)
-        {
-            $commentsPostQuery->bindValue($key,$value);
+        $commentsPostQuery = $this->databaseConnection->getConnection()->prepare($concatenatedQuery);
+        foreach ($criteria as $key => $value) {
+            $commentsPostQuery->bindValue($key, $value);
         }
         $commentsPostQuery->execute($criteria);
-        $data=$commentsPostQuery->fetchAll(\PDO::FETCH_ASSOC);
+        $data = $commentsPostQuery->fetchAll(\PDO::FETCH_ASSOC);
 
-        if ($data === null)
-        {
+        if ($data === null) {
             return null;
         }
 
-        $comments=[];
-        foreach ($data as $arrayComment)
-        {
+        $comments = [];
+        foreach ($data as $arrayComment) {
             $comment = new Comment();
             $comment->fromArray($arrayComment);
             $comments[] = $comment;
         }
         return $comments;
     }
+
     public function findAll(): ?array
     {
-        $commentsQuery=$this->databaseConnection->getConnection()->prepare("SELECT * FROM comment ORDER BY creation_date DESC");
+        $commentsQuery = $this->databaseConnection->getConnection()->prepare("SELECT * FROM comment ORDER BY creation_date DESC");
         $commentsQuery->execute();
-        $data=$commentsQuery->fetchAll(\PDO::FETCH_ASSOC);
+        $data = $commentsQuery->fetchAll(\PDO::FETCH_ASSOC);
 
-        if ($data === null)
-        {
+        if ($data === null) {
             return null;
         }
 
-        $comments=[];
-        foreach ($data as $arrayComment)
-        {
+        $comments = [];
+        foreach ($data as $arrayComment) {
             $comment = new Comment();
             $comment->fromArray($arrayComment);
             $comments[] = $comment;
@@ -142,25 +126,23 @@ FROM comment c
         return $comments;
 
     }
+
     public function create(object $entity): bool
     {
-        $addCommentQuery=$this->databaseConnection->getConnection()->prepare("INSERT INTO comment (content, idAuthor, creationDate, idPost)
+        $addCommentQuery = $this->databaseConnection->getConnection()->prepare("INSERT INTO comment (content, idAuthor, creationDate, idPost)
         VALUES (:content, :idAuthor, :creationDate, :idPost)");
         $creationDate = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
         $creationDate = $creationDate->format('Y-m-d H:i:s');
 
-        $addCommentQuery->bindValue(':content',htmlspecialchars($entity->getContent()));
-        $addCommentQuery->bindValue(':idAuthor',$entity->getIdAuthor());
-        $addCommentQuery->bindValue(':creationDate',$creationDate);
-        $addCommentQuery->bindValue(':idPost',$entity->getIdPost());
+        $addCommentQuery->bindValue(':content', htmlspecialchars($entity->getContent()));
+        $addCommentQuery->bindValue(':idAuthor', $entity->getIdAuthor());
+        $addCommentQuery->bindValue(':creationDate', $creationDate);
+        $addCommentQuery->bindValue(':idPost', $entity->getIdPost());
 //        $addCommentQuery->execute();
 
-        if ($addCommentQuery->execute())
-        {
+        if ($addCommentQuery->execute()) {
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -168,14 +150,11 @@ FROM comment c
     public function update(object $entity): bool
     {
         $updateCommentQuery = $this->databaseConnection->getConnection()->prepare("UPDATE comment SET status = :commentStatus WHERE id = :id");
-        $updateCommentQuery->bindValue(':commentStatus',$entity->getStatus());
-        $updateCommentQuery->bindValue(':id',$entity->getId());
-        if ($updateCommentQuery->execute())
-        {
+        $updateCommentQuery->bindValue(':commentStatus', $entity->getStatus());
+        $updateCommentQuery->bindValue(':id', $entity->getId());
+        if ($updateCommentQuery->execute()) {
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -192,7 +171,7 @@ FROM comment c
         WHERE STATUS='valided'
         GROUP BY idPost");
         $countQuery->execute();
-        $data=$countQuery->fetch(\PDO::FETCH_ASSOC);
+        $data = $countQuery->fetch(\PDO::FETCH_ASSOC);
 
         return $data;
     }

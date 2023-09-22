@@ -13,11 +13,12 @@ class Pagination
     public function nbPerPage(): int
     {
         $return = 5;
-        if ($this->request->query()->has('per'))
-        {
+        if ($this->request->query()->has('per')) {
             $perPage = intval($this->request->query()->get('per'));
-            if ($perPage === 3 || $perPage === 5 || $perPage === 10)
-            {
+            if ($perPage === 3
+                || $perPage === 5
+                || $perPage === 10
+            ) {
                 $return = $perPage;
             }
         }
@@ -26,21 +27,19 @@ class Pagination
 
     public function nbPages(): int
     {
-        return ceil(count($this->arrayToCount)/$this->nbPerPage());
+        return ceil(count($this->arrayToCount) / $this->nbPerPage());
     }
 
     public function currentPage(): int
     {
         $return = 1;
-        if ($this->request->query()->has('page'))
-        {
+        if ($this->request->query()->has('page')) {
             $currentPage = intval($this->request->query()->get('page'));
-            if ($currentPage > 0 && $currentPage < $this->nbPages())
-            {
+            if ($currentPage > 0
+                && $currentPage < $this->nbPages()
+            ) {
                 $return = $currentPage;
-            }
-            elseif ($currentPage >= $this->nbPages())
-            {
+            } elseif ($currentPage >= $this->nbPages()) {
                 $return = $this->nbPages();
             }
         }

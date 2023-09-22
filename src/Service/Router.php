@@ -26,120 +26,121 @@ class Router
     public function __construct(private Request $request)
     {
         $this->database = new DatabaseConnection();
-        $this->session= new Session();
+        $this->session = new Session();
         $this->view = new View($this->session);
     }
+
     public function run(): Response
     {
         $action = ($this->request->query()->has('action')) ? $this->request->query()->get('action') : 'home';
 
-        if ($action === 'login')
-        {
+        if ($action === 'login') {
             $userRepository = new UserRepository($this->database);
-            $controller = new UserController($userRepository,$this->view, $this->session);
+            $controller = new UserController($userRepository, $this->view, $this->session);
             return $controller->loginAction($this->request);
         }
-        if ($action === 'logout')
-        {
+        if ($action === 'logout') {
             $userRepository = new UserRepository($this->database);
             $controller = new UserController($userRepository, $this->view, $this->session);
             return $controller->logoutAction();
         }
-        if ($action === 'registration')
-        {
+        if ($action === 'registration') {
             $userRepository = new UserRepository($this->database);
             $controller = new UserController($userRepository, $this->view, $this->session);
             return $controller->registration($this->request);
         }
-        if ($action === 'home')
-        {
+        if ($action === 'home') {
             $controller = new HomeController($this->view, $this->session);
             return $controller->displayHomeAction($this->request);
         }
-        if ($action === 'admin')
-        {
+        if ($action === 'admin') {
             $userRepository = new UserRepository($this->database);
             $controller = new AdminUserController($userRepository, $this->view, $this->session);
             return $controller->displayHomeAdmin($this->request);
         }
-        if ($action === 'adminusers')
-        {
+        if ($action === 'adminusers') {
             $userRepository = new UserRepository($this->database);
             $controller = new AdminUserController($userRepository, $this->view, $this->session);
             return $controller->displayUsers($this->request);
         }
-        if ($action === 'adminupdateuser' && $this->request->query()->has('id'))
-        {
+        if ($action === 'adminupdateuser'
+            && $this->request->query()->has('id')
+        ) {
             $userRepository = new UserRepository($this->database);
             $controller = new AdminUserController($userRepository, $this->view, $this->session);
             return $controller->updateUser($this->request);
         }
-        if ($action === 'admindeleteuser' && $this->request->query()->has('id'))
-        {
+        if ($action === 'admindeleteuser'
+            && $this->request->query()->has('id')
+        ) {
             $userRepository = new UserRepository($this->database);
             $postRepository = new PostRepository($this->database);
             $controller = new AdminUserController($userRepository, $this->view, $this->session);
             return $controller->deleteUser($this->request, $postRepository);
         }
-        if ($action === 'admincomments')
-        {
+        if ($action === 'admincomments') {
             $commentRepository = new CommentRepository($this->database);
             $postRepository = new PostRepository($this->database);
             $userRepository = new UserRepository($this->database);
             $controller = new AdminPostController($postRepository, $this->view, $this->session, $userRepository);
-            return $controller->getCommentsByState('awaiting',$commentRepository,$this->request);
+            return $controller->getCommentsByState('awaiting', $commentRepository, $this->request);
         }
-        if ($action === 'admincomment' && $this->request->query()->has('id') && $this->request->query()->has('moderate'))
-        {
+        if ($action === 'admincomment'
+            && $this->request->query()->has('id')
+            && $this->request->query()->has('moderate')
+        ) {
             $commentRepository = new CommentRepository($this->database);
             $postRepository = new PostRepository($this->database);
             $userRepository = new UserRepository($this->database);
             $controller = new AdminPostController($postRepository, $this->view, $this->session, $userRepository);
-            return $controller->moderateComment($commentRepository,$this->request);
+            return $controller->moderateComment($commentRepository, $this->request);
         }
-        if ($action === 'adminposts')
-        {
+        if ($action === 'adminposts') {
             $postRepository = new PostRepository($this->database);
             $userRepository = new UserRepository($this->database);
             $controller = new AdminPostController($postRepository, $this->view, $this->session, $userRepository);
             return $controller->displayPost($this->request);
         }
-        if ($action === 'adminupdatepost' && $this->request->query()->has('id'))
-        {
+        if ($action === 'adminupdatepost'
+            && $this->request->query()->has('id')
+        ) {
             $postRepository = new PostRepository($this->database);
             $userRepository = new UserRepository($this->database);
             $controller = new AdminPostController($postRepository, $this->view, $this->session, $userRepository);
             return $controller->updatePost($this->request, $postRepository);
         }
-        if ($action === 'admindeletepost' && $this->request->query()->has('id'))
-        {
+        if ($action === 'admindeletepost'
+            && $this->request->query()->has('id')
+        ) {
             $postRepository = new PostRepository($this->database);
             $userRepository = new UserRepository($this->database);
             $controller = new AdminPostController($postRepository, $this->view, $this->session, $userRepository);
             return $controller->deletePost($this->request, $postRepository);
         }
-        if ($action === 'adminpostadd')
-        {
+        if ($action === 'adminpostadd') {
             $postRepository = new PostRepository($this->database);
             $userRepository = new UserRepository($this->database);
             $controller = new AdminPostController($postRepository, $this->view, $this->session, $userRepository);
             return $controller->addPost($this->request, $postRepository);
         }
-        if ($action === 'posts')
-        {
+        if ($action === 'posts') {
             $postRepository = new PostRepository($this->database);
             $controller = new PostController($postRepository, $this->view, $this->session);
             return $controller->displayPostsAction($this->request);
         }
-        if ($action === 'post' && $this->request->query()->has('id') && !$this->request->request()->has('content'))
-        {
+        if ($action === 'post'
+            && $this->request->query()->has('id')
+            && $this->request->request()->has('content') === false
+        ) {
             $postRepository = new PostRepository($this->database);
             $controller = new PostController($postRepository, $this->view, $this->session);
             $commentRepository = new CommentRepository($this->database);
-            return $controller->displayPostAction((int) $this->request->query()->get('id'),$commentRepository);
+            return $controller->displayPostAction((int)$this->request->query()->get('id'), $commentRepository);
         }
-        if ($action === 'post' && $this->request->query()->has('id') && $this->request->request()->has('content'))
-        {
+        if ($action === 'post'
+            && $this->request->query()->has('id')
+            && $this->request->request()->has('content')
+        ) {
             $postRepository = new PostRepository($this->database);
             $controller = new PostController($postRepository, $this->view, $this->session);
             $commentRepository = new CommentRepository($this->database);

@@ -10,10 +10,6 @@ use PHPMailer\PHPMailer\Exception;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
-require '../vendor/PHPMailer/PHPMailer/src/Exception.php';
-require '../vendor/PHPMailer/PHPMailer/src/PHPMailer.php';
-require '../vendor/PHPMailer/PHPMailer/src/SMTP.php';
-
 class SendEmail
 {
     private Environment $twig;
@@ -56,7 +52,7 @@ class SendEmail
         $mail->WordWrap = 100;
         $mail->isHTML(true);
         $mail->Body = $htmlBody;
-        $mail->AltBody = $htmlBody;
+        $mail->AltBody = $body;
 
         $mail->send();
     }

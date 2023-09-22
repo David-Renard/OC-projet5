@@ -167,6 +167,7 @@ class PostController
                         'lede' => $lede,
                         'content' => $content,
                     ];
+                    //return this function this time with inputs
                     return $this->addPost($request,$postRepository,$inputs);
                 }
             }

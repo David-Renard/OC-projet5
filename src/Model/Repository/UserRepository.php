@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Model\Repository;
 
 use App\Model\Entity\User;
@@ -17,15 +18,11 @@ class UserRepository implements EntityRepositoryInterface
     {
         $sCriteria = '';
         $countCriteria = 0;
-        foreach ($criteria as $key => $value)
-        {
+        foreach ($criteria as $key => $value) {
             $countCriteria++;
-            if ($countCriteria === 1)
-            {
+            if ($countCriteria === 1) {
                 $sCriteria = " WHERE u.$key = :$key";
-            }
-            else
-            {
+            } else {
                 $sCriteria = $sCriteria . " AND u.$key = :$key";
             }
         }
@@ -36,17 +33,12 @@ class UserRepository implements EntityRepositoryInterface
     {
         $sCriteria = '';
         $countCriteria = 0;
-        if ($criteria != null)
-        {
-            foreach ($criteria as $key => $value)
-            {
+        if ($criteria != null) {
+            foreach ($criteria as $key => $value) {
                 $countCriteria++;
-                if ($countCriteria === 1)
-                {
+                if ($countCriteria === 1) {
                     $sCriteria = " ORDER BY u.$key $value";
-                }
-                else
-                {
+                } else {
                     $sCriteria = $sCriteria . " AND u.$key $value";
                 }
             }
@@ -57,17 +49,14 @@ class UserRepository implements EntityRepositoryInterface
     public function find(int $id): ?User
     {
         $userQuery = $this->databaseConnection->getConnection()->prepare("SELECT * FROM user WHERE id = :id");
-        $userQuery->bindValue(':id',$id,\PDO::PARAM_INT);
+        $userQuery->bindValue(':id', $id, \PDO::PARAM_INT);
         $userQuery->execute();
-        $data=$userQuery->fetch(\PDO::FETCH_ASSOC);
+        $data = $userQuery->fetch(\PDO::FETCH_ASSOC);
 
         $user = new User();
-        if ($data === null || $data === false)
-        {
+        if ($data === null || $data === false) {
             return null;
-        }
-        else
-        {
+        } else {
             $user->fromArray($data);
             return $user;
         }
@@ -81,20 +70,16 @@ class UserRepository implements EntityRepositoryInterface
         $concatenatedQuery = $query . $where . $sortBy;
 
         $userQuery = $this->databaseConnection->getConnection()->prepare($concatenatedQuery);
-        foreach($criteria as $key => $value)
-        {
+        foreach ($criteria as $key => $value) {
             $userQuery->bindValue($key, $value);
         }
         $userQuery->execute($criteria);
         $data = $userQuery->fetch(\PDO::FETCH_ASSOC);
 
         $user = new User();
-        if ($data === null || $data === false)
-        {
+        if ($data === null || $data === false) {
             return null;
-        }
-        else
-        {
+        } else {
             $user->fromArray($data);
             return $user;
         }
@@ -107,21 +92,18 @@ class UserRepository implements EntityRepositoryInterface
         $where = $this->where($criteria);
         $concatenatedQuery = $query . $where;
         $usersQuery = $this->databaseConnection->getConnection()->prepare($concatenatedQuery);
-        foreach ($criteria as $key => $value)
-        {
-            $usersQuery->bindValue($key,$value);
+        foreach ($criteria as $key => $value) {
+            $usersQuery->bindValue($key, $value);
         }
         $usersQuery->execute($criteria);
         $data = $usersQuery->fetchAll(\PDO::FETCH_ASSOC);
 
-        if ($data === null)
-        {
+        if ($data === null) {
             return null;
         }
 
-        $users=[];
-        foreach ($data as $arrayUser)
-        {
+        $users = [];
+        foreach ($data as $arrayUser) {
             $user = new User();
             $user->fromArray($arrayUser);
             $users[] = $user;
@@ -134,35 +116,33 @@ class UserRepository implements EntityRepositoryInterface
         $usersQuery = $this->databaseConnection->getConnection()->prepare("SELECT * 
 FROM user");
         $usersQuery->execute();
-        $data=$usersQuery->fetchAll(\PDO::FETCH_ASSOC);
+        $data = $usersQuery->fetchAll(\PDO::FETCH_ASSOC);
 
-        if ($data === null)
-        {
+        if ($data === null) {
             return null;
         }
 
-        $users=[];
-        foreach ($data as $arrayPost)
-        {
-            $user= new User();
+        $users = [];
+        foreach ($data as $arrayPost) {
+            $user = new User();
             $user->fromArray($arrayPost);
             $users[] = $user;
         }
         return $users;
-        
+
     }
 
     public function create(object $entity): bool
     {
-        $registration=$this->databaseConnection->getConnection()->prepare("INSERT INTO user
+        $registration = $this->databaseConnection->getConnection()->prepare("INSERT INTO user
         (name, firstname, email, password, role)
         VALUES (:name, :firstname, :email, :password, :role)");
 
-        $registration->bindValue(':name',$entity->getName());
-        $registration->bindValue(':firstname',$entity->getFirstname());
-        $registration->bindValue(':email',$entity->getEmail());
-        $registration->bindValue(':password',$entity->getPassword());
-        $registration->bindValue(':role',$entity->getRole());
+        $registration->bindValue(':name', $entity->getName());
+        $registration->bindValue(':firstname', $entity->getFirstname());
+        $registration->bindValue(':email', $entity->getEmail());
+        $registration->bindValue(':password', $entity->getPassword());
+        $registration->bindValue(':role', $entity->getRole());
 
         return $registration->execute();
     }
@@ -172,8 +152,8 @@ FROM user");
         $updateUserQuery = $this->databaseConnection->getConnection()->prepare("UPDATE user 
         SET role = :role
         WHERE id = :id");
-        $updateUserQuery->bindValue(':role',$entity->getRole());
-        $updateUserQuery->bindValue(':id',$entity->getId());
+        $updateUserQuery->bindValue(':role', $entity->getRole());
+        $updateUserQuery->bindValue(':id', $entity->getId());
 
         return $updateUserQuery->execute();
     }
@@ -182,7 +162,7 @@ FROM user");
     {
         $deleteUserQuery = $this->databaseConnection->getConnection()->prepare("DELETE FROM user
         WHERE id = :id");
-        $deleteUserQuery->bindValue(':id',$entity->getId());
+        $deleteUserQuery->bindValue(':id', $entity->getId());
 
         return $deleteUserQuery->execute();
     }

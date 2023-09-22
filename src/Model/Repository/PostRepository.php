@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Model\Repository;
 
 use App\Model\Entity\Post;
@@ -17,15 +18,11 @@ class PostRepository implements EntityRepositoryInterface
     {
         $sCriteria = '';
         $countCriteria = 0;
-        foreach ($criteria as $key => $value)
-        {
+        foreach ($criteria as $key => $value) {
             $countCriteria++;
-            if ($countCriteria === 1)
-            {
+            if ($countCriteria === 1) {
                 $sCriteria = " WHERE p.$key = :$key";
-            }
-            else
-            {
+            } else {
                 $sCriteria = $sCriteria . " AND p.$key = :$key";
             }
         }
@@ -36,17 +33,12 @@ class PostRepository implements EntityRepositoryInterface
     {
         $sCriteria = '';
         $countCriteria = 0;
-        if ($criteria != null)
-        {
-            foreach ($criteria as $key => $value)
-            {
+        if ($criteria != null) {
+            foreach ($criteria as $key => $value) {
                 $countCriteria++;
-                if ($countCriteria === 1)
-                {
+                if ($countCriteria === 1) {
                     $sCriteria = " ORDER BY p.$key $value";
-                }
-                else
-                {
+                } else {
                     $sCriteria = $sCriteria . " AND p.$key $value";
                 }
             }
@@ -57,8 +49,7 @@ class PostRepository implements EntityRepositoryInterface
     private function setLimit(int $limit = null): string
     {
         $sLimit = "";
-        if ($limit != null)
-        {
+        if ($limit != null) {
             $sLimit = " LIMIT $limit";
         }
         return $sLimit;
@@ -67,8 +58,7 @@ class PostRepository implements EntityRepositoryInterface
     private function setOffset(int $offset = null): string
     {
         $sOffset = "";
-        if ($offset != null)
-        {
+        if ($offset != null) {
             $sOffset = " OFFSET $offset";
         }
         return $sOffset;
@@ -83,15 +73,12 @@ class PostRepository implements EntityRepositoryInterface
     WHERE p.id = :id");
         $postQuery->bindValue(':id', $id, \PDO::PARAM_INT);
         $postQuery->execute();
-        $data=$postQuery->fetch(\PDO::FETCH_ASSOC);
+        $data = $postQuery->fetch(\PDO::FETCH_ASSOC);
 
         $post = new Post();
-        if ($data === null || $data === false)
-        {
+        if ($data === null || $data === false) {
             return null;
-        }
-        else
-        {
+        } else {
             $post->fromArray($data);
             return $post;
         }
@@ -107,20 +94,16 @@ FROM post p
 
         $concatenatedQuery = $query . $where;
         $postQuery = $this->databaseConnection->getConnection()->prepare($concatenatedQuery);
-        foreach ($criteria as $key => $value)
-        {
+        foreach ($criteria as $key => $value) {
             $param_type = is_string($value) ? \PDO::PARAM_STR : \PDO::PARAM_INT;
             $postQuery->bindValue(":$key", $value, $param_type);
         }
         $postQuery->execute();
-        $data=$postQuery->fetch(\PDO::FETCH_ASSOC);
+        $data = $postQuery->fetch(\PDO::FETCH_ASSOC);
         $post = new Post();
-        if ($data === null || $data === false)
-        {
+        if ($data === null || $data === false) {
             return null;
-        }
-        else
-        {
+        } else {
             $post->fromArray($data);
             return $post;
         }
@@ -140,8 +123,7 @@ FROM post p
         $concatenatedQuery = $query . $where . $sortBy . $sLimit . $sOffset;
         $publishedPostsQuery = $this->databaseConnection->getConnection()->prepare($concatenatedQuery);
 
-        foreach ($criteria as $key => $value)
-        {
+        foreach ($criteria as $key => $value) {
             $param_type = is_string($value) ? \PDO::PARAM_STR : \PDO::PARAM_INT;
             $publishedPostsQuery->bindValue(":$key", $value, $param_type);
         }
@@ -150,14 +132,12 @@ FROM post p
 //        $data = $publishedPostsQuery->fetchAll(\PDO::FETCH_CLASS,"Post");
         $data = $publishedPostsQuery->fetchAll(\PDO::FETCH_ASSOC);
 
-        if ($data === null)
-        {
+        if ($data === null) {
             return null;
         }
 
         $posts = [];
-        foreach ($data as $arrayPost)
-        {
+        foreach ($data as $arrayPost) {
             $post = new Post();
             $post->fromArray($arrayPost);
             $posts[] = $post;
@@ -165,7 +145,7 @@ FROM post p
         return $posts;
     }
 
-    public function findAll(int $limit = null , int $offset = null): ?array
+    public function findAll(int $limit = null, int $offset = null): ?array
     {
         $query = "SELECT p.id, p.title, p.creationDate, p.lede, p.content, p.lastUpdateDate, p.idAuthor, u.name, u.firstname 
     FROM post p 
@@ -180,14 +160,12 @@ FROM post p
         $postsQuery->execute([]);
         $data = $postsQuery->fetchAll(\PDO::FETCH_ASSOC);
 
-        if ($data === null)
-        {
+        if ($data === null) {
             return null;
         }
 
         $posts = [];
-        foreach ($data as $arrayPost)
-        {
+        foreach ($data as $arrayPost) {
             $post = new Post();
             $post->fromArray($arrayPost);
             $posts[] = $post;
@@ -197,18 +175,18 @@ FROM post p
 
     public function create(object $entity): bool
     {
-        $addPostQuery=$this->databaseConnection->getConnection()->prepare("INSERT INTO post 
+        $addPostQuery = $this->databaseConnection->getConnection()->prepare("INSERT INTO post 
         (title, creationDate, lede, content, lastUpdateDate, idAuthor)
         VALUES (:title, :creationDate, :lede, :content, :lastUpdateDate, :idAuthor)");
         $creationDate = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
         $creationDate = $creationDate->format('Y-m-d H:i:s');
 
-        $addPostQuery->bindValue(':title',htmlspecialchars($entity->getTitle()));
-        $addPostQuery->bindValue(':idAuthor',$entity->getIdAuthor(),\PDO::PARAM_INT);
-        $addPostQuery->bindValue(':creationDate',$creationDate);
-        $addPostQuery->bindValue(':lastUpdateDate',$creationDate);
-        $addPostQuery->bindValue(':lede',$entity->getLede());
-        $addPostQuery->bindValue(':content',$entity->getContent());
+        $addPostQuery->bindValue(':title', htmlspecialchars($entity->getTitle()));
+        $addPostQuery->bindValue(':idAuthor', $entity->getIdAuthor(), \PDO::PARAM_INT);
+        $addPostQuery->bindValue(':creationDate', $creationDate);
+        $addPostQuery->bindValue(':lastUpdateDate', $creationDate);
+        $addPostQuery->bindValue(':lede', $entity->getLede());
+        $addPostQuery->bindValue(':content', $entity->getContent());
 
         return $addPostQuery->execute();
     }
@@ -225,8 +203,8 @@ FROM post p
         $updateQuery->bindValue(':lede', $entity->getLede());
         $updateQuery->bindValue(':content', $entity->getContent());
         $updateQuery->bindValue(':lastUpdateDate', $updateDate);
-        $updateQuery->bindValue(':idAuthor', $entity->getIdAuthor(),\PDO::PARAM_INT);
-        $updateQuery->bindValue(':id', $entity->getId(),\PDO::PARAM_INT);
+        $updateQuery->bindValue(':idAuthor', $entity->getIdAuthor(), \PDO::PARAM_INT);
+        $updateQuery->bindValue(':id', $entity->getId(), \PDO::PARAM_INT);
 
         return $updateQuery->execute();
     }
@@ -245,7 +223,7 @@ FROM post p
         $countQuery = $this->databaseConnection->getConnection()->prepare("SELECT COUNT(id) as Total 
         FROM post");
         $countQuery->execute();
-        $data=$countQuery->fetch(\PDO::FETCH_NUM)[0];
+        $data = $countQuery->fetch(\PDO::FETCH_NUM)[0];
         return $data;
     }
 }

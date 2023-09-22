@@ -137,7 +137,7 @@ class UserController
 
             if ($userPost != [])
             {
-                foreach($userPost as $currentPost)
+                foreach ($userPost as $currentPost)
                 {
                     $post = new Post();
                     $post->setId($currentPost->getId());

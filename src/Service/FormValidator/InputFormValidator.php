@@ -1,71 +1,61 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Service\FormValidator;
 
 use App\Service\Http\Request;
 use App\Service\Http\Session\Session;
+
 class InputFormValidator
 {
-    private ?array $contactArray=[];
+    private ?array $contactArray = [];
+
     public function __construct(private Request $request)
     {
         $this->contactArray = $this->request->request()->all();
     }
 
-    public function isInputValid(string $pattern, string $value) : mixed
+    public function isInputValid(string $pattern, string $value): mixed
     {
-        if ($this->contactArray === null)
-        {
+        if ($this->contactArray === null) {
             return false;
         }
 
-        if (!preg_match($pattern, $value))
-        {
+        if (!preg_match($pattern, $value)) {
             return false;
-        }
-        else
-        {
+        } else {
             return true;
         }
     }
 
     public function isEmailValid(string $value): bool
     {
-        if (!filter_var($value, FILTER_VALIDATE_EMAIL))
-        {
+        if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
             return false;
-        }
-        else
-        {
+        } else {
             return true;
         }
     }
 
-    public function isTextareaValid(mixed $value):bool
+    public function isTextareaValid(mixed $value): bool
     {
-        if ($value !== NULL && $value!=="")
-        {
+        if ($value !== NULL && $value !== "") {
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
 
-    public function isRgpdChecked(mixed $value):bool
+    public function isRgpdChecked(mixed $value): bool
     {
-        if ($value === 'on')
-        {
+        if ($value === 'on') {
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
 
-    public function isEqualToConfirm(mixed $value1, mixed $value2):bool
+    public function isEqualToConfirm(mixed $value1, mixed $value2): bool
     {
         return $value1 === $value2;
     }
