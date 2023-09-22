@@ -54,7 +54,9 @@ class UserRepository implements EntityRepositoryInterface
         $data = $userQuery->fetch(\PDO::FETCH_ASSOC);
 
         $user = new User();
-        if ($data === null || $data === false) {
+        if ($data === null
+            || $data === false
+        ) {
             return null;
         } else {
             $user->fromArray($data);
@@ -77,7 +79,9 @@ class UserRepository implements EntityRepositoryInterface
         $data = $userQuery->fetch(\PDO::FETCH_ASSOC);
 
         $user = new User();
-        if ($data === null || $data === false) {
+        if ($data === null
+            || $data === false
+        ) {
             return null;
         } else {
             $user->fromArray($data);

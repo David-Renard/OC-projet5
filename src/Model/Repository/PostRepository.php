@@ -76,7 +76,9 @@ class PostRepository implements EntityRepositoryInterface
         $data = $postQuery->fetch(\PDO::FETCH_ASSOC);
 
         $post = new Post();
-        if ($data === null || $data === false) {
+        if ($data === null
+            || $data === false
+        ) {
             return null;
         } else {
             $post->fromArray($data);
@@ -101,7 +103,9 @@ FROM post p
         $postQuery->execute();
         $data = $postQuery->fetch(\PDO::FETCH_ASSOC);
         $post = new Post();
-        if ($data === null || $data === false) {
+        if ($data === null
+            || $data === false
+        ) {
             return null;
         } else {
             $post->fromArray($data);
@@ -129,7 +133,6 @@ FROM post p
         }
 
         $publishedPostsQuery->execute();
-//        $data = $publishedPostsQuery->fetchAll(\PDO::FETCH_CLASS,"Post");
         $data = $publishedPostsQuery->fetchAll(\PDO::FETCH_ASSOC);
 
         if ($data === null) {

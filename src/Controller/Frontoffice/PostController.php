@@ -114,13 +114,13 @@ class PostController
 
                     if ($commentRepository->create($newComment)) {
                         $this->session->addFlashes('success', 'Votre commentaire "' . html_entity_decode($content) . '" est ajouté et en attente de validation.');
-                    } elseif (!$commentRepository->create($newComment)) {
+                    } elseif ($commentRepository->create($newComment) === false) {
                         $this->session->addFlashes('error', 'Votre commentaire "' . html_entity_decode($content) . '" n\'a pas pu être ajouté.');
                     }
                 } else {
                     $this->session->addFlashes('error', 'Faites-nous part de votre commentaire, ne nous envoyez pas un message vide!');
                 }
-            } elseif (!$token->verifyToken($request)) {
+            } elseif ($token->verifyToken($request) === false) {
                 $this->session->addFlashes('error', 'Il semblerait que ce ne soit pas vous qui tentez de commenter ce post!?');
                 $redirectResponse->redirect('?action=post&id=' . $idPost);
             }

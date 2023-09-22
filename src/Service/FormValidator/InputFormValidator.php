@@ -39,7 +39,9 @@ class InputFormValidator
 
     public function isTextareaValid(mixed $value): bool
     {
-        if ($value !== NULL && $value !== "") {
+        if ($value !== NULL
+            && $value !== ""
+        ) {
             return true;
         } else {
             return false;

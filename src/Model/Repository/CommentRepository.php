@@ -69,7 +69,9 @@ FROM comment c
         $data = $commentQuery->fetch(\PDO::FETCH_ASSOC);
 
         $comment = new Comment();
-        if ($data === null || $data === false) {
+        if ($data === null
+            || $data === false
+        ) {
             return null;
         } else {
             $comment->fromArray($data);
