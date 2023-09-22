@@ -29,7 +29,7 @@
     height:53px;
 }
 
-@media screen and (max-width: 575px)
+@media screen and (width <= 575px)
 {
     .spaced
     {

@@ -14,6 +14,10 @@ final class Response
         echo $this->content;
     }
 
+    /** redirect the user at the $location place / homepage if $location is empty
+     * @param string $location
+     * @return string
+     */
     public function redirect(string $location = ''): string
     {
         header("Location: index.php" . $location);

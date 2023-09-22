@@ -13,7 +13,7 @@ class Token
 
     public function setToken(): void
     {
-        $this->session->set('token',md5(bin2hex(openssl_random_pseudo_bytes(12))));
+        $this->session->set('token', md5(bin2hex(openssl_random_pseudo_bytes(12))));
     }
 
     public function getToken(): string
@@ -23,17 +23,12 @@ class Token
 
     public function verifyToken(Request $request): bool
     {
-        if ($request->getMethod() === 'POST')
-        {
-            if ($this->getToken() === $request->request()->get('token'))
-            {
+        if ($request->getMethod() === 'POST') {
+            if ($this->getToken() === $request->request()->get('token')) {
                 return true;
             }
-        }
-        elseif ($request->getMethod() === 'GET')
-        {
-            if ($this->getToken() === $request->query()->get('token'))
-            {
+        } elseif ($request->getMethod() === 'GET') {
+            if ($this->getToken() === $request->query()->get('token')) {
                 return true;
             }
         }

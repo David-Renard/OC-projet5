@@ -56,23 +56,23 @@ class HomeController
                     $this->session->addFlashes('success','Formulaire valide, votre message : "'.$message.'" est bien envoyé!');
                 }
 
-                if (!$isFirstnameValid)
+                if ($isFirstnameValid === false)
                 {
                     $this->session->addFlashes('error',"Votre prénom ne peut pas contenir de caractères numériques ou autres caractères spéciaux (exceptés ' ', '-' et '_').");
                 }
-                if (!$isNameValid)
+                if ($isNameValid === false)
                 {
                     $this->session->addFlashes('error',"Votre nom ne peut pas contenir de caractères numériques ou autres caractères spéciaux (exceptés ' ', '-' et '_').");
                 }
-                if (!$isEmailValid)
+                if ($isEmailValid === false)
                 {
                     $this->session->addFlashes('error',"Votre email ne correspond pas.");
                 }
-                if (!$isMessageValid)
+                if ($isMessageValid === false)
                 {
                     $this->session->addFlashes('error',"Votre message ne peut pas être vide, écrivez-nous quelque chose!");
                 }
-                if (!$isRgpdChecked)
+                if ($isRgpdChecked === false)
                 {
                     $this->session->addFlashes('error',"Vous avez oublié la checkbox!");
                 }
