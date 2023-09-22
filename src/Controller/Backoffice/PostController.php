@@ -26,9 +26,11 @@ class PostController
     private function displayCommentsByState(string $status, CommentRepository $commentRepository): ?array
     {
         $posts = $this->postRepository->findAll();
-        foreach ($posts as $post)
-        {
-            $post->setComments($commentRepository->findBy(['idPost' => $post->getID(),'status' => $status]));
+        foreach ($posts as $post) {
+            $post->setComments($commentRepository->findBy([
+                'idPost' => $post->getID(),
+                'status' => $status
+            ]));
         }
 
         return $posts;
@@ -36,7 +38,7 @@ class PostController
 
     public function getCommentsByState(string $status, CommentRepository $commentRepository, Request $request): Response
     {
-        $posts = $this->displayCommentsByState($status,$commentRepository);
+        $posts = $this->displayCommentsByState($status, $commentRepository);
         $response = new Response($this->view->render([
             'template' => 'admincomments',
             'data' => [
@@ -47,8 +49,7 @@ class PostController
         $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
         $authorizationLevel = $loginFormValidator->isAuthorized();
 
-        if ($authorizationLevel < 1)
-        {
+        if ($authorizationLevel < 1) {
             $response->redirect();
         }
         return $response;
@@ -63,39 +64,35 @@ class PostController
                 'posts' => $posts,
             ],
             'office' => 'backoffice',
-            ]));
+        ]));
 
         $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
         $authorizationLevel = $loginFormValidator->isAuthorized();
 
-        if ($authorizationLevel < 1)
-        {
+        if ($authorizationLevel < 1) {
             $response->redirect();
         }
         return $response;
     }
 
-    public function addPost(Request $request, PostRepository $postRepository, array $inputs=[]): Response
+    public function addPost(Request $request, PostRepository $postRepository, array $inputs = []): Response
     {
         $response = new Response();
         $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
         $authorizationLevel = $loginFormValidator->isAuthorized();
 
-        if ($authorizationLevel < 1)
-        {
+        if ($authorizationLevel < 1) {
             $response->redirect();
         }
 
         $token = new Token($this->session);
 
-        if ($request->getMethod() === 'GET' && $request->query()->get('action') === 'adminpostadd')
-        {
+        if ($request->getMethod() === 'GET'
+            && $request->query()->get('action') === 'adminpostadd'
+        ) {
             $token->setToken();
-        }
-        elseif ($request->getMethod() === 'POST')
-        {
-            if ($token->verifyToken($request))
-            {
+        } elseif ($request->getMethod() === 'POST') {
+            if ($token->verifyToken($request)) {
                 $title = $request->request()->get('title');
                 $lede = $request->request()->get('lede');
                 $content = $request->request()->get('content');
@@ -105,18 +102,18 @@ class PostController
                 $isTitleEmpty = $addPostValidator->isEmpty($title);
                 $isLedeEmpty = $addPostValidator->isEmpty($lede);
                 $isContentEmpty = $addPostValidator->isEmpty($content);
-                $isTitleOk = $addPostValidator->isNotToLong($title,120);
-                $isLedeOk = $addPostValidator->isNotToLong($lede,255);
-                $isContentOk = $addPostValidator->isNotToLong($content,65535);
+                $isTitleOk = $addPostValidator->isNotToLong($title, 120);
+                $isLedeOk = $addPostValidator->isNotToLong($lede, 255);
+                $isContentOk = $addPostValidator->isNotToLong($content, 65535);
 
-                if (!$isTitleEmpty
-                    && !$isLedeEmpty
-                    && !$isContentEmpty
+                if ($isTitleEmpty === false
+                    && $isLedeEmpty === false
+                    && $isContentEmpty === false
                     && $isTitleOk
                     && $isLedeOk
                     && $isContentOk
-                    && !$isTitleTaken)
-                {
+                    && $isTitleTaken === false
+                ) {
                     $post = new Post();
                     $post->setTitle($title);
                     $post->setLede($lede);
@@ -126,40 +123,30 @@ class PostController
                     if ($postRepository->create($post)) {
                         $this->session->addFlashes('success', 'Le post a bien été ajouté.');
                         $response->redirect('?action=adminposts');
-                    }
-                    else {
+                    } else {
                         $this->session->addFlashes('error', 'Le post n\'a pas pu être ajouté.');
                     }
-                }
-                elseif (empty($inputs))
-                {
-                    if ($isTitleEmpty)
-                    {
-                        $this->session->addFlashes('error','Le titre de l\'article ne peut pas être vide.');
+                } elseif (empty($inputs)) {
+                    if ($isTitleEmpty) {
+                        $this->session->addFlashes('error', 'Le titre de l\'article ne peut pas être vide.');
                     }
-                    if ($isLedeEmpty)
-                    {
-                        $this->session->addFlashes('error','Le chapô de l\'article ne peut pas être vide.');
+                    if ($isLedeEmpty) {
+                        $this->session->addFlashes('error', 'Le chapô de l\'article ne peut pas être vide.');
                     }
-                    if ($isContentEmpty)
-                    {
-                        $this->session->addFlashes('error','Le contenu de l\'article ne peut pas être vide.');
+                    if ($isContentEmpty) {
+                        $this->session->addFlashes('error', 'Le contenu de l\'article ne peut pas être vide.');
                     }
-                    if (!$isTitleOk)
-                    {
-                        $this->session->addFlashes('error','Le titre de l\'article est trop long.');
+                    if ($isTitleOk === false) {
+                        $this->session->addFlashes('error', 'Le titre de l\'article est trop long.');
                     }
-                    if (!$isLedeOk)
-                    {
-                        $this->session->addFlashes('error','Le chapô de l\'article est trop long.');
+                    if ($isLedeOk === false) {
+                        $this->session->addFlashes('error', 'Le chapô de l\'article est trop long.');
                     }
-                    if (!$isContentOk)
-                    {
-                        $this->session->addFlashes('error','Le contenu de l\'article est trop long.');
+                    if ($isContentOk === false) {
+                        $this->session->addFlashes('error', 'Le contenu de l\'article est trop long.');
                     }
-                    if ($isTitleTaken)
-                    {
-                        $this->session->addFlashes('error','Ce titre est déjà attribué à un autre post.');
+                    if ($isTitleTaken) {
+                        $this->session->addFlashes('error', 'Ce titre est déjà attribué à un autre post.');
                     }
 
                     $inputs = [
@@ -168,12 +155,10 @@ class PostController
                         'content' => $content,
                     ];
                     //return this function this time with inputs
-                    return $this->addPost($request,$postRepository,$inputs);
+                    return $this->addPost($request, $postRepository, $inputs);
                 }
-            }
-            elseif (!$token->verifyToken($request))
-            {
-                $this->session->addFlashes('error','Il semblerait que ce ne soit pas vous qui tentez d\'ajouter un post!?');
+            } elseif ($token->verifyToken($request) === false) {
+                $this->session->addFlashes('error', 'Il semblerait que ce ne soit pas vous qui tentez d\'ajouter un post!?');
                 $response->redirect('?action=adminpostadd');
             }
         }
@@ -187,14 +172,13 @@ class PostController
         ]));
     }
 
-    public function updatePost(Request $request, PostRepository $postRepository, array $inputs=[]): Response
+    public function updatePost(Request $request, PostRepository $postRepository, array $inputs = []): Response
     {
         $response = new Response();
         $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
         $authorizationLevel = $loginFormValidator->isAuthorized();
 
-        if ($authorizationLevel < 1)
-        {
+        if ($authorizationLevel < 1) {
             $response->redirect();
         }
 
@@ -202,25 +186,24 @@ class PostController
 
         $updateAuthor = $this->session->get('user');
         $idPost = $request->query()->get('id');
-        $post = $this->postRepository->find((int) $idPost);
+        $post = $this->postRepository->find((int)$idPost);
         $originalAuthor = $post->getIdAuthor();
 
-        if ($request->getMethod() === 'GET' && $request->query()->get('action') === 'adminupdatepost')
-        {
+        if ($request->getMethod() === 'GET'
+            && $request->query()->get('action') === 'adminupdatepost'
+        ) {
             $token->setToken();
-        }
-        elseif ($request->getMethod() === 'POST')
-        {
-            if ($token->verifyToken($request))
-            {
+        } elseif ($request->getMethod() === 'POST') {
+            if ($token->verifyToken($request)) {
                 $title = $request->request()->get('title');
                 $lede = $request->request()->get('lede');
                 $content = $request->request()->get('content');
                 $isModifiedBy = $request->request()->get('updateAuthor');
 
                 $isTitleTaken = $this->postRepository->findOneBy(['title' => $title]);
-                if (!empty($isTitleTaken) && $isTitleTaken->getId() === intval($idPost))
-                {
+                if (empty($isTitleTaken) === false
+                    && $isTitleTaken->getId() === intval($idPost)
+                ) {
                     $isTitleTaken = false;
                 }
 
@@ -228,71 +211,56 @@ class PostController
                 $isTitleEmpty = $updatePostValidator->isEmpty($title);
                 $isLedeEmpty = $updatePostValidator->isEmpty($lede);
                 $isContentEmpty = $updatePostValidator->isEmpty($content);
-                $isTitleOk = $updatePostValidator->isNotToLong($title,120);
-                $isLedeOk = $updatePostValidator->isNotToLong($lede,255);
-                $isContentOk = $updatePostValidator->isNotToLong($content,65535);
+                $isTitleOk = $updatePostValidator->isNotToLong($title, 120);
+                $isLedeOk = $updatePostValidator->isNotToLong($lede, 255);
+                $isContentOk = $updatePostValidator->isNotToLong($content, 65535);
 
-                if (!$isTitleEmpty
-                    && !$isLedeEmpty
-                    && !$isContentEmpty
+                if ($isTitleEmpty === false
+                    && $isLedeEmpty === false
+                    && $isContentEmpty === false
                     && $isTitleOk
                     && $isLedeOk
                     && $isContentOk
-                    && !$isTitleTaken)
-                {
+                    && $isTitleTaken === false
+                ) {
                     $post = new Post();
                     $post->setTitle($title);
                     $post->setLede($lede);
                     $post->setContent($content);
                     $post->setId(intval($request->query()->get('id')));
-                    if ($isModifiedBy != null)
-                    {
+                    if ($isModifiedBy != null) {
                         $post->setIdAuthor(intval($updateAuthor->getId()));
-                    }
-                    else
-                    {
+                    } else {
                         $post->setIdAuthor($originalAuthor);
                     }
 
-                    if ($postRepository->update($post))
-                    {
-                        $this->session->addFlashes('success','Le post n°'. $idPost .' a bien été mis à jour.');
+                    if ($postRepository->update($post)) {
+                        $this->session->addFlashes('success', 'Le post n°' . $idPost . ' a bien été mis à jour.');
                         $response->redirect('?action=adminposts');
+                    } else {
+                        $this->session->addFlashes('error', 'Le post n\'a pas pu être mis à jour.');
                     }
-                    else
-                    {
-                        $this->session->addFlashes('error','Le post n\'a pas pu être mis à jour.');
+                } elseif (empty($inputs)) {
+                    if ($isTitleEmpty) {
+                        $this->session->addFlashes('error', 'Le titre de l\'article ne peut pas être vide.');
                     }
-                }
-                elseif (empty($inputs))
-                {
-                    if ($isTitleEmpty)
-                    {
-                        $this->session->addFlashes('error','Le titre de l\'article ne peut pas être vide.');
+                    if ($isLedeEmpty) {
+                        $this->session->addFlashes('error', 'Le chapô de l\'article ne peut pas être vide.');
                     }
-                    if ($isLedeEmpty)
-                    {
-                        $this->session->addFlashes('error','Le chapô de l\'article ne peut pas être vide.');
+                    if ($isContentEmpty) {
+                        $this->session->addFlashes('error', 'Le contenu de l\'article ne peut pas être vide.');
                     }
-                    if ($isContentEmpty)
-                    {
-                        $this->session->addFlashes('error','Le contenu de l\'article ne peut pas être vide.');
+                    if ($isTitleOk === false) {
+                        $this->session->addFlashes('error', 'Le titre de l\'article est trop long.');
                     }
-                    if (!$isTitleOk)
-                    {
-                        $this->session->addFlashes('error','Le titre de l\'article est trop long.');
+                    if ($isLedeOk === false) {
+                        $this->session->addFlashes('error', 'Le chapô de l\'article est trop long.');
                     }
-                    if (!$isLedeOk)
-                    {
-                        $this->session->addFlashes('error','Le chapô de l\'article est trop long.');
+                    if ($isContentOk === false) {
+                        $this->session->addFlashes('error', 'Le contenu de l\'article est trop long.');
                     }
-                    if (!$isContentOk)
-                    {
-                        $this->session->addFlashes('error','Le contenu de l\'article est trop long.');
-                    }
-                    if ($isTitleTaken)
-                    {
-                        $this->session->addFlashes('error','Ce titre est déjà attribué à un autre post.');
+                    if ($isTitleTaken) {
+                        $this->session->addFlashes('error', 'Ce titre est déjà attribué à un autre post.');
                     }
 
                     $inputs = [
@@ -300,12 +268,10 @@ class PostController
                         'lede' => $lede,
                         'content' => $content,
                     ];
-                    return $this->updatePost($request,$postRepository,$inputs);
+                    return $this->updatePost($request, $postRepository, $inputs);
                 }
-            }
-            elseif (!$token->verifyToken($request))
-            {
-                $this->session->addFlashes('error','Il semblerait que ce ne soit pas vous qui tentez de modifier un post!?');
+            } elseif ($token->verifyToken($request) === false) {
+                $this->session->addFlashes('error', 'Il semblerait que ce ne soit pas vous qui tentez de modifier un post!?');
                 $response->redirect('?action=adminupdatepost&id=' . $idPost);
             }
         }
@@ -330,23 +296,20 @@ class PostController
         $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
         $authorizationLevel = $loginFormValidator->isAuthorized();
 
-        if ($request->getMethod() === 'GET' && $authorizationLevel > 0)
-        {
+        if ($request->getMethod() === 'GET'
+            && $authorizationLevel > 0
+        ) {
             $post = new Post();
             $post->setId(intval($request->query()->get('id')));
 
-            if ($postRepository->delete($post))
-            {
-                $this->session->addFlashes('success','Le post a bien été supprimé.');
-            }
-            else
-            {
-                $this->session->addFlashes('error','Le post n\'a pas pu être supprimé.');
+            if ($postRepository->delete($post)) {
+                $this->session->addFlashes('success', 'Le post a bien été supprimé.');
+            } else {
+                $this->session->addFlashes('error', 'Le post n\'a pas pu être supprimé.');
             }
             $response->redirect('?action=adminposts');
         }
-        if ($authorizationLevel === 0)
-        {
+        if ($authorizationLevel === 0) {
             $response->redirect();
         }
         return $response;
@@ -354,8 +317,9 @@ class PostController
 
     public function moderateComment(CommentRepository $commentRepository, Request $request): Response
     {
-        if ($request->query()->has('id') && $request->query()->has('moderate'))
-        {
+        if ($request->query()->has('id')
+            && $request->query()->has('moderate')
+        ) {
             $commentId = intval($request->query()->get('id'));
             $commentStatus = $request->query()->get('moderate');
 
@@ -363,13 +327,10 @@ class PostController
             $comment->setId($commentId);
             $comment->setStatus($commentStatus);
 
-            if ($commentRepository->update($comment))
-            {
-                $this->session->addFlashes('success','Le commentaire a bien été modéré.');
-            }
-            else
-            {
-                $this->session->addFlashes('error','Le commentaire n\'a pas pu être modéré.');
+            if ($commentRepository->update($comment)) {
+                $this->session->addFlashes('success', 'Le commentaire a bien été modéré.');
+            } else {
+                $this->session->addFlashes('error', 'Le commentaire n\'a pas pu être modéré.');
             }
         }
         $response = new Response();

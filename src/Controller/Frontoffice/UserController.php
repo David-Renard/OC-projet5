@@ -145,11 +145,13 @@ class UserController
                         $this->session->addFlashes('error', "Votre nom ne peut pas contenir de caractères numériques ou autres caractères spéciaux (exceptés ' ', '-' et '_').");
                     }
                     if ($isPasswordValid === false
-                        || $isPasswordConfValid === false) {
+                        || $isPasswordConfValid === false
+                    ) {
                         $this->session->addFlashes('error', "Votre mot de passe doit avoir au moins 8 caractères, 1 minuscule, 1 majuscule, 1 chiffre et 1 caractère spécial.");
                     }
                     if ($isEmailValid === false
-                        || $isEmailConfValid === false) {
+                        || $isEmailConfValid === false
+                    ) {
                         $this->session->addFlashes('error', "Votre email ne correspond pas.");
                     }
                     if ($isEmailConfirmOk === false) {

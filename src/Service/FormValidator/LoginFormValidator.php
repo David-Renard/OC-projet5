@@ -22,9 +22,13 @@ class LoginFormValidator
         if ($this->infoUser === null) {
             return false;
         }
-        $user = $this->userRepository->findOneBy(['email' => $this->infoUser['email']]);
+        $user = $this->userRepository->findOneBy([
+            'email' => $this->infoUser['email']
+        ]);
 
-        if (!$user instanceof (User::class) || !password_verify($this->infoUser['password'], $user->getPassword())) {
+        if ($user instanceof (User::class) === false
+            || password_verify($this->infoUser['password'], $user->getPassword()) === false
+        ) {
             return false;
         }
         $this->session->set('user', $user);

@@ -26,13 +26,10 @@ class UserController
         $response = new Response();
         $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
         $authorizationLevel = $loginFormValidator->isAuthorized();
-        if ($authorizationLevel > 0)
-        {
-            $response -> redirect('?action=adminposts');
-        }
-        else
-        {
-            $response -> redirect();
+        if ($authorizationLevel > 0) {
+            $response->redirect('?action=adminposts');
+        } else {
+            $response->redirect();
         }
         $response = new Response($this->view->render(
             [
@@ -52,18 +49,17 @@ class UserController
         $users = array_merge($adminsUsers, $usersUsers);
 
         $response = new Response($this->view->render(
-        [
-            "template" => 'adminusers',
-            'data' => [
-                'users' => $users,
-            ],
-            'office' => 'backoffice',
-        ]));
+            [
+                "template" => 'adminusers',
+                'data' => [
+                    'users' => $users,
+                ],
+                'office' => 'backoffice',
+            ]));
         $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
         $authorizationLevel = $loginFormValidator->isAuthorized();
 
-        if ($authorizationLevel < 2)
-        {
+        if ($authorizationLevel < 2) {
             $response->redirect();
         }
         return $response;
@@ -80,31 +76,23 @@ class UserController
         $loginFormValidator = new LoginFormValidator($request, $this->userRepository, $this->session);
         $authorizationLevel = $loginFormValidator->isAuthorized();
 
-        if ($authorizationLevel < 2)
-        {
+        if ($authorizationLevel < 2) {
             $response->redirect();
         }
 
-        if ($token->verifyToken($request))
-        {
+        if ($token->verifyToken($request)) {
             $user = new User();
-            if ($currentRole === 'admin')
-            {
+            if ($currentRole === 'admin') {
                 $user->setRole('user');
-            }
-            elseif ($currentRole === 'user')
-            {
+            } elseif ($currentRole === 'user') {
                 $user->setRole('admin');
             }
             $user->setId($userId);
 
-            if ($this->userRepository->update($user))
-            {
-                $this->session->addFlashes('success','Le rôle a bien été modifié avec succès.');
-            }
-            else
-            {
-                $this->session->addFlashes('error','Le rôle n\'a pas pu être modifié.');
+            if ($this->userRepository->update($user)) {
+                $this->session->addFlashes('success', 'Le rôle a bien été modifié avec succès.');
+            } else {
+                $this->session->addFlashes('error', 'Le rôle n\'a pas pu être modifié.');
             }
             $response->redirect('?action=adminusers');
         }
@@ -123,22 +111,20 @@ class UserController
         $response = new Response();
         $token = new Token($this->session);
 
-        if ($authorizationLevel < 2)
-        {
+        if ($authorizationLevel < 2) {
             $response->redirect();
         }
 
-        if ($request->query()->has('id') && $token->verifyToken($request))
-        {
+        if ($request->query()->has('id')
+            && $token->verifyToken($request)
+        ) {
             $idUser = intval($request->query()->get('id'));
             $user = new User();
             $user->setId($idUser);
             $userPost = $postRepository->findBy(['idAuthor' => $idUser]);
 
-            if ($userPost != [])
-            {
-                foreach ($userPost as $currentPost)
-                {
+            if ($userPost != []) {
+                foreach ($userPost as $currentPost) {
                     $post = new Post();
                     $post->setId($currentPost->getId());
                     $post->setTitle($currentPost->getTitle());
@@ -152,13 +138,10 @@ class UserController
                 }
             }
 
-            if ($this->userRepository->delete($user))
-            {
+            if ($this->userRepository->delete($user)) {
                 $this->session->addFlashes('success', 'L\'utilisateur a bien été supprimé.');
-            }
-            else
-            {
-                $this->session->addFlashes('error',"L'utilisateur n'a pas pu être supprimé.");
+            } else {
+                $this->session->addFlashes('error', "L'utilisateur n'a pas pu être supprimé.");
             }
         }
         $response->redirect('?action=adminusers');
