@@ -29,8 +29,7 @@
     height:53px;
 }
 
-@media screen and (width <= 575px)
-{
+@media screen and (width <= 575px) {
     .spaced
     {
         margin-left: 0.3rem;
