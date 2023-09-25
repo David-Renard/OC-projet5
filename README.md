@@ -12,27 +12,33 @@ Here is the review of code by Codacy (on develop branch): [![Codacy Badge](https
 *   Utilisation de Twig comme moteur de templating
 *   Partie publique :
   *   Accueil :
-    *   Présentation,
-    *   Formulaire de contact.
+    
+      *   Présentation,
+      *   Formulaire de contact.
   *   Page des posts :
-    *   Ensemble des posts publiés (avec pagination),
-    *   Détail du post.
+        
+      *   Ensemble des posts publiés (avec pagination),
+      *   Détail du post.
   *   Page de détail d'un post :
-    *   Ensemble des éléments d'un post,
-    *   Formulaire d'ajout de commentaires (si utilisateur connecté).
+
+      *   Ensemble des éléments d'un post,
+      *   Formulaire d'ajout de commentaires (si utilisateur connecté).
   *   Connexion (si utilisateur non connecté)
   *   Déconnexion (si utilisateur connecté)
   *   Inscription
 *   Partie administration :
   *   Gestion des posts :
-    *   Suppression,
-    *   Modification (des éléments du posts et/ou de l'auteur),
-    *   Ajout.
+
+      *   Suppression,
+      *   Modification (des éléments du posts et/ou de l'auteur),
+      *   Ajout.
   *   Gestion des commentaires :
-    *   Modération des commentaires (par post).
+
+      *   Modération des commentaires (par post).
   *   Gestion des utilisateurs (accessible uniquement pour le super-admin) :
-    *   Changement de rôle d'un utilisateur,
-    *   Suppression d'un utilisateur.
+
+      *   Changement de rôle d'un utilisateur,
+      *   Suppression d'un utilisateur.
 *   Gestion de la sécurité
 
 ## Installation
@@ -47,3 +53,8 @@ Here is the review of code by Codacy (on develop branch): [![Codacy Badge](https
 6.  The user is "root" and the password is "".
 7.  You have now to install composer at the root of this project by typing the command "composer install".
 8.  Your project should now be ready !
+
+You can user project by connecting with :
+*   superadmin@gmail.com / ABC!abc2 (all access)
+*   admin@gmail.com / ABC!abc1 (no access to user admin)
+*   user@gmail.com / ABC!abc0 (no admin access)

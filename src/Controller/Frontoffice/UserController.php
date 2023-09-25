@@ -111,7 +111,7 @@ class UserController
                     && $isEmailConfValid
                     && $isEmailConfirmOk
                     && $isPasswordConfirmOk
-                    && $isEmailTaken === false
+                    && $isEmailTaken === null
                 ) {
                     $user = new User();
                     $user->setName($name);
