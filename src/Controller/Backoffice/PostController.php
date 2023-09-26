@@ -112,7 +112,7 @@ class PostController
                     && $isTitleOk
                     && $isLedeOk
                     && $isContentOk
-                    && $isTitleTaken === false
+                    && $isTitleTaken === null
                 ) {
                     $post = new Post();
                     $post->setTitle($title);
@@ -201,8 +201,8 @@ class PostController
                 $isModifiedBy = $request->request()->get('updateAuthor');
 
                 $isTitleTaken = $this->postRepository->findOneBy(['title' => $title]);
-                if (empty($isTitleTaken) === false
-                    && $isTitleTaken->getId() === intval($idPost)
+                if ($isTitleTaken === null
+                    || $isTitleTaken->getId() === intval($idPost)
                 ) {
                     $isTitleTaken = false;
                 }
