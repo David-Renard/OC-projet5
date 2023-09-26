@@ -23,24 +23,14 @@ class SendEmail
     {
         $mail = new PHPMailer();
         $mail->isSMTP();
-//        $mail->Host = 'smtp-mail.outlook.com';
         $mail->Host = 'localhost';
-//        $mail->SMTPAuth = 1;
         $mail->CharSet = 'UTF-8';
-//        $mail->Port = 587;
         $mail->Port = 1025;
-        $mail->SMTPDebug = 4;
+//        $mail->SMTPDebug = 4;
 
         $mail->setFrom($from, 'contact');
         $mail->FromName = $fromName;
         $mail->addAddress('contact_davidr@gmail.com','Contact');
-
-//        if($mail->SMTPAuth){
-//            $mail->SMTPSecure = 'tls';
-//            $mail->Username = $from;
-//            $mail->Password = 'david365+';
-//        }
-
 
         $htmlBody = $this->twig->render("mail/contactmail.html.twig", [
             'subject' => $subject,
