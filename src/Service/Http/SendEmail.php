@@ -9,6 +9,8 @@ use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
+use Symfony\Component\Dotenv\Dotenv;
+use App\Service\Environment as DotEnvironment;
 
 class SendEmail
 {
@@ -21,16 +23,24 @@ class SendEmail
 
     public function sendMail(string $from, string $fromName, string $subject, string $body): void
     {
+        $dotenv = new Dotenv();
+        $getEnv = new DotEnvironment($dotenv);
+
         $mail = new PHPMailer();
         $mail->isSMTP();
-        $mail->Host = 'localhost';
+
+        $host = $getEnv->getEnv('MAIL_HOST');
+        $port = $getEnv->getEnv('MAIL_PORT');
+        $contactAddress = $getEnv->getEnv('MAIL_ADDRESS');
+
+        $mail->Host = $host;
+        $mail->Port = $port;
         $mail->CharSet = 'UTF-8';
-        $mail->Port = 1025;
 //        $mail->SMTPDebug = 4;
 
         $mail->setFrom($from, 'contact');
         $mail->FromName = $fromName;
-        $mail->addAddress('contact_davidr@gmail.com','Contact');
+        $mail->addAddress($contactAddress,'Contact');
 
         $htmlBody = $this->twig->render("mail/contactmail.html.twig", [
             'subject' => $subject,
