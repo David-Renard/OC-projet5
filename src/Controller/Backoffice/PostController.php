@@ -186,7 +186,7 @@ class PostController
 
         $updateAuthor = $this->session->get('user');
         $idPost = $request->query()->get('id');
-        $post = $this->postRepository->find((int)$idPost);
+        $post = $this->postRepository->find((int) $idPost);
         $originalAuthor = $post->getIdAuthor();
 
         if ($request->getMethod() === 'GET'
