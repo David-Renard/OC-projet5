@@ -187,8 +187,13 @@ class PostController
         $updateAuthor = $this->session->get('user');
         $idPost = $request->query()->get('id');
         $post = $this->postRepository->find((int) $idPost);
-        $originalAuthor = $post->getIdAuthor();
 
+        if ($post === null) {
+            $this->session->addFlashes('error', 'Ce post n\'existe pas ou plus. Vous avez été redirigé vers l\'ensemble des posts.');
+            $response->redirect('?action=adminposts');
+        }
+//        var_dump($post);die;
+        $originalAuthor = $post->getIdAuthor();
         if ($request->getMethod() === 'GET'
             && $request->query()->get('action') === 'adminupdatepost'
         ) {
