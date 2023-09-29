@@ -10,6 +10,9 @@
         {% for flash in flashes.info %}
             <p class="text-primary fw-bold text-center">{{ flash }}</p>
         {% endfor %}
+        {% for flash in flashes.error %}
+            <p class="text-danger fw-bold text-center">{{ flash }}</p>
+        {% endfor %}
         <h1 class="fs-4 text-center my-5">Gestion des posts</h1>
         <div class="d-flex justify-content-center mt-4">
             <button onclick="window.location.href = 'index.php?action=adminpostadd';" class="btn btn-primary">Ajouter un post</button>
