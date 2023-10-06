@@ -192,7 +192,7 @@ class PostController
             $this->session->addFlashes('error', 'Ce post n\'existe pas ou plus. Vous avez été redirigé vers l\'ensemble des posts.');
             $response->redirect('?action=adminposts');
         }
-//        var_dump($post);die;
+
         $originalAuthor = $post->getIdAuthor();
         if ($request->getMethod() === 'GET'
             && $request->query()->get('action') === 'adminupdatepost'

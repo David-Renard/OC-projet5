@@ -8,11 +8,6 @@ use Symfony\Component\Dotenv\Dotenv;
 class DatabaseConnection
 {
 
-//    public string $host = 'mysql:host=localhost:3306;dbname=blog;charset=utf8';
-//
-//    public string $user = 'root';
-//    public string $password = '';
-//
     public ?\PDO $database = null;
     public function getConnection():\PDO {
 
