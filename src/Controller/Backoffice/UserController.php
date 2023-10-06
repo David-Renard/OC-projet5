@@ -6,6 +6,7 @@ namespace App\Controller\Backoffice;
 
 use App\Model\Repository\PostRepository;
 use App\Model\Entity\Post;
+use App\Service\Environment;
 use App\Service\FormValidator\LoginFormValidator;
 use App\View\View;
 use App\Service\Http\Request;
@@ -14,6 +15,7 @@ use App\Model\Repository\UserRepository;
 use App\Model\Entity\User;
 use App\Service\Http\Session\Session;
 use App\Service\Token;
+use Symfony\Component\Dotenv\Dotenv;
 
 class UserController
 {
@@ -125,6 +127,11 @@ class UserController
 
             if ($userPost != []) {
                 foreach ($userPost as $currentPost) {
+                    $dotenv = new Dotenv();
+                    $getEnv = new Environment($dotenv);
+
+                    $anonymizedId = (int) $getEnv->getEnv('ANONYMOUS_USER_ID');
+
                     $post = new Post();
                     $post->setId($currentPost->getId());
                     $post->setTitle($currentPost->getTitle());
@@ -132,8 +139,7 @@ class UserController
                     $post->setContent($currentPost->getContent());
                     $post->setLastUpdateDate($currentPost->getUpdateDate());
                     $post->setCreationDate($currentPost->getCreationDate());
-                    $post->setIdAuthor(32);
-//                    var_dump($post);die;
+                    $post->setIdAuthor($anonymizedId);
                     $postRepository->update($post);
                 }
             }
